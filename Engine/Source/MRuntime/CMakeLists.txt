@@ -1,0 +1,18 @@
+set(TARGET_NAME MiniEngineRuntime)
+
+file(GLOB_RECURSE RUNTIME_HEADERS CONFIGURE_DEPENDS "*.h")
+file(GLOB_RECURSE RUNTIME_SOURCES CONFIGURE_DEPENDS "*.cpp")
+
+add_library(${TARGET_NAME} ${RUNTIME_HEADERS} ${RUNTIME_SOURCES})
+
+target_include_directories(
+        ${TARGET_NAME}
+        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Source>
+        $<INSTALL_INTERFACE:${TARGET_NAME}-${PROJECT_VERSION}>
+)
+
+target_include_directories(
+        ${TARGET_NAME}
+        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Source/MRuntime>
+        $<INSTALL_INTERFACE:${TARGET_NAME}-${PROJECT_VERSION}>
+)

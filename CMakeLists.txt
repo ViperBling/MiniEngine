@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.19)
+
+project(MiniEngine VERSION 0.1.0)
+
+set(CMAKE_CXX_STANDARD 20)
+#set(CMAKE_CXX_STANDARD_REQUIRED on)
+set(BUILD_SHARED_LIBS OFF)
+
+set(MINIENGINE_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_subdirectory(Engine)
