@@ -5,6 +5,8 @@ file(GLOB_RECURSE RUNTIME_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
 add_library(${TARGET_NAME} ${RUNTIME_HEADERS} ${RUNTIME_SOURCES})
 
+target_link_libraries(${TARGET_NAME} PUBLIC glfw)
+
 target_include_directories(
         ${TARGET_NAME}
         PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Source>

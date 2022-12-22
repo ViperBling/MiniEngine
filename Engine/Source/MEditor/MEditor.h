@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "MEngine.h"
+#include "MEditorUI.h"
 
 namespace MiniEngine
 {
@@ -13,6 +16,7 @@ namespace MiniEngine
         void Finalize();
 
     protected:
+        std::shared_ptr<MEditorUI> mEditorUI;
         MEngine* mEngineRuntime = nullptr;
     };
 }

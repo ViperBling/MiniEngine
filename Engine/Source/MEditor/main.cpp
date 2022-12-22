@@ -10,9 +10,9 @@ int main(int argc, char* argv[])
 
     // 初始化
     MiniEngine::MEngine* Engine =
-        new MiniEngine::MEngine(configFilePath.generic_string());
+        new MiniEngine::MEngine();
 
-    Engine->Initialize();
+    Engine->Initialize(configFilePath.generic_string());
 
     // 创建编辑器
     MiniEngine::MEditor* Editor = new MiniEngine::MEditor();
