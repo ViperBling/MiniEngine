@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Function/Render/WindowSystem.h"
+#include "Function/Render/RenderSystem.h"
 
 namespace MiniEngine
 {
@@ -14,6 +15,7 @@ namespace MiniEngine
         void ShutdownSystems();
 
         std::shared_ptr<WindowSystem> mWindowsSystem;
+        std::shared_ptr<RenderSystem> mRenderSystem;
     };
 
     extern RuntimeGlobalContext runtimeGlobalContext;

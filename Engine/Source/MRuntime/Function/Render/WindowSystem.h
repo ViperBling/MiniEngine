@@ -1,6 +1,8 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <array>
 
 namespace MiniEngine
 {
@@ -20,6 +22,9 @@ namespace MiniEngine
         void SetTitle(const char* title) { glfwSetWindowTitle(mWindow, title); }
         static void PollEvents() { glfwPollEvents(); }
         bool ShouldClose() { return glfwWindowShouldClose(mWindow); }
+
+        GLFWwindow* GetWindow() const { return mWindow; };
+        std::array<int, 2> GetWindowSize() const { return std::array<int, 2>({mWidth, mHeight}); }
 
     private:
         GLFWwindow* mWindow = nullptr;
