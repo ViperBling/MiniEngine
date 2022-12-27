@@ -10,7 +10,7 @@ namespace MiniEngine
     class MEditor
     {
     public:
-        MEditor();
+
         void Initialize(MEngine* engineRuntime);
         void Run();
         void Finalize();

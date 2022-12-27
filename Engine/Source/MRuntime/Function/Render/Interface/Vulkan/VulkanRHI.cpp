@@ -215,7 +215,7 @@ namespace MiniEngine
                 if (physicalDeviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
                     score = 1000;
                 else if (physicalDeviceProp.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
-                    score == 100;
+                    score = 100;
 
                 rankedPhysicalDevices.push_back({score, device});
             }

@@ -4,7 +4,7 @@
 
 namespace MiniEngine
 {
-    RuntimeGlobalContext runtimeGlobalContext;
+    RuntimeGlobalContext gRuntimeGlobalContext;
 
     void RuntimeGlobalContext::StartSystems(const std::string &configFilePath) {
 
@@ -16,7 +16,7 @@ namespace MiniEngine
         // 初始化渲染系统
         mRenderSystem = std::make_shared<RenderSystem>();
         RenderSystemInitInfo renderSystemInitInfo;
-        renderSystemInitInfo.windowSystem = mWindowsSystem;
+        renderSystemInitInfo.mWindowSystem = mWindowsSystem;
         mRenderSystem->Initialize(renderSystemInitInfo);
     }
 

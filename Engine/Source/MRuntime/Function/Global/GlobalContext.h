@@ -18,5 +18,5 @@ namespace MiniEngine
         std::shared_ptr<RenderSystem> mRenderSystem;
     };
 
-    extern RuntimeGlobalContext runtimeGlobalContext;
+    extern RuntimeGlobalContext gRuntimeGlobalContext;
 }

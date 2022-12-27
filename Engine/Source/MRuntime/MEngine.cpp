@@ -8,7 +8,7 @@ namespace MiniEngine
 {
     void MEngine::Initialize(const std::string& configFilePath) {
 
-        runtimeGlobalContext.StartSystems(configFilePath);
+        gRuntimeGlobalContext.StartSystems(configFilePath);
     }
 
     void MEngine::Finalize() {}
@@ -28,13 +28,13 @@ namespace MiniEngine
 
     bool MEngine::Tick(float deltaTime) {
 
-        runtimeGlobalContext.mWindowsSystem->SetTitle(
+        gRuntimeGlobalContext.mWindowsSystem->SetTitle(
             std::string("MiniEngine - " /*+std::to_string(getFPS())+" FPS"*/).c_str()
             );
 
-        runtimeGlobalContext.mWindowsSystem->PollEvents();
+        gRuntimeGlobalContext.mWindowsSystem->PollEvents();
 
-        return !runtimeGlobalContext.mWindowsSystem->ShouldClose();
+        return !gRuntimeGlobalContext.mWindowsSystem->ShouldClose();
     }
 }
 

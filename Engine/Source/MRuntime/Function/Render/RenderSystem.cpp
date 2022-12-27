@@ -7,9 +7,9 @@ namespace MiniEngine
     void RenderSystem::Initialize(RenderSystemInitInfo initInfo) {
 
         RHIInitInfo rhiInitInfo;
-        rhiInitInfo.windowSystem = initInfo.windowSystem;
+        rhiInitInfo.windowSystem = initInfo.mWindowSystem;
 
-        rhi = std::make_shared<VulkanRHI>();
-        rhi->Initialize(rhiInitInfo);
+        mRHI = std::make_shared<VulkanRHI>();
+        mRHI->Initialize(rhiInitInfo);
     }
 }

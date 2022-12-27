@@ -9,7 +9,7 @@ namespace MiniEngine
 {
     struct RenderSystemInitInfo
     {
-        std::shared_ptr<WindowSystem> windowSystem;
+        std::shared_ptr<WindowSystem> mWindowSystem;
     };
 
     class RenderSystem
@@ -18,6 +18,6 @@ namespace MiniEngine
         void Initialize(RenderSystemInitInfo initInfo);
 
     private:
-        std::shared_ptr<RHI> rhi;
+        std::shared_ptr<RHI> mRHI;
     };
 }

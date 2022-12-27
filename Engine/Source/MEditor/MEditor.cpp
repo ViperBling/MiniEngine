@@ -6,15 +6,13 @@
 
 using namespace MiniEngine;
 
-MEditor::MEditor() {};
-
 void MEditor::Initialize(MEngine* engineRuntime) {
 
     assert(engineRuntime);
     this->mEngineRuntime = engineRuntime;
 
     mEditorUI = std::make_shared<MEditorUI>();
-    WindowUIInitInfo uiInitInfo = {runtimeGlobalContext.mWindowsSystem};
+    WindowUIInitInfo uiInitInfo = {gRuntimeGlobalContext.mWindowsSystem};
     mEditorUI->Initialize(uiInitInfo);
 }
 

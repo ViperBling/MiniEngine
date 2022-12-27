@@ -4,8 +4,14 @@ set(THIRD_PARTY_DIR "${ENGINE_ROOT_DIR}/ThirdParty")
 # 设置Vulkan
 set(vulkan_include ${THIRD_PARTY_DIR}/VulkanSDK/include)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options("/MP")   # enable parallel compilation
+    set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MiniEngineEditor)
+endif()
+
 if(WIN32) # 对于不同平台拥有不同设置
     set(vulkan_lib ${THIRD_PARTY_DIR}/VulkanSDK/lib/Win32/vulkan-1.lib)
+    # 使用glslangValidator编译shader
     set(glslangValidator_executable ${THIRD_PARTY_DIR}/VulkanSDK/bin/Win32/glslangValidator.exe)
     add_compile_definitions("MINIENGINE_VK_LAYER_PATH=${THIRD_PARTY_DIR}/VulkanSDK/bin/Win32")
     message(NOTICE "Use Win32 Vulkan")
@@ -24,6 +30,8 @@ else()
     message(FATAL_ERROR "Unknown Platform")
 endif()
 
+set(SHADER_COMPILE_TARGET MiniEngineShaderCompile)
+add_subdirectory(Shader)
 
 add_subdirectory(ThirdParty)
 
