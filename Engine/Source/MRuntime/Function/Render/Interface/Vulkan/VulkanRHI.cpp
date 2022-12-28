@@ -17,7 +17,10 @@ namespace MiniEngine
         mWindow = initInfo.windowSystem->GetWindow();
         std::array<int, 2> windowSize = initInfo.windowSystem->GetWindowSize();
 
-        mViewport = {0.0f, 0.0f, static_cast<float>(windowSize[0]), static_cast<float>(windowSize[1]), 0.0f, 0.0f};
+        // 视口初始化（详见视口变换与裁剪坐标）
+        mViewport = {0.0f, 0.0f, static_cast<float>(windowSize[0]), static_cast<float>(windowSize[1]), 0.0f, 1.0f};
+        // 裁剪坐标初始化
+        mScissor = {{0, 0}, {static_cast<uint32_t>(windowSize[0]), static_cast<uint32_t>(windowSize[1])}};
 
         // 是否启用Debug
 #ifndef NDEBUG
@@ -508,5 +511,65 @@ namespace MiniEngine
 
             return actualExtent;
         }
+    }
+
+    RHIShader *VulkanRHI::CreateShaderModule(const std::vector<unsigned char> &shaderCode) {
+
+        RHIShader* shader = new VulkanShader();
+        VkShaderModule vkShader = VulkanUtil::CreateShaderModule(mDevice, shaderCode);
+        static_cast<VulkanShader*>(shader)->SetResource(vkShader);
+
+        return shader;
+    }
+
+    bool VulkanRHI::CreateGraphicsPipeline(
+        RHIPipelineCache *pipelineCache, uint32_t createInfoCnt,
+        const RHIGraphicsPipelineCreateInfo *pCreateInfo, RHIPipeline *&pPipelines) {
+
+        // TODO: implement
+        // int pipeline_shader_stage_create_info_size = pCreateInfo->stageCount;
+        // //
+        // 要使用着色器，我们需要通过VkPipelineShaderStageCreateInfo结构体把它们分配到图形渲染管线上的某一阶段，作为管线创建过程的一部分
+        // std::vector<VkPipelineShaderStageCreateInfo> vk_pipeline_shader_stage_create_info_list(
+        //     pipeline_shader_stage_create_info_size);
+
+        return RHI_SUCCESS;
+    }
+
+    bool VulkanRHI::CreatePiplineLayout(
+        const RHIPipelineLayoutCreateInfo *pCreateInfo,
+        RHIPipelineLayout *&pPipelineLayout) {
+
+        // TODO
+        VkPipelineLayoutCreateInfo createInfo {};
+        createInfo.sType = static_cast<VkStructureType>(pCreateInfo->sType);
+        createInfo.pNext          = pCreateInfo->pNext;
+        createInfo.flags          = static_cast<VkPipelineLayoutCreateFlags>(pCreateInfo->flags);
+        createInfo.setLayoutCount = pCreateInfo->setLayoutCount;
+        createInfo.pSetLayouts    = nullptr; // TODO: layout descriptor
+
+        pPipelineLayout = new VulkanPipelineLayout();
+        VkPipelineLayout vkPipelineLayout;
+        VkResult result = vkCreatePipelineLayout(mDevice, &createInfo, nullptr, &vkPipelineLayout);
+        static_cast<VulkanPipelineLayout*>(pPipelineLayout)->SetResource(vkPipelineLayout);
+
+        if (result != VK_SUCCESS) {
+            LOG_ERROR("Failed to create Vulkan pipeline layout!");
+            return false;
+        }
+
+        return RHI_SUCCESS;
+    }
+
+    RHISwapChainDesc VulkanRHI::GetSwapChainInfo() {
+
+        RHISwapChainDesc desc;
+        desc.imageFormat = mSwapChainImageFormat;
+        desc.extent = mSwapChainExtent;
+        desc.viewport = &mViewport;
+        desc.scissor = &mScissor;
+        desc.imageViews = mSwapChainImageViews;
+
+        return desc;
     }
 }

@@ -7,9 +7,6 @@
 #include "vulkan/vulkan_core.h"
 #include "GLFW/glfw3.h"
 
-#include <vk_mem_alloc.h>
-#include <vulkan/vulkan.h>
-
 #include "Function/Render/Interface/RHI.h"
 #include "Function/Render/Interface/RHIStruct.h"
 #include "Function/Render/RenderType.h"
@@ -19,11 +16,23 @@ namespace MiniEngine
     class VulkanRHI final : public RHI
     {
     public:
-        virtual void Initialize(RHIInitInfo initInfo) override final;
+        void Initialize(RHIInitInfo initInfo) final;
 
         void Extracted(VkExtent2D& chosenExtent);
         void CreateSwapChain() override;
         void CreateSwapChainImageViews() override;
+        RHIShader* CreateShaderModule(const std::vector<unsigned char>& shaderCode) override;
+        bool CreateGraphicsPipeline(
+            RHIPipelineCache*                    pipelineCache,
+            uint32_t                             createInfoCnt,
+            const RHIGraphicsPipelineCreateInfo* pCreateInfo,
+            RHIPipeline*&                        pPipelines) override;
+        bool CreatePiplineLayout(
+            const RHIPipelineLayoutCreateInfo* pCreateInfo,
+            RHIPipelineLayout*&                pPipelineLayout) override;
+
+        // Query
+        RHISwapChainDesc GetSwapChainInfo() override;
 
     private:
         void createInstance();
@@ -58,6 +67,7 @@ namespace MiniEngine
         RHIExtent2D mSwapChainExtent;                               // 交换链图片范围
         std::vector<RHIImageView*> mSwapChainImageViews;            // 图像的视图：描述如何访问图像以及访问图像的哪一部分
         RHIViewport mViewport;
+        RHIRect2D mScissor;
 
         QueueFamilyIndices mQueueIndices;                           // 队列家族索引
 

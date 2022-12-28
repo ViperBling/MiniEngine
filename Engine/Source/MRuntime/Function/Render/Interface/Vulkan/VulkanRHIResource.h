@@ -24,4 +24,24 @@ namespace MiniEngine
     private:
         VkImageView mResource;
     };
+
+    class VulkanShader : public RHIShader
+    {
+    public:
+        void SetResource(VkShaderModule res) { mResource = res; }
+        VkShaderModule GetResource() const { return mResource; }
+
+    private:
+        VkShaderModule mResource;
+    };
+
+    class VulkanPipelineLayout : public RHIPipelineLayout {
+    public:
+        void SetResource(VkPipelineLayout res) { mResource = res; }
+
+        VkPipelineLayout GetResource() const { return mResource; }
+
+    private:
+        VkPipelineLayout mResource;
+    };
 }

@@ -429,3 +429,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Engine/Shader/generated/spv/DebugDraw.frag.spv
+/Engine/Shader/generated/spv/DebugDraw.vert.spv
+/Engine/Shader/generated/cpp/DebugDraw_frag.h
+/Engine/Shader/generated/cpp/DebugDraw_vert.h

@@ -1151,7 +1151,7 @@ namespace MiniEngine
     struct RHISwapChainDesc
     {
         RHIExtent2D                extent;
-        RHIFormat                  image_format;
+        RHIFormat                  imageFormat;
         RHIViewport*               viewport;
         RHIRect2D*                 scissor;
         std::vector<RHIImageView*> imageViews;

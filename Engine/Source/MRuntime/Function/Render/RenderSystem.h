@@ -16,6 +16,7 @@ namespace MiniEngine
     {
     public:
         void Initialize(RenderSystemInitInfo initInfo);
+        std::shared_ptr<RHI> GetRHI() const { return mRHI; }
 
     private:
         std::shared_ptr<RHI> mRHI;

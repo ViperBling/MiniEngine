@@ -1,6 +1,6 @@
-﻿#include "Core/Base/Marco.h"
-
-#include "VulkanUtil.h"
+﻿#include "VulkanUtil.h"
+#include "Core/Base/Marco.h"
+#include "vulkan/vulkan_core.h"
 
 namespace MiniEngine
 {
@@ -25,11 +25,29 @@ namespace MiniEngine
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0; // 暂时不考虑多图层
         imageViewCreateInfo.subresourceRange.layerCount     = layoutCount;
 
-        VkImageView image_view;
-        if (vkCreateImageView(device, &imageViewCreateInfo, nullptr, &image_view) != VK_SUCCESS)
+        VkImageView imageView;
+        if (vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView) != VK_SUCCESS) {
             LOG_ERROR("Failed to create image views!");
+            return VK_NULL_HANDLE;
+        }
 
-        return image_view;
+        return imageView;
+    }
+
+    VkShaderModule VulkanUtil::CreateShaderModule(VkDevice device, const std::vector<unsigned char> &shaderCode) {
+
+        VkShaderModuleCreateInfo shaderModuleCreateInfo {};
+        shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        shaderModuleCreateInfo.codeSize = shaderCode.size();
+        shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
+
+        VkShaderModule shaderModule;
+        if (vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+            LOG_ERROR("Failed to create shader module!");
+            return VK_NULL_HANDLE;
+        }
+
+        return shaderModule;
     }
 }
 

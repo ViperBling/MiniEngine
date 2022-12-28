@@ -18,6 +18,10 @@ namespace MiniEngine
         RenderSystemInitInfo renderSystemInitInfo;
         renderSystemInitInfo.mWindowSystem = mWindowsSystem;
         mRenderSystem->Initialize(renderSystemInitInfo);
+
+        // 初始化调试渲染管理器
+        mDebugDrawManager = std::make_shared<DebugDrawManager>();
+        mDebugDrawManager->Initialize();
     }
 
     void RuntimeGlobalContext::ShutdownSystems() {}

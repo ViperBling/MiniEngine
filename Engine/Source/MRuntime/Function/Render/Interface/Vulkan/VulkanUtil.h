@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "vulkan/vulkan_core.h"
 
 namespace MiniEngine
@@ -16,8 +18,9 @@ namespace MiniEngine
             uint32_t                layoutCount,
             uint32_t                mipLevels
             );
-    };
 
+        static VkShaderModule CreateShaderModule(VkDevice device, const std::vector<unsigned char>& shaderCode);
+    };
 }
 
 
