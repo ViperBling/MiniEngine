@@ -31,6 +31,9 @@ namespace MiniEngine
             const RHIPipelineLayoutCreateInfo* pCreateInfo,
             RHIPipelineLayout*&                pPipelineLayout) override;
 
+        virtual bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
+        virtual bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
+
         // Query
         RHISwapChainDesc GetSwapChainInfo() override;
 
@@ -40,6 +43,9 @@ namespace MiniEngine
         void createWindowSurface();
         void initializePhysicalDevice();
         void createLogicDevice();
+
+        void createCommandPool();
+        void createCommandBuffers();
 
         bool checkValidationLayersSupport();
         std::vector<const char*> getRequiredExtensions();
@@ -61,6 +67,8 @@ namespace MiniEngine
         VkExtent2D chooseSwapChainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities);
 
     private:
+        static uint8_t const mkMaxFramesInFlight {1};
+
         RHIQueue* mGraphicsQueue {nullptr};                         // 图形队列句柄
 
         RHIFormat mSwapChainImageFormat {RHI_FORMAT_UNDEFINED};     // 交换链图片格式
@@ -68,6 +76,8 @@ namespace MiniEngine
         std::vector<RHIImageView*> mSwapChainImageViews;            // 图像的视图：描述如何访问图像以及访问图像的哪一部分
         RHIViewport mViewport;
         RHIRect2D mScissor;
+
+        RHICommandBuffer* mCommandBuffers[mkMaxFramesInFlight];
 
         QueueFamilyIndices mQueueIndices;                           // 队列家族索引
 
@@ -78,8 +88,14 @@ namespace MiniEngine
         VkDevice            mDevice {nullptr};                      // 逻辑设备
         VkQueue             mPresentQueue {nullptr};
 
+        RHICommandPool* mRHICommandPool;                            // 命令池
+
         VkSwapchainKHR          mSwapChain {nullptr};               // 交换链句柄
         std::vector<VkImage>    mSwapChainImages;                   // 交换链图像句柄
+
+        // Command Pool and Buffers
+        VkCommandPool mCommandPools[mkMaxFramesInFlight];
+        VkCommandBuffer mVkCommandBuffers[mkMaxFramesInFlight];
 
         bool bEnableValidationLayers {true};                        // 启用验证层
         bool bEnableDebugUtilsLabel {true};

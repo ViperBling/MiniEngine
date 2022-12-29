@@ -35,7 +35,8 @@ namespace MiniEngine
         VkShaderModule mResource;
     };
 
-    class VulkanPipelineLayout : public RHIPipelineLayout {
+    class VulkanPipelineLayout : public RHIPipelineLayout
+    {
     public:
         void SetResource(VkPipelineLayout res) { mResource = res; }
 
@@ -43,5 +44,65 @@ namespace MiniEngine
 
     private:
         VkPipelineLayout mResource;
+    };
+
+    class VulkanRenderPass : public RHIRenderPass
+    {
+    public:
+        void SetResource(VkRenderPass res) { mResource = res; }
+        VkRenderPass GetResource() const { return mResource; }
+
+    private:
+        VkRenderPass mResource;
+    };
+
+    class VulkanPipeline : public RHIPipeline
+    {
+    public:
+        void SetResource(VkPipeline res) { mResource = res; }
+        VkPipeline GetResource() const { return mResource; }
+
+    private:
+        VkPipeline mResource;
+    };
+
+    class VulkanPipelineCache : public RHIPipelineCache
+    {
+    public:
+        void SetResource(VkPipelineCache res) { mResource = res; }
+        VkPipelineCache GetResource() const { return mResource; }
+
+    private:
+        VkPipelineCache mResource;
+    };
+
+    class VulkanFrameBuffer : public RHIFrameBuffer
+    {
+    public:
+        void SetResource(VkFramebuffer res) { mResource = res; }
+        VkFramebuffer GetResource() const { return mResource; }
+
+    private:
+        VkFramebuffer mResource;
+    };
+
+    class VulkanCommandPool : public RHICommandPool
+    {
+    public:
+        void SetResource(VkCommandPool res) { mResource = res; }
+        VkCommandPool GetResource() const { return mResource; }
+
+    private:
+        VkCommandPool mResource;
+    };
+
+    class VulkanCommandBuffer : public RHICommandBuffer
+    {
+    public:
+        void SetResource(VkCommandBuffer res) { mResource = res; }
+        VkCommandBuffer GetResource() const { return mResource; }
+
+    private:
+        VkCommandBuffer mResource;
     };
 }

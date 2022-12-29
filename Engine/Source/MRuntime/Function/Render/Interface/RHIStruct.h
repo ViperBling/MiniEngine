@@ -38,7 +38,7 @@ namespace MiniEngine
     {};
     class RHIFence
     {};
-    class RHIFramebuffer
+    class RHIFrameBuffer
     {};
     class RHIImage
     {};
@@ -340,7 +340,7 @@ namespace MiniEngine
         const void*                    pNext;
         RHIRenderPass*                 renderPass;
         uint32_t                       subpass;
-        RHIFramebuffer*                framebuffer;
+        RHIFrameBuffer*                framebuffer;
         RHIBool32                      occlusionQueryEnable;
         RHIQueryControlFlags           queryFlags;
         RHIQueryPipelineStatisticFlags pipelineStatistics;
@@ -1109,7 +1109,7 @@ namespace MiniEngine
         RHIStructureType     sType;
         const void*          pNext;
         RHIRenderPass*       renderPass;
-        RHIFramebuffer*      framebuffer;
+        RHIFrameBuffer*      framebuffer;
         RHIRect2D            renderArea;
         uint32_t             clearValueCount;
         const RHIClearValue* pClearValues;

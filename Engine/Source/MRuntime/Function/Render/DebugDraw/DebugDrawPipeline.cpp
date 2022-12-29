@@ -11,17 +11,56 @@ namespace MiniEngine
     void DebugDrawPipeline::Initialize() {
 
         mRHI = gRuntimeGlobalContext.mRenderSystem->GetRHI();
+
+        SetupRenderPass();
         SetupPipelines();
+        SetupFrameBuffers();
     }
 
     void DebugDrawPipeline::SetupRenderPass() {
 
+        // discribe the color attachment
         RHIAttachmentDescription colorAttachmentDesc {};
-        colorAttachmentDesc.format = mRHI->GetSwapChainInfo().imageFormat;
+
+        colorAttachmentDesc.format  = mRHI->GetSwapChainInfo().imageFormat;    // should be equal to swapchain
+        colorAttachmentDesc.samples = RHI_SAMPLE_COUNT_1_BIT;                 // now just need one sample
+        // before render pass, clear the data(color/depth) in the buffer
+        colorAttachmentDesc.loadOp = RHI_ATTACHMENT_LOAD_OP_CLEAR;
+        // after render pass, store the data from buffer to the memory
+        colorAttachmentDesc.storeOp        = RHI_ATTACHMENT_STORE_OP_STORE;
+        colorAttachmentDesc.stencilLoadOp  = RHI_ATTACHMENT_LOAD_OP_DONT_CARE; // not using the stencil
+        colorAttachmentDesc.stencilStoreOp = RHI_ATTACHMENT_STORE_OP_DONT_CARE;
+        // not care about the image initally(before render pass)
+        colorAttachmentDesc.initialLayout = RHI_IMAGE_LAYOUT_UNDEFINED;
+        // present the image finally(after render pass)
+        colorAttachmentDesc.finalLayout = RHI_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        // set the subpass attachment reference
+        RHIAttachmentReference colorAttachmentReference {};
+        colorAttachmentReference.attachment = 0;
+        colorAttachmentReference.layout     = RHI_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // optimize the conversion
+
+        // describe one of the render pass's subpass behavior
+        RHISubpassDescription subpass {};
+        subpass.pipelineBindPoint = RHI_PIPELINE_BIND_POINT_GRAPHICS; // explicitly claim that this is graphics subpass
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments    = &colorAttachmentReference;
+
+        // create the render pass
+        RHIRenderPassCreateInfo renderPassCreateInfo {};
+        renderPassCreateInfo.sType           = RHI_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassCreateInfo.attachmentCount = 1;
+        renderPassCreateInfo.pAttachments    = &colorAttachmentDesc;
+        renderPassCreateInfo.subpassCount    = 1;
+        renderPassCreateInfo.pSubpasses      = &subpass;
+
+        if (mRHI->CreateRenderPass(&renderPassCreateInfo, mFrameBuffer.render_pass) != RHI_SUCCESS)
+            LOG_ERROR("RHI failed to create RenderPass!");
     }
 
     void DebugDrawPipeline::SetupPipelines() {
 
+        // using glsl shader
         RHIShader* VSModule = mRHI->CreateShaderModule(DEBUGDRAW_VERT);
         RHIShader* PSModule = mRHI->CreateShaderModule(DEBUGDRAW_FRAG);
 
@@ -36,7 +75,7 @@ namespace MiniEngine
         RHIPipelineShaderStageCreateInfo PSPipelineShaderStageCreateInfo {};
         PSPipelineShaderStageCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         PSPipelineShaderStageCreateInfo.stage = RHI_SHADER_STAGE_FRAGMENT_BIT;    // using in vertex stage
-        PSPipelineShaderStageCreateInfo.module = VSModule;                      // set module(SPIR-V code)
+        PSPipelineShaderStageCreateInfo.module = PSModule;                      // set module(SPIR-V code)
         PSPipelineShaderStageCreateInfo.pName = "main";                         // SPIR-V program entry
 
         RHIPipelineShaderStageCreateInfo shaderStages[] = {
@@ -45,18 +84,18 @@ namespace MiniEngine
         };
 
         // set vertex input information
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+        RHIPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {};
+        vertexInputStateCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
+        vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
+        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
 
         // set vertex input assembly rule
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // 在花第一个三角形时，直接选这个选项
-        inputAssembly.primitiveRestartEnable = VK_FALSE; // 不进行图元重启（就画个三角形没必要）
+        RHIPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+        inputAssembly.sType = RHI_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        inputAssembly.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // 在画第一个三角形时，直接选这个选项
+        inputAssembly.primitiveRestartEnable = RHI_FALSE; // 不进行图元重启（就画个三角形没必要）
 
         // set viewport & scissor change stage information
         RHIPipelineViewportStateCreateInfo viewportStateCreateInfo {};
@@ -138,6 +177,63 @@ namespace MiniEngine
         mRenderPipelines.resize(1);
         if (mRHI->CreatePiplineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) {
             LOG_ERROR("Failed to create RHI pipeline layout");
+        }
+
+        RHIGraphicsPipelineCreateInfo pipelineCreateInfo {};
+        pipelineCreateInfo.sType = RHI_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        // fill the shader stages
+        pipelineCreateInfo.stageCount = 2;
+        pipelineCreateInfo.pStages    = shaderStages;
+        // fill the fixed function parts
+        pipelineCreateInfo.pVertexInputState   = &vertexInputStateCreateInfo;
+        pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
+        pipelineCreateInfo.pViewportState      = &viewportStateCreateInfo;
+        pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
+        pipelineCreateInfo.pMultisampleState   = &msStateCreateInfo;
+        pipelineCreateInfo.pDepthStencilState  = nullptr;
+        pipelineCreateInfo.pColorBlendState    = &colorBlendStateCreateInfo;
+        pipelineCreateInfo.pDynamicState       = &dynamicStateCreateInfo;
+        // fill the pipeline layout
+        pipelineCreateInfo.layout = mRenderPipelines[0].layout;
+        // fill the render pass
+        pipelineCreateInfo.renderPass = mFrameBuffer.render_pass;
+        pipelineCreateInfo.subpass    = 0; // subpass index
+        // set the derivative pipeline reference
+        pipelineCreateInfo.basePipelineHandle = RHI_NULL_HANDLE; // not used
+        pipelineCreateInfo.basePipelineIndex  = -1;              // illegal index
+
+        // select pipeline type
+        if (mPipelineType == DebugDrawPipelineType::triangle)
+            inputAssembly.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+
+        // create the pipeline
+        if (mRHI->CreateGraphicsPipeline(RHI_NULL_HANDLE, 1, &pipelineCreateInfo, mRenderPipelines[0].pipeline) !=
+            RHI_SUCCESS)
+            LOG_ERROR("Failed to create debug draw graphics pipeline");
+    }
+
+    void DebugDrawPipeline::SetupFrameBuffers() {
+
+        // every image view has its own framebuffer
+        const std::vector<RHIImageView*>&& imageViews = mRHI->GetSwapChainInfo().imageViews;
+        // store framebuffer
+        mFrameBuffer.framebuffers.resize(imageViews.size());
+
+        for (size_t i = 0; i < mFrameBuffer.framebuffers.size(); i++) {
+            RHIImageView* attachments[] = {imageViews[i]};
+
+            RHIFramebufferCreateInfo framebufferCreateInfo {};
+            framebufferCreateInfo.sType = RHI_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            // specify which render pass to should be compatible with the frame buffer
+            framebufferCreateInfo.renderPass      = mFrameBuffer.render_pass;
+            framebufferCreateInfo.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
+            framebufferCreateInfo.pAttachments    = attachments;
+            framebufferCreateInfo.width           = mRHI->GetSwapChainInfo().extent.width;
+            framebufferCreateInfo.height          = mRHI->GetSwapChainInfo().extent.height;
+            framebufferCreateInfo.layers          = 1;
+
+            if (mRHI->CreateFrameBuffer(&framebufferCreateInfo, mFrameBuffer.framebuffers[i]) != RHI_SUCCESS)
+                LOG_ERROR("create inefficient pick framebuffer");
         }
     }
 }

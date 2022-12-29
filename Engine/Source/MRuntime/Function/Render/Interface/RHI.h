@@ -32,6 +32,9 @@ namespace MiniEngine
             const RHIPipelineLayoutCreateInfo* pCreateInfo,
             RHIPipelineLayout*& pPipelineLayout)                                            = 0;
 
+        virtual bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) = 0;
+        virtual bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFramebuffer) = 0;
+
         virtual RHISwapChainDesc GetSwapChainInfo() = 0;
     };
 }
