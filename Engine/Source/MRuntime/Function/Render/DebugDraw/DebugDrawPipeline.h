@@ -12,11 +12,11 @@ namespace MiniEngine
         RHIFormat        format;
     };
 
-    struct DebugDrawFramebuffer
+    struct DebugDrawFrameBuffer
     {
         int            width;
         int            height;
-        RHIRenderPass* render_pass = nullptr;
+        RHIRenderPass* renderPass = nullptr;
 
         std::vector<RHIFrameBuffer*>                framebuffers;
         std::vector<DebugDrawFrameBufferAttachment> attachments;
@@ -40,6 +40,8 @@ namespace MiniEngine
         explicit DebugDrawPipeline(DebugDrawPipelineType pipelineType) { mPipelineType = pipelineType; }
         void Initialize();
         DebugDrawPipelineType GetPipelineType() const { return mPipelineType; }
+        const DebugDrawFrameBuffer& GetFrameBuffer() const { return mFrameBuffer; }
+        const DebugDrawPipelineBase& GetPipeline() const { return mRenderPipelines[0]; }
 
     private:
         void SetupRenderPass();
@@ -50,7 +52,7 @@ namespace MiniEngine
         DebugDrawPipelineType mPipelineType;
         // RHIDescriptorSetLayout*            mDescriptorLayout; // 管线布局描述器
         std::vector<DebugDrawPipelineBase> mRenderPipelines; // 渲染管线
-        DebugDrawFramebuffer mFrameBuffer;
+        DebugDrawFrameBuffer mFrameBuffer;
         std::shared_ptr<RHI>               mRHI;
     };
 }

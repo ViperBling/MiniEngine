@@ -10,6 +10,7 @@
 #include "VulkanRHIResource.h"
 #include "VulkanUtil.h"
 #include "vulkan/vulkan_core.h"
+#include "Function/Render/RenderType.h"
 
 namespace MiniEngine
 {
@@ -50,10 +51,12 @@ namespace MiniEngine
         CreateSwapChainImageViews();
         createCommandPool();
         createCommandBuffers();
+        createSyncPrimitive();
     }
 
-    void VulkanRHI::Extracted(VkExtent2D &chosenExtent) {
-
+    void VulkanRHI::PrepareContext() {
+        mVkCurrentCommandBuffer = mVkCommandBuffers[mCurrentFrameIndex];
+        static_cast<VulkanCommandBuffer*>(mCurrentCommandBuffer)->SetResource(mVkCurrentCommandBuffer);
     }
 
     void VulkanRHI::CreateSwapChain() {
@@ -141,7 +144,7 @@ namespace MiniEngine
     void VulkanRHI::createInstance() {
 
         if (bEnableValidationLayers && !checkValidationLayersSupport()) {
-            LOG_ERROR("Validation Layers Requested, But not available!");
+            LOG_ERROR("Vulkan Validation Layers Requested, But not available!");
         }
         mVulkanAPIVersion = VK_API_VERSION_1_0;
 
@@ -289,6 +292,23 @@ namespace MiniEngine
         static_cast<VulkanQueue*>(mGraphicsQueue)->SetResource(vkGraphicsQueue); // 绑定资源
 
         vkGetDeviceQueue(mDevice, mQueueIndices.presentFamily.value(), 0, &mPresentQueue);
+
+        // create some function pointers that may not be available in some devices
+        pfnVkBeginCommandBuffer =
+            reinterpret_cast<PFN_vkBeginCommandBuffer>(vkGetDeviceProcAddr(mDevice, "vkBeginCommandBuffer"));
+        pfnVkEndCommandBuffer =
+            reinterpret_cast<PFN_vkEndCommandBuffer>(vkGetDeviceProcAddr(mDevice, "vkEndCommandBuffer"));
+        pfnVkCmdBeginRenderPass =
+            reinterpret_cast<PFN_vkCmdBeginRenderPass>(vkGetDeviceProcAddr(mDevice, "vkCmdBeginRenderPass"));
+        pfnVkCmdEndRenderPass =
+            reinterpret_cast<PFN_vkCmdEndRenderPass>(vkGetDeviceProcAddr(mDevice, "vkCmdEndRenderPass"));
+        pfnVkCmdBindPipeline =
+            reinterpret_cast<PFN_vkCmdBindPipeline>(vkGetDeviceProcAddr(mDevice, "vkCmdBindPipeline"));
+        pfnVkCmdSetViewport =
+            reinterpret_cast<PFN_vkCmdSetViewport>(vkGetDeviceProcAddr(mDevice, "vkCmdSetViewport"));
+        pfnVkCmdSetScissor = reinterpret_cast<PFN_vkCmdSetScissor>(vkGetDeviceProcAddr(mDevice, "vkCmdSetScissor"));
+        pfnVkWaitForFences = reinterpret_cast<PFN_vkWaitForFences>(vkGetDeviceProcAddr(mDevice, "vkWaitForFences"));
+        pfnVkResetFences = reinterpret_cast<PFN_vkResetFences>(vkGetDeviceProcAddr(mDevice, "vkResetFences"));
     }
 
     // 创建命令池，用于管理命令缓存的内存
@@ -336,6 +356,34 @@ namespace MiniEngine
             mCommandBuffers[i] = new VulkanCommandBuffer();
 
             static_cast<VulkanCommandBuffer*>(mCommandBuffers[i])->SetResource(vkCommandBuffer);
+        }
+    }
+
+    // 创造同步元：信号量与栅栏
+    // semaphore : signal an image is ready for rendering // ready for presentation
+    // (m_vulkan_context._swapchain_images --> semaphores, fences)
+    void VulkanRHI::createSyncPrimitive() {
+
+        // sem: thread will wait for another thread signal specific sem (it makes it > 0);
+        VkSemaphoreCreateInfo semaphoreCreateInfo {};
+        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        // thread will stop until the work(be fenced) has done
+        VkFenceCreateInfo fenceCreateInfo {};
+        fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        // the fence is initialized as signaled to allow the first frame to be renderded
+        fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        for (uint32_t i = 0; i < mkMaxFramesInFlight; i++)
+        {
+            if (vkCreateSemaphore(
+                mDevice, &semaphoreCreateInfo, nullptr, &mImageAvailableForRenderSemaphore[i]) !=
+                VK_SUCCESS ||
+                vkCreateSemaphore(
+                    mDevice, &semaphoreCreateInfo, nullptr, &mImageFinishedForPresentationSemaphore[i]) !=
+                VK_SUCCESS ||
+                vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mIsFrameInFlightFences[i]) != VK_SUCCESS)
+                LOG_ERROR("Vulkan failed to  create semaphore");
         }
     }
 
@@ -928,6 +976,24 @@ namespace MiniEngine
             return false;
         }
 
+        // specify the subpass dependency
+        std::vector<VkSubpassDependency> vkSubpassDepandecy(pCreateInfo->dependencyCount);
+        for (int i = 0; i < pCreateInfo->dependencyCount; ++i)
+        {
+            const auto& rhiDesc = pCreateInfo->pDependencies[i];
+            auto&       vkDesc  = vkSubpassDepandecy[i];
+
+            vkDesc.srcSubpass = rhiDesc.srcSubpass; // which will be depended on
+            vkDesc.dstSubpass = rhiDesc.dstSubpass; // which has dependency
+            // in which stage will to depend on happen
+            vkDesc.srcStageMask = static_cast<VkPipelineStageFlags>((rhiDesc).srcStageMask);
+            vkDesc.dstStageMask = static_cast<VkPipelineStageFlags>((rhiDesc).dstStageMask);
+            // which operation needs dependency
+            vkDesc.srcAccessMask   = static_cast<VkAccessFlags>((rhiDesc).srcAccessMask);
+            vkDesc.dstAccessMask   = static_cast<VkAccessFlags>((rhiDesc).dstAccessMask);
+            vkDesc.dependencyFlags = static_cast<VkDependencyFlags>((rhiDesc).dependencyFlags);
+        };
+
         // render pass convert
         VkRenderPassCreateInfo createInfo {};
         createInfo.sType           = static_cast<VkStructureType>(pCreateInfo->sType);
@@ -935,6 +1001,8 @@ namespace MiniEngine
         createInfo.pAttachments    = vkAttachments.data();
         createInfo.subpassCount    = pCreateInfo->subpassCount;
         createInfo.pSubpasses      = vkSubpassDesc.data();
+        createInfo.dependencyCount = pCreateInfo->dependencyCount;
+        createInfo.pDependencies   = vkSubpassDepandecy.data();
 
         pRenderPass = new VulkanRenderPass();
         VkRenderPass vkRenderPass;
@@ -987,6 +1055,177 @@ namespace MiniEngine
         return RHI_SUCCESS;
     }
 
+    void
+    VulkanRHI::CmdBeginRenderPassPFN(
+        RHICommandBuffer *commandBuffer,
+        const RHIRenderPassBeginInfo *pRenderPassBegin,
+        RHISubpassContents contents) {
+
+        // TODO
+        VkOffset2D offset2D {};
+        offset2D.x = pRenderPassBegin->renderArea.offset.x;
+        offset2D.y = pRenderPassBegin->renderArea.offset.y;
+
+        VkExtent2D extent2D {};
+        extent2D.width = pRenderPassBegin->renderArea.extent.width;
+        extent2D.height = pRenderPassBegin->renderArea.extent.height;
+
+        VkRect2D rect2D {};
+        rect2D.offset = offset2D;
+        rect2D.extent = extent2D;
+
+        // clear_values
+        int clearValueSize = pRenderPassBegin->clearValueCount;
+        std::vector<VkClearValue> vkClearValueList(clearValueSize);
+        for (int i = 0; i < clearValueSize; ++i)
+        {
+            const auto& rhiClearValueElement = pRenderPassBegin->pClearValues[i];
+            auto&       vkClearValueElement  = vkClearValueList[i];
+
+            VkClearColorValue vkClearColorValue;
+            vkClearColorValue.float32[0] = rhiClearValueElement.color.float32[0];
+            vkClearColorValue.float32[1] = rhiClearValueElement.color.float32[1];
+            vkClearColorValue.float32[2] = rhiClearValueElement.color.float32[2];
+            vkClearColorValue.float32[3] = rhiClearValueElement.color.float32[3];
+            vkClearColorValue.int32[0]   = rhiClearValueElement.color.int32[0];
+            vkClearColorValue.int32[1]   = rhiClearValueElement.color.int32[1];
+            vkClearColorValue.int32[2]   = rhiClearValueElement.color.int32[2];
+            vkClearColorValue.int32[3]   = rhiClearValueElement.color.int32[3];
+            vkClearColorValue.uint32[0]  = rhiClearValueElement.color.uint32[0];
+            vkClearColorValue.uint32[1]  = rhiClearValueElement.color.uint32[1];
+            vkClearColorValue.uint32[2]  = rhiClearValueElement.color.uint32[2];
+            vkClearColorValue.uint32[3]  = rhiClearValueElement.color.uint32[3];
+
+            VkClearDepthStencilValue vkClearDepthStencilValue;
+            vkClearDepthStencilValue.depth   = rhiClearValueElement.depthStencil.depth;
+            vkClearDepthStencilValue.stencil = rhiClearValueElement.depthStencil.stencil;
+
+            vkClearValueElement.color        = vkClearColorValue;
+            vkClearValueElement.depthStencil = vkClearDepthStencilValue;
+        };
+
+        VkRenderPassBeginInfo vkRenderPassBeginInfo {};
+        vkRenderPassBeginInfo.sType = static_cast<VkStructureType>(pRenderPassBegin->sType);
+        vkRenderPassBeginInfo.pNext = pRenderPassBegin->pNext;
+        vkRenderPassBeginInfo.renderPass =
+            static_cast<VulkanRenderPass*>(pRenderPassBegin->renderPass)->GetResource();
+        vkRenderPassBeginInfo.framebuffer =
+            static_cast<VulkanFrameBuffer*>(pRenderPassBegin->framebuffer)->GetResource();
+        vkRenderPassBeginInfo.renderArea      = rect2D; // where the shader effects
+        vkRenderPassBeginInfo.clearValueCount = pRenderPassBegin->clearValueCount;
+        vkRenderPassBeginInfo.pClearValues    = vkClearValueList.data();
+
+        return pfnVkCmdBeginRenderPass(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            &vkRenderPassBeginInfo,
+            static_cast<VkSubpassContents>(contents)
+            );
+    }
+
+    void VulkanRHI::CmdBindPipelinePFN(
+        RHICommandBuffer *commandBuffer,
+        RHIPipelineBindPoint pipelineBindPoint,
+        RHIPipeline *pipeline) {
+
+        return pfnVkCmdBindPipeline(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            static_cast<VkPipelineBindPoint>(pipelineBindPoint),
+            static_cast<VulkanPipeline*>(pipeline)->GetResource()
+            );
+    }
+
+    void VulkanRHI::CmdDraw(
+        RHICommandBuffer *commandBuffer,
+        uint32_t vertexCount,
+        uint32_t instanceCount,
+        uint32_t firstVertex,
+        uint32_t firstInstance) {
+
+        vkCmdDraw(static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+                  vertexCount,
+                  instanceCount,
+                  firstVertex,
+                  firstInstance);
+    }
+
+    void VulkanRHI::CmdEndRenderPassPFN(RHICommandBuffer *commandBuffer) {
+
+        return pfnVkCmdEndRenderPass(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource());
+    }
+
+    void VulkanRHI::CmdSetViewportPFN(
+        RHICommandBuffer *commandBuffer,
+        uint32_t firstViewport,
+        uint32_t viewportCount,
+        const RHIViewport *pViewports) {
+
+        // viewport
+        int viewportSize = viewportCount;
+        std::vector<VkViewport> vkViewportList(viewportSize);
+        for (int i = 0; i < viewportSize; i++) {
+
+            const auto& rhiViewportElement = pViewports[i];
+            auto&       vkViewportElement  = vkViewportList[i];
+
+            vkViewportElement.x        = rhiViewportElement.x;
+            vkViewportElement.y        = rhiViewportElement.y;
+            vkViewportElement.width    = rhiViewportElement.width;
+            vkViewportElement.height   = rhiViewportElement.height;
+            vkViewportElement.minDepth = rhiViewportElement.minDepth;
+            vkViewportElement.maxDepth = rhiViewportElement.maxDepth;
+        }
+        return pfnVkCmdSetViewport(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            firstViewport,
+            viewportCount,
+            vkViewportList.data()
+            );
+    }
+
+    void VulkanRHI::CmdSetScissorPFN(
+        RHICommandBuffer *commandBuffer,
+        uint32_t firstScissor,
+        uint32_t scissorCount,
+        const RHIRect2D *pScissors) {
+
+        // rect_2d
+        int rect2DSize = scissorCount;
+        std::vector<VkRect2D> vkRect2DList(rect2DSize);
+        for (int i = 0; i < rect2DSize; ++i)
+        {
+            const auto& rhiRect2DElement = pScissors[i];
+            auto&       vkRect2DElement  = vkRect2DList[i];
+
+            VkOffset2D offset2D {};
+            offset2D.x = rhiRect2DElement.offset.x;
+            offset2D.y = rhiRect2DElement.offset.y;
+
+            VkExtent2D extent2D {};
+            extent2D.width  = rhiRect2DElement.extent.width;
+            extent2D.height = rhiRect2DElement.extent.height;
+
+            vkRect2DElement.offset = VkOffset2D(offset2D);
+            vkRect2DElement.extent = VkExtent2D(extent2D);
+        };
+
+        return pfnVkCmdSetScissor(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            firstScissor,
+            scissorCount,
+            vkRect2DList.data());
+    }
+
+    void VulkanRHI::WaitForFences() {
+
+        if (pfnVkWaitForFences(
+            mDevice, 1,
+            &mIsFrameInFlightFences[mCurrentFrameIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
+
+            LOG_ERROR("Vulkan failed to synchronize fences!");
+        }
+    }
+
     RHISwapChainDesc VulkanRHI::GetSwapChainInfo() {
 
         RHISwapChainDesc desc;
@@ -998,4 +1237,98 @@ namespace MiniEngine
 
         return desc;
     }
+
+    RHICommandBuffer* VulkanRHI::GetCurrentCommandBuffer() const {
+        return mCurrentCommandBuffer;
+    }
+
+    bool VulkanRHI::PrepareBeforePass() {
+
+        // acquire next image from swapchain
+        VkResult acquireImageResult = vkAcquireNextImageKHR(
+            mDevice,
+            mSwapChain,
+            UINT64_MAX,
+            mImageAvailableForRenderSemaphore[mCurrentFrameIndex],
+            VK_NULL_HANDLE,
+            &mCurrentSwapChainImageIndex);
+
+        // begin command buffer
+        VkCommandBufferBeginInfo commandBufferBeginInfo {};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        // allow to resubmit command buffer even if it is already in waiting list
+        commandBufferBeginInfo.flags            = RHI_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+        commandBufferBeginInfo.pInheritanceInfo = nullptr;
+
+        if (pfnVkBeginCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], &commandBufferBeginInfo) != VK_SUCCESS) {
+            LOG_ERROR("Vulkan failed to begin recording command buffer!");
+            return false;
+        }
+        return RHI_SUCCESS;
+    }
+
+    void VulkanRHI::SubmitRendering() {
+
+        // end command buffer
+        if (pfnVkEndCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex]) != VK_SUCCESS)
+        {
+            LOG_ERROR("Vulkan EndCommandBuffer failed!");
+            return;
+        }
+
+        // submit command buffer
+        // signal(semaphore[])
+        VkSemaphore signalSemaphores[] = {mImageFinishedForPresentationSemaphore[mCurrentFrameIndex]};
+        // wait for color attachment output
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        VkSubmitInfo         submitInfo   = {};
+        submitInfo.sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.waitSemaphoreCount     = 1;
+        submitInfo.pWaitSemaphores        = &mImageAvailableForRenderSemaphore[mCurrentFrameIndex];
+        submitInfo.pWaitDstStageMask      = waitStages;
+        submitInfo.commandBufferCount     = 1;
+        submitInfo.pCommandBuffers        = &mVkCommandBuffers[mCurrentFrameIndex];
+        submitInfo.signalSemaphoreCount   = 1;
+        submitInfo.pSignalSemaphores      = signalSemaphores;
+
+        if (pfnVkResetFences(mDevice, 1, &mIsFrameInFlightFences[mCurrentFrameIndex]) != VK_SUCCESS) {
+
+            // reset fence state(unsignaled)
+            LOG_ERROR("Vulkan ResetFences failed!");
+            return;
+        }
+
+        // submit info(command buffer) to graphics queue family
+        if (vkQueueSubmit(
+            static_cast<VulkanQueue*>(mGraphicsQueue)->GetResource(),
+            1,
+            &submitInfo,
+            // submit finished, allow another render
+            mIsFrameInFlightFences[mCurrentFrameIndex]) != VK_SUCCESS) {
+
+            LOG_ERROR("Vulkan QueueSubmit failed!");
+            return;
+        }
+
+        // present swapchain
+        VkPresentInfoKHR presentInfo   = {};
+        presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores    = &mImageFinishedForPresentationSemaphore[mCurrentFrameIndex];
+        presentInfo.swapchainCount     = 1;
+        presentInfo.pSwapchains        = &mSwapChain;
+        presentInfo.pImageIndices      = &mCurrentSwapChainImageIndex;
+
+        if (vkQueuePresentKHR(mPresentQueue, &presentInfo) != VK_SUCCESS)
+        {
+            LOG_ERROR("Vulkan QueuePresent failed!");
+            return;
+        }
+
+        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mkMaxFramesInFlight;
+    }
+
+
+
+
 }

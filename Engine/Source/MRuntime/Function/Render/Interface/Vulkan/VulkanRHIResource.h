@@ -105,4 +105,14 @@ namespace MiniEngine
     private:
         VkCommandBuffer mResource;
     };
+
+    class VulkanSemaphore : public RHISemaphore
+    {
+    public:
+        void SetResource(VkSemaphore res) { mResource = res; }
+        VkSemaphore& GetResource() { return mResource; }
+
+    private:
+        VkSemaphore mResource;
+    };
 }

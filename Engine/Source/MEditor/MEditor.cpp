@@ -20,12 +20,12 @@ void MEditor::Run() {
 
     assert(mEngineRuntime);
     assert(mEditorUI);
+    float DeltaTime = 0;
 
-    while (true) {
-
-        float deltaTime = mEngineRuntime->CalculateDeltaTime();
-        if (!mEngineRuntime->Tick(deltaTime)) return;
-    }
+    do
+    {
+        DeltaTime = mEngineRuntime->CalculateDeltaTime();
+    } while (mEngineRuntime->Tick(DeltaTime));
 }
 
 void MEditor::Finalize() {}

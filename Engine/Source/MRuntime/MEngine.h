@@ -17,6 +17,9 @@ namespace MiniEngine
         bool Tick(float deltaTime);
 
     protected:
+        bool RenderTick(float DeltaTime);
+
+    protected:
         std::chrono::steady_clock::time_point mTimePointLast = std::chrono::steady_clock::now();    // 上个时间点
     };
 } // namespace MiniEngine

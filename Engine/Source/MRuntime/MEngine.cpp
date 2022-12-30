@@ -28,13 +28,21 @@ namespace MiniEngine
 
     bool MEngine::Tick(float deltaTime) {
 
+        RenderTick(deltaTime);
+
         gRuntimeGlobalContext.mWindowsSystem->SetTitle(
             std::string("MiniEngine - " /*+std::to_string(getFPS())+" FPS"*/).c_str()
             );
-
+        // 检查有没有触发什么事件（比如键盘输入、鼠标移动等）、更新窗口状态，并调用对应的回调函数
         gRuntimeGlobalContext.mWindowsSystem->PollEvents();
 
         return !gRuntimeGlobalContext.mWindowsSystem->ShouldClose();
+    }
+
+    bool MEngine::RenderTick(float DeltaTime) {
+
+        gRuntimeGlobalContext.mRenderSystem->Tick(DeltaTime);
+        return true;
     }
 }
 

@@ -46,6 +46,17 @@ namespace MiniEngine
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments    = &colorAttachmentReference;
 
+        // specify the subpass dependency
+        RHISubpassDependency dependencies[1] = {};
+        RHISubpassDependency& debugDrawDependency = dependencies[0];
+        debugDrawDependency.srcSubpass            = RHI_SUBPASS_EXTERNAL; // before render pass
+        debugDrawDependency.dstSubpass            = 0;
+        debugDrawDependency.srcStageMask          = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        debugDrawDependency.dstStageMask          = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        debugDrawDependency.srcAccessMask         = 0;
+        debugDrawDependency.dstAccessMask         = RHI_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        debugDrawDependency.dependencyFlags       = 0; // NOT BY REGION
+
         // create the render pass
         RHIRenderPassCreateInfo renderPassCreateInfo {};
         renderPassCreateInfo.sType           = RHI_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -53,8 +64,10 @@ namespace MiniEngine
         renderPassCreateInfo.pAttachments    = &colorAttachmentDesc;
         renderPassCreateInfo.subpassCount    = 1;
         renderPassCreateInfo.pSubpasses      = &subpass;
+        renderPassCreateInfo.dependencyCount = 1;
+        renderPassCreateInfo.pDependencies   = dependencies;
 
-        if (mRHI->CreateRenderPass(&renderPassCreateInfo, mFrameBuffer.render_pass) != RHI_SUCCESS)
+        if (mRHI->CreateRenderPass(&renderPassCreateInfo, mFrameBuffer.renderPass) != RHI_SUCCESS)
             LOG_ERROR("RHI failed to create RenderPass!");
     }
 
@@ -196,7 +209,7 @@ namespace MiniEngine
         // fill the pipeline layout
         pipelineCreateInfo.layout = mRenderPipelines[0].layout;
         // fill the render pass
-        pipelineCreateInfo.renderPass = mFrameBuffer.render_pass;
+        pipelineCreateInfo.renderPass = mFrameBuffer.renderPass;
         pipelineCreateInfo.subpass    = 0; // subpass index
         // set the derivative pipeline reference
         pipelineCreateInfo.basePipelineHandle = RHI_NULL_HANDLE; // not used
@@ -225,7 +238,7 @@ namespace MiniEngine
             RHIFramebufferCreateInfo framebufferCreateInfo {};
             framebufferCreateInfo.sType = RHI_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
             // specify which render pass to should be compatible with the frame buffer
-            framebufferCreateInfo.renderPass      = mFrameBuffer.render_pass;
+            framebufferCreateInfo.renderPass      = mFrameBuffer.renderPass;
             framebufferCreateInfo.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
             framebufferCreateInfo.pAttachments    = attachments;
             framebufferCreateInfo.width           = mRHI->GetSwapChainInfo().extent.width;
