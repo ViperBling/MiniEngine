@@ -17,54 +17,58 @@ namespace MiniEngine
     class VulkanRHI final : public RHI
     {
     public:
-        void Initialize(RHIInitInfo initInfo) final;
-        void PrepareContext() override final;
+        void Initialize(RHIInitInfo initInfo) override ;
+        void PrepareContext() override;
 
-        virtual void CreateSwapChain() override;
-        virtual void CreateSwapChainImageViews() override;
-        virtual RHIShader* CreateShaderModule(const std::vector<unsigned char>& shaderCode) override;
-        virtual bool CreateGraphicsPipeline(
+        void CreateSwapChain() override;
+        void CreateSwapChainImageViews() override;
+        RHIShader* CreateShaderModule(const std::vector<unsigned char>& shaderCode) override;
+        bool CreateGraphicsPipeline(
             RHIPipelineCache*                    pipelineCache,
             uint32_t                             createInfoCnt,
             const RHIGraphicsPipelineCreateInfo* pCreateInfo,
             RHIPipeline*&                        pPipelines) override;
-        virtual bool CreatePiplineLayout(
+        bool CreatePiplineLayout(
             const RHIPipelineLayoutCreateInfo* pCreateInfo,
             RHIPipelineLayout*&                pPipelineLayout) override;
 
-        virtual bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
-        virtual bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
+        bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
+        bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
 
         // command and command write
-        virtual void CmdBeginRenderPassPFN(RHICommandBuffer*             commandBuffer,
-                                           const RHIRenderPassBeginInfo* pRenderPassBegin,
-                                           RHISubpassContents            contents) override;
-        virtual void CmdBindPipelinePFN(RHICommandBuffer*    commandBuffer,
-                                        RHIPipelineBindPoint pipelineBindPoint,
-                                        RHIPipeline*         pipeline) override;
-        virtual void CmdDraw(RHICommandBuffer* commandBuffer,
-                             uint32_t          vertexCount,
-                             uint32_t          instanceCount,
-                             uint32_t          firstVertex,
-                             uint32_t          firstInstance) override;
-        virtual void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) override;
-        void         CmdSetViewportPFN(RHICommandBuffer*  commandBuffer,
-                                       uint32_t           firstViewport,
-                                       uint32_t           viewportCount,
-                                       const RHIViewport* pViewports) override;
+        void CmdBeginRenderPassPFN(
+            RHICommandBuffer*             commandBuffer,
+            const RHIRenderPassBeginInfo* pRenderPassBegin,
+            RHISubpassContents            contents) override;
+        void CmdBindPipelinePFN(
+            RHICommandBuffer*    commandBuffer,
+            RHIPipelineBindPoint pipelineBindPoint,
+            RHIPipeline*         pipeline) override;
+        void CmdDraw(
+            RHICommandBuffer* commandBuffer,
+            uint32_t          vertexCount,
+            uint32_t          instanceCount,
+            uint32_t          firstVertex,
+            uint32_t          firstInstance) override;
+        void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) override;
+        void CmdSetViewportPFN(
+            RHICommandBuffer*  commandBuffer,
+            uint32_t           firstViewport,
+            uint32_t           viewportCount,
+            const RHIViewport* pViewports) override;
         void         CmdSetScissorPFN(RHICommandBuffer* commandBuffer,
                                       uint32_t          firstScissor,
                                       uint32_t          scissorCount,
                                       const RHIRect2D*  pScissors) override;
-        virtual void WaitForFences() override;
+        void WaitForFences() override;
 
         // Query
         RHISwapChainDesc GetSwapChainInfo() override;
-        virtual RHICommandBuffer* GetCurrentCommandBuffer() const override;
+        RHICommandBuffer* GetCurrentCommandBuffer() const override;
 
         // command write
-        virtual bool PrepareBeforePass() override;
-        virtual void SubmitRendering() override;
+        bool PrepareBeforePass() override;
+        void SubmitRendering() override;
 
     public:
         static uint8_t const mkMaxFramesInFlight {1};               // 最大同时渲染的图片数量
@@ -156,7 +160,7 @@ namespace MiniEngine
         VkDebugUtilsMessengerEXT mDebugMessenger {nullptr};
 
         const std::vector<char const*> mValidationLayers {"VK_LAYER_KHRONOS_validation"};
-        uint32_t mVulkanAPIVersion {VK_API_VERSION_1_0};
+        uint32_t mVulkanAPIVersion {VK_API_VERSION_1_1};
 
         // 交换链插件：等待着被显示到屏幕上的图像的队列
         std::vector<char const*> mDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};

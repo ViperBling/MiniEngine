@@ -45,20 +45,23 @@ namespace MiniEngine
             RHICommandBuffer*    commandBuffer,
             RHIPipelineBindPoint pipelineBindPoint,
             RHIPipeline*         pipeline) = 0;
-        virtual void CmdDraw(RHICommandBuffer* commandBuffer,
-                             uint32_t          vertexCount,
-                             uint32_t          instanceCount,
-                             uint32_t          firstVertex,
-                             uint32_t          firstInstance)             = 0;
+        virtual void CmdDraw(
+            RHICommandBuffer* commandBuffer,
+            uint32_t          vertexCount,
+            uint32_t          instanceCount,
+            uint32_t          firstVertex,
+            uint32_t          firstInstance) = 0;
         virtual void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) = 0;
-        virtual void CmdSetViewportPFN(RHICommandBuffer*  commandBuffer,
-                                       uint32_t           firstViewport,
-                                       uint32_t           viewportCount,
-                                       const RHIViewport* pViewports)     = 0;
-        virtual void CmdSetScissorPFN(RHICommandBuffer* commandBuffer,
-                                      uint32_t          firstScissor,
-                                      uint32_t          scissorCount,
-                                      const RHIRect2D*  pScissors)        = 0;
+        virtual void CmdSetViewportPFN(
+            RHICommandBuffer*  commandBuffer,
+            uint32_t           firstViewport,
+            uint32_t           viewportCount,
+            const RHIViewport* pViewports) = 0;
+        virtual void CmdSetScissorPFN(
+            RHICommandBuffer* commandBuffer,
+            uint32_t          firstScissor,
+            uint32_t          scissorCount,
+            const RHIRect2D*  pScissors) = 0;
         virtual void WaitForFences() = 0;
 
         // query
