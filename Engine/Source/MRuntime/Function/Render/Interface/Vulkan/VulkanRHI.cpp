@@ -391,11 +391,9 @@ namespace MiniEngine
     bool VulkanRHI::checkValidationLayersSupport() {
 
         uint32_t layerCnt;
-        // 获得所有可用的层数
         vkEnumerateInstanceLayerProperties(&layerCnt, nullptr);
 
         std::vector<VkLayerProperties> availableLayers(layerCnt);
-        // 获得所有可用层属性填充到availableLayers中
         vkEnumerateInstanceLayerProperties(&layerCnt, availableLayers.data());
 
         for (const char* layerName : mValidationLayers) {
