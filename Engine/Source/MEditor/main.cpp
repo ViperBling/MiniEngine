@@ -9,13 +9,12 @@ int main(int argc, char* argv[])
     std::filesystem::path configFilePath = executablePath.parent_path();
 
     // 初始化
-    MiniEngine::MEngine* Engine =
-        new MiniEngine::MEngine();
+    auto Engine = new MiniEngine::MEngine();
 
     Engine->Initialize(configFilePath.generic_string());
 
     // 创建编辑器
-    MiniEngine::MEditor* Editor = new MiniEngine::MEditor();
+    auto Editor = new MiniEngine::MEditor();
     Editor->Initialize(Engine);
 
     // 引擎运行

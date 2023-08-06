@@ -6,7 +6,7 @@ namespace MiniEngine
 {
     void RenderPipeline::ForwardRender(std::shared_ptr<RHI> rhi, std::shared_ptr<RenderResourceBase> renderResource) {
 
-        VulkanRHI* vulkanRHI = static_cast<VulkanRHI*>(rhi.get());
+        auto vulkanRHI = static_cast<VulkanRHI*>(rhi.get());
 
         vulkanRHI->WaitForFences();
         if (!vulkanRHI->PrepareBeforePass()) {
