@@ -9,7 +9,8 @@ namespace MiniEngine
         auto vulkanRHI = static_cast<VulkanRHI*>(rhi.get());
 
         vulkanRHI->WaitForFences();
-        if (!vulkanRHI->PrepareBeforePass()) {
+        if (!vulkanRHI->PrepareBeforePass([this] { PassUpdateAfterRecreateSwapChain(); }))
+        {
             return;
         }
 
@@ -17,6 +18,11 @@ namespace MiniEngine
         mRHI->CmdSetScissorPFN(mRHI->GetCurrentCommandBuffer(), 0, 1, mRHI->GetSwapChainInfo().scissor);
 
         gRuntimeGlobalContext.mDebugDrawManager->Draw(vulkanRHI->mCurrentSwapChainImageIndex);
-        vulkanRHI->SubmitRendering();
+        vulkanRHI->SubmitRendering([this] { PassUpdateAfterRecreateSwapChain(); });
+    }
+
+    void RenderPipeline::PassUpdateAfterRecreateSwapChain()
+    {
+        gRuntimeGlobalContext.mDebugDrawManager->UpdateAfterRecreateSwapChain();
     }
 }

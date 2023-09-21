@@ -8,5 +8,6 @@ namespace MiniEngine
     {
     public:
         void ForwardRender(std::shared_ptr<RHI> rhi, std::shared_ptr<RenderResourceBase> renderResource) override;
+        void PassUpdateAfterRecreateSwapChain();
     };
 }

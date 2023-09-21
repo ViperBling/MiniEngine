@@ -128,8 +128,8 @@ namespace MiniEngine
 
         mSwapChainImageViews.resize(mSwapChainImages.size());
 
-        for (size_t i = 0; i < mSwapChainImages.size(); ++i) {
-
+        for (size_t i = 0; i < mSwapChainImages.size(); ++i) 
+        {
             VkImageView vkImageView;
             vkImageView = VulkanUtil::CreateImageView(
                 mDevice, mSwapChainImages[i], static_cast<VkFormat>(mSwapChainImageFormat),
@@ -186,8 +186,8 @@ namespace MiniEngine
     }
 
     // 启动验证层从而在debug版本中发现可能存在的错误
-    void VulkanRHI::InitializeDebugMessenger() {
-
+    void VulkanRHI::InitializeDebugMessenger() 
+    {
         if (bEnableValidationLayers) {
             VkDebugUtilsMessengerCreateInfoEXT create_info;
             populateDebugMessengerCreateInfo(create_info);
@@ -197,14 +197,14 @@ namespace MiniEngine
     }
 
     // 链接之前的glfw，使vulkan与当前运行平台窗口系统兼容
-    void VulkanRHI::createWindowSurface() {
-
+    void VulkanRHI::createWindowSurface() 
+    {
         if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) != VK_SUCCESS)
             LOG_ERROR("glfwCreateWindowSurface failed!");
     }
 
-    void VulkanRHI::initializePhysicalDevice() {
-
+    void VulkanRHI::initializePhysicalDevice() 
+    {
         uint32_t physicalDeviceCnt = 0;
         vkEnumeratePhysicalDevices(mInstance, &physicalDeviceCnt, nullptr);
         if (physicalDeviceCnt == 0) {
@@ -249,8 +249,8 @@ namespace MiniEngine
     }
 
     // 创建逻辑设备与准备队列，从而抽象你的物理设备为一些接口
-    void VulkanRHI::createLogicDevice() {
-
+    void VulkanRHI::createLogicDevice() 
+    {
         mQueueIndices = findQueueFamilies(mPhysicalDevice);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos; // all queues that need to be created
@@ -312,8 +312,8 @@ namespace MiniEngine
     }
 
     // 创建命令池，用于管理命令缓存的内存
-    void VulkanRHI::createCommandPool() {
-
+    void VulkanRHI::createCommandPool() 
+    {
         // graphics command pool
         // TODO
         {
@@ -333,8 +333,8 @@ namespace MiniEngine
     }
 
     // 创建命令缓冲
-    void VulkanRHI::createCommandBuffers() {
-
+    void VulkanRHI::createCommandBuffers() 
+    {
         // set the command buffer allocator information
         VkCommandBufferAllocateInfo commandBufferAllocateInfo {};
         commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -362,8 +362,8 @@ namespace MiniEngine
     // 创造同步元：信号量与栅栏
     // semaphore : signal an image is ready for rendering // ready for presentation
     // (m_vulkan_context._swapchain_images --> semaphores, fences)
-    void VulkanRHI::createSyncPrimitive() {
-
+    void VulkanRHI::createSyncPrimitive() 
+    {
         // sem: thread will wait for another thread signal specific sem (it makes it > 0);
         VkSemaphoreCreateInfo semaphoreCreateInfo {};
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -388,8 +388,8 @@ namespace MiniEngine
     }
 
     // 检查是否所有被请求的层都可用
-    bool VulkanRHI::checkValidationLayersSupport() {
-
+    bool VulkanRHI::checkValidationLayersSupport() 
+    {
         uint32_t layerCnt;
         vkEnumerateInstanceLayerProperties(&layerCnt, nullptr);
 
@@ -412,8 +412,8 @@ namespace MiniEngine
     }
 
     // 根据启用的验证层返回我们需要的插件列表(glfw)
-    std::vector<const char *> VulkanRHI::getRequiredExtensions() {
-
+    std::vector<const char *> VulkanRHI::getRequiredExtensions() 
+    {
         uint32_t  glfwExtensionCnt = 0;
         const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCnt);
 
@@ -431,14 +431,14 @@ namespace MiniEngine
         VkDebugUtilsMessageSeverityFlagBitsEXT,
         VkDebugUtilsMessageTypeFlagsEXT,
         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-        void*) {
-
+        void*) 
+    {
         std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
         return VK_FALSE;
     }
 
-    void VulkanRHI::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-
+    void VulkanRHI::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) 
+    {
         createInfo = {};
         createInfo.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         // 回调函数在何种严重等级下被触发
@@ -450,8 +450,11 @@ namespace MiniEngine
 
     // 创建Debug信使扩展对象
     VkResult VulkanRHI::createDebugUtilsMessengerEXT(
-        VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-        const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger) {
+        VkInstance instance, 
+        const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+        const VkAllocationCallbacks *pAllocator, 
+        VkDebugUtilsMessengerEXT *pDebugMessenger) 
+     {
 
         auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
@@ -462,8 +465,8 @@ namespace MiniEngine
         }
     }
 
-    QueueFamilyIndices VulkanRHI::findQueueFamilies(VkPhysicalDevice physicalDevice) {
-
+    QueueFamilyIndices VulkanRHI::findQueueFamilies(VkPhysicalDevice physicalDevice) 
+    {
         QueueFamilyIndices indices;
         uint32_t queueFamilyCnt = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCnt, nullptr);
@@ -495,8 +498,8 @@ namespace MiniEngine
         return indices;
     }
 
-    bool VulkanRHI::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice) {
-
+    bool VulkanRHI::checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice) 
+    {
         uint32_t extensionCnt;
         vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCnt, nullptr);
 
@@ -513,8 +516,8 @@ namespace MiniEngine
         return false;
     }
 
-    SwapChainSupportDetails VulkanRHI::querySwapChainSupport(VkPhysicalDevice physicalDevice) {
-
+    SwapChainSupportDetails VulkanRHI::querySwapChainSupport(VkPhysicalDevice physicalDevice) 
+    {
         SwapChainSupportDetails details;
 
         // capabilities
@@ -542,8 +545,8 @@ namespace MiniEngine
         return details;
     }
 
-    bool VulkanRHI::isDeviceSuitable(VkPhysicalDevice physicalDevice) {
-
+    bool VulkanRHI::isDeviceSuitable(VkPhysicalDevice physicalDevice) 
+    {
         // ①所需队列家族是否存在
         auto queueIndices = findQueueFamilies(physicalDevice);
 
@@ -561,8 +564,8 @@ namespace MiniEngine
     }
 
     // 选择可用交换链中最好的表面格式（色彩深度）
-    VkSurfaceFormatKHR VulkanRHI::chooseSwapChainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR> &availableSurfaceFormats) {
-
+    VkSurfaceFormatKHR VulkanRHI::chooseSwapChainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR> &availableSurfaceFormats) 
+    {
         for (const auto & surfaceFormat : availableSurfaceFormats)
         {
             // TODO: select the VK_FORMAT_B8G8R8A8_SRGB surface format,
@@ -575,8 +578,8 @@ namespace MiniEngine
     }
 
     // 选择可用交换链中最好的显示模式（在屏幕上“交换”图像的条件）
-    VkPresentModeKHR VulkanRHI::chooseSwapChainPresentModeFromDetails(const std::vector<VkPresentModeKHR> &availablePresentModes) {
-
+    VkPresentModeKHR VulkanRHI::chooseSwapChainPresentModeFromDetails(const std::vector<VkPresentModeKHR> &availablePresentModes) 
+    {
         for (VkPresentModeKHR presentMode : availablePresentModes) {
             if (VK_PRESENT_MODE_MAILBOX_KHR == presentMode) {
                 return VK_PRESENT_MODE_MAILBOX_KHR; // 最好模式为：三缓冲（需求更多显存，但延迟相对低）
@@ -586,9 +589,10 @@ namespace MiniEngine
         return VK_PRESENT_MODE_FIFO_KHR; // 默认情况为双缓冲：队列储存图像
     }
 
-    VkExtent2D VulkanRHI::chooseSwapChainExtentFromDetails(const VkSurfaceCapabilitiesKHR &capabilities) {
-
-        if (capabilities.currentExtent.width != UINT32_MAX) {
+    VkExtent2D VulkanRHI::chooseSwapChainExtentFromDetails(const VkSurfaceCapabilitiesKHR &capabilities) 
+    {
+        if (capabilities.currentExtent.width != UINT32_MAX)
+        {
             return capabilities.currentExtent;
         }
         else // 如果当前的宽高为UINT32_MAX，意味着窗体管理器允许我们做出自己的设置，则选择在minImageExtent与maxImageExtent之间最符合窗口分辨率的分辨率
@@ -611,8 +615,8 @@ namespace MiniEngine
         }
     }
 
-    RHIShader *VulkanRHI::CreateShaderModule(const std::vector<unsigned char> &shaderCode) {
-
+    RHIShader *VulkanRHI::CreateShaderModule(const std::vector<unsigned char> &shaderCode) 
+    {
         RHIShader* shader = new VulkanShader();
         VkShaderModule vkShader = VulkanUtil::CreateShaderModule(mDevice, shaderCode);
         static_cast<VulkanShader*>(shader)->SetResource(vkShader);
@@ -622,7 +626,8 @@ namespace MiniEngine
 
     bool VulkanRHI::CreateGraphicsPipeline(
         RHIPipelineCache *pipelineCache, uint32_t createInfoCnt,
-        const RHIGraphicsPipelineCreateInfo *pCreateInfo, RHIPipeline *&pPipelines) {
+        const RHIGraphicsPipelineCreateInfo *pCreateInfo, RHIPipeline *&pPipelines) 
+    {
 
         // TODO: implement
         // int pipeline_shader_stage_create_info_size = pCreateInfo->stageCount;
@@ -632,10 +637,11 @@ namespace MiniEngine
         //     pipeline_shader_stage_create_info_size);
 
         // convert shader
-        int piplineShaderStageCreateInfoSize = pCreateInfo->stageCount;
-        std::vector<VkPipelineShaderStageCreateInfo> vkPipelineShaderStageCreateInfoList(piplineShaderStageCreateInfoSize);
+        int pipelineShaderStageCreateInfoSize = pCreateInfo->stageCount;
+        std::vector<VkPipelineShaderStageCreateInfo> vkPipelineShaderStageCreateInfoList(pipelineShaderStageCreateInfoSize);
 
-        for (int i = 0; i < piplineShaderStageCreateInfoSize; i++) {
+        for (int i = 0; i < pipelineShaderStageCreateInfoSize; i++) 
+        {
             const auto & rhiPipelineShaderStageCreateInfoElement = pCreateInfo->pStages[i];
             auto& vkPipelineShaderStageCreateInfoElement = vkPipelineShaderStageCreateInfoList[i];
 
@@ -666,8 +672,8 @@ namespace MiniEngine
         // set aside
         int vertexInputAttributeDescSize = pCreateInfo->pVertexInputState->vertexAttributeDescriptionCount;
         std::vector<VkVertexInputAttributeDescription> vkVertexInputAttributeDescList(vertexInputAttributeDescSize);
-        for (int i = 0; i < vertexInputAttributeDescSize; ++i) {
-
+        for (int i = 0; i < vertexInputAttributeDescSize; ++i) 
+        {
             const auto& rhiVertexInputAttributeDescElement =
                 pCreateInfo->pVertexInputState->pVertexAttributeDescriptions[i];
             auto& vkVertexInputAttributeDescElement = vkVertexInputAttributeDescList[i];
@@ -698,7 +704,8 @@ namespace MiniEngine
         // viewport
         int                     viewportSize = pCreateInfo->pViewportState->viewportCount;
         std::vector<VkViewport> vkViewportList(viewportSize);
-        for (int i = 0; i < viewportSize; ++i) {
+        for (int i = 0; i < viewportSize; ++i) 
+        {
             const auto& rhiViewportElement = pCreateInfo->pViewportState->pViewports[i];
             auto&       vkViewportElement  = vkViewportList[i];
 
@@ -859,7 +866,7 @@ namespace MiniEngine
         createInfo.pStages             = vkPipelineShaderStageCreateInfoList.data();
         createInfo.pVertexInputState   = &vkPipelineVertexInputStateCreateInfo;
         createInfo.pInputAssemblyState = &vkPipelineInputAssemblyStateCreateInfo;
-//         createInfo.pTessellationState  = vk_pipeline_tessellation_state_create_info_ptr;
+        // createInfo.pTessellationState  = vk_pipeline_tessellation_state_create_info_ptr;
         createInfo.pViewportState      = &vkPipelineViewportStateCreateInfo;
         createInfo.pRasterizationState = &vkPipelineRasterizationStateCreateInfo;
         createInfo.pMultisampleState   = &vkPipelineMultisampleStateCreateInfo;
@@ -896,10 +903,10 @@ namespace MiniEngine
         return RHI_SUCCESS;
     }
 
-    bool VulkanRHI::CreatePiplineLayout(
+    bool VulkanRHI::CreatePipelineLayout(
         const RHIPipelineLayoutCreateInfo *pCreateInfo,
-        RHIPipelineLayout *&pPipelineLayout) {
-
+        RHIPipelineLayout *&pPipelineLayout) 
+    {
         // TODO
         VkPipelineLayoutCreateInfo createInfo {};
         createInfo.sType = static_cast<VkStructureType>(pCreateInfo->sType);
@@ -921,8 +928,8 @@ namespace MiniEngine
         return RHI_SUCCESS;
     }
 
-    bool VulkanRHI::CreateRenderPass(const RHIRenderPassCreateInfo *pCreateInfo, RHIRenderPass *&pRenderPass) {
-
+    bool VulkanRHI::CreateRenderPass(const RHIRenderPassCreateInfo *pCreateInfo, RHIRenderPass *&pRenderPass) 
+    {
         // attachment convert
         std::vector<VkAttachmentDescription> vkAttachments(pCreateInfo->attachmentCount);
         for (uint32_t i = 0; i < pCreateInfo->attachmentCount; i++) {
@@ -1015,8 +1022,8 @@ namespace MiniEngine
         return RHI_SUCCESS;
     }
 
-    bool VulkanRHI::CreateFrameBuffer(const RHIFramebufferCreateInfo *pCreateInfo, RHIFrameBuffer *&pFrameBuffer) {
-
+    bool VulkanRHI::CreateFrameBuffer(const RHIFramebufferCreateInfo *pCreateInfo, RHIFrameBuffer *&pFrameBuffer) 
+    {
         // image view
         int imageViewSize = pCreateInfo->attachmentCount;
         std::vector<VkImageView> vkImageViewList(imageViewSize);
@@ -1053,12 +1060,36 @@ namespace MiniEngine
         return RHI_SUCCESS;
     }
 
-    void
-    VulkanRHI::CmdBeginRenderPassPFN(
+    void VulkanRHI::RecreateSwapChain()
+    {
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(mWindow, &width, &height);
+        while (width == 0 || height == 0)   // 最小化的时候暂停
+        {
+            glfwGetFramebufferSize(mWindow, &width, &height);
+            glfwWaitEvents();   // pause
+        }
+
+        if (pfnVkWaitForFences(mDevice, mkMaxFramesInFlight, mIsFrameInFlightFences, VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+        {
+            LOG_ERROR("vkWaiteForFences failed");
+            return;
+        }
+        for (auto * imageView : mSwapChainImageViews)
+        {
+            vkDestroyImageView(mDevice, static_cast<VulkanImageView*>(imageView)->GetResource(), nullptr);
+        }
+        vkDestroySwapchainKHR(mDevice, mSwapChain, nullptr);
+
+        CreateSwapChain();
+        CreateSwapChainImageViews();
+    }
+
+    void VulkanRHI::CmdBeginRenderPassPFN(
         RHICommandBuffer *commandBuffer,
         const RHIRenderPassBeginInfo *pRenderPassBegin,
-        RHISubpassContents contents) {
-
+        RHISubpassContents contents) 
+    {
         // TODO
         VkOffset2D offset2D {};
         offset2D.x = pRenderPassBegin->renderArea.offset.x;
@@ -1123,8 +1154,8 @@ namespace MiniEngine
     void VulkanRHI::CmdBindPipelinePFN(
         RHICommandBuffer *commandBuffer,
         RHIPipelineBindPoint pipelineBindPoint,
-        RHIPipeline *pipeline) {
-
+        RHIPipeline *pipeline) 
+    {
         return pfnVkCmdBindPipeline(
             static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
             static_cast<VkPipelineBindPoint>(pipelineBindPoint),
@@ -1137,8 +1168,8 @@ namespace MiniEngine
         uint32_t vertexCount,
         uint32_t instanceCount,
         uint32_t firstVertex,
-        uint32_t firstInstance) {
-
+        uint32_t firstInstance) 
+    {
         vkCmdDraw(static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
                   vertexCount,
                   instanceCount,
@@ -1156,8 +1187,8 @@ namespace MiniEngine
         RHICommandBuffer *commandBuffer,
         uint32_t firstViewport,
         uint32_t viewportCount,
-        const RHIViewport *pViewports) {
-
+        const RHIViewport *pViewports) 
+    {
         // viewport
         int viewportSize = viewportCount;
         std::vector<VkViewport> vkViewportList(viewportSize);
@@ -1185,8 +1216,8 @@ namespace MiniEngine
         RHICommandBuffer *commandBuffer,
         uint32_t firstScissor,
         uint32_t scissorCount,
-        const RHIRect2D *pScissors) {
-
+        const RHIRect2D *pScissors) 
+    {
         // rect_2d
         int rect2DSize = scissorCount;
         std::vector<VkRect2D> vkRect2DList(rect2DSize);
@@ -1214,8 +1245,8 @@ namespace MiniEngine
             vkRect2DList.data());
     }
 
-    void VulkanRHI::WaitForFences() {
-
+    void VulkanRHI::WaitForFences() 
+    {
         if (pfnVkWaitForFences(
             mDevice, 1,
             &mIsFrameInFlightFences[mCurrentFrameIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
@@ -1224,8 +1255,8 @@ namespace MiniEngine
         }
     }
 
-    RHISwapChainDesc VulkanRHI::GetSwapChainInfo() {
-
+    RHISwapChainDesc VulkanRHI::GetSwapChainInfo() 
+    {
         RHISwapChainDesc desc;
         desc.imageFormat = mSwapChainImageFormat;
         desc.extent = mSwapChainExtent;
@@ -1236,12 +1267,13 @@ namespace MiniEngine
         return desc;
     }
 
-    RHICommandBuffer* VulkanRHI::GetCurrentCommandBuffer() const {
+    RHICommandBuffer* VulkanRHI::GetCurrentCommandBuffer() const 
+    {
         return mCurrentCommandBuffer;
     }
 
-    bool VulkanRHI::PrepareBeforePass() {
-
+    bool VulkanRHI::PrepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapChain) 
+    {
         // acquire next image from swapchain
         VkResult acquireImageResult = vkAcquireNextImageKHR(
             mDevice,
@@ -1251,22 +1283,35 @@ namespace MiniEngine
             VK_NULL_HANDLE,
             &mCurrentSwapChainImageIndex);
 
+        if (VK_ERROR_OUT_OF_DATE_KHR == acquireImageResult)
+        {
+            RecreateSwapChain();
+            passUpdateAfterRecreateSwapChain();
+            return RHI_SUCCESS;
+        }
+        else if (VK_SUCCESS != acquireImageResult && VK_SUBOPTIMAL_KHR != acquireImageResult)
+        {
+            LOG_ERROR("Vulkan AcquireNextImageKHR Failed");
+            return false;
+        }
+
         // begin command buffer
         VkCommandBufferBeginInfo commandBufferBeginInfo {};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         // allow to resubmit command buffer even if it is already in waiting list
-        commandBufferBeginInfo.flags            = RHI_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+        commandBufferBeginInfo.flags            = 0;
         commandBufferBeginInfo.pInheritanceInfo = nullptr;
 
-        if (pfnVkBeginCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], &commandBufferBeginInfo) != VK_SUCCESS) {
+        if (pfnVkBeginCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex], &commandBufferBeginInfo) != VK_SUCCESS) 
+        {
             LOG_ERROR("Vulkan failed to begin recording command buffer!");
             return false;
         }
         return RHI_SUCCESS;
     }
 
-    void VulkanRHI::SubmitRendering() {
-
+    void VulkanRHI::SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain) 
+    {
         // end command buffer
         if (pfnVkEndCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex]) != VK_SUCCESS)
         {
@@ -1317,16 +1362,25 @@ namespace MiniEngine
         presentInfo.pSwapchains        = &mSwapChain;
         presentInfo.pImageIndices      = &mCurrentSwapChainImageIndex;
 
-        if (vkQueuePresentKHR(mPresentQueue, &presentInfo) != VK_SUCCESS)
+        VkResult presentResult = vkQueuePresentKHR(mPresentQueue, &presentInfo);
+        if (VK_ERROR_OUT_OF_DATE_KHR == presentResult || VK_SUBOPTIMAL_KHR == presentResult)
         {
-            LOG_ERROR("Vulkan QueuePresent failed!");
-            return;
+            RecreateSwapChain();
+            passUpdateAfterRecreateSwapChain();
         }
-
+        else
+        {
+            if (VK_SUCCESS != presentResult)
+            {
+                LOG_ERROR("Vulkan QueuePresent failed!");
+                return;
+            }
+        }
         mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mkMaxFramesInFlight;
     }
 
-
-
-
+    void VulkanRHI::DestroyFrameBuffer(RHIFrameBuffer *frameBuffer)
+    {
+        vkDestroyFramebuffer(mDevice, static_cast<VulkanFrameBuffer*>(frameBuffer)->GetResource(), nullptr);
+    }
 }

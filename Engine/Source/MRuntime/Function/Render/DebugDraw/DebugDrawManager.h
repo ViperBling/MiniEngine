@@ -12,6 +12,7 @@ namespace MiniEngine
     public:
         void Initialize();
         void SetupPipelines();
+        void UpdateAfterRecreateSwapChain();
 
         void Draw(uint32_t currentSwapChainImageIndex);
 

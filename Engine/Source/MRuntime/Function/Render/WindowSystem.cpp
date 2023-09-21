@@ -5,8 +5,8 @@ namespace MiniEngine
 {
     void WindowSystem::Initialize(WindowCreateInfo &createInfo) {
 
-        if (!glfwInit()) {
-
+        if (!glfwInit())
+        {
             LOG_FATAL("Failed to Initialize GLFW!");
             return;
         }
@@ -16,11 +16,12 @@ namespace MiniEngine
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // 不产生OpenGL上下文
 
-        if (!(mWindow = glfwCreateWindow(mWidth, mHeight, createInfo.Title, nullptr, nullptr))) {
-
+        if (!(mWindow = glfwCreateWindow(mWidth, mHeight, createInfo.Title, nullptr, nullptr))) 
+        {
             LOG_FATAL("Failed To Create Window!");
             glfwTerminate();
             return;
         }
+        // glfwSetWindowUserPointer(mWindow, this);
     }
 }

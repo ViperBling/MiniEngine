@@ -6,32 +6,40 @@
 
 namespace MiniEngine
 {
-    void DebugDrawManager::Initialize() {
-
+    void DebugDrawManager::Initialize() 
+    {
         mRHI = gRuntimeGlobalContext.mRenderSystem->GetRHI();
         SetupPipelines();
     }
 
-    void DebugDrawManager::SetupPipelines() {
-
+    void DebugDrawManager::SetupPipelines()
+    {
         for (uint8_t i = 0; static_cast<DebugDrawPipelineType>(i) < DebugDrawPipelineType::count; i++) {
             mDebugDrawPipeline[i] = new DebugDrawPipeline(static_cast<DebugDrawPipelineType>(i));
             mDebugDrawPipeline[i]->Initialize();
         }
     }
 
-    void DebugDrawManager::Draw(uint32_t currentSwapChainImageIndex) {
+    void DebugDrawManager::UpdateAfterRecreateSwapChain()
+    {
+        for (auto & pipeline : mDebugDrawPipeline)
+        {
+            pipeline->RecreateAfterSwapChain();
+        }
+    }
 
+    void DebugDrawManager::Draw(uint32_t currentSwapChainImageIndex) 
+    {
         DrawDebugObject(currentSwapChainImageIndex);
     }
 
-    void DebugDrawManager::DrawDebugObject(uint32_t currentSwapChainImageIndex) {
-
+    void DebugDrawManager::DrawDebugObject(uint32_t currentSwapChainImageIndex) 
+    {
         DrawPointLineTriangleBox(currentSwapChainImageIndex);
     }
 
-    void DebugDrawManager::DrawPointLineTriangleBox(uint32_t currentSwapChainImageIndex) {
-
+    void DebugDrawManager::DrawPointLineTriangleBox(uint32_t currentSwapChainImageIndex) 
+    {
         std::vector<DebugDrawPipeline*> vcPipelines{
             mDebugDrawPipeline[static_cast<uint32_t>(DebugDrawPipelineType::triangle)],
         };
@@ -49,7 +57,8 @@ namespace MiniEngine
         renderPassBeginInfo.clearValueCount   = (sizeof(clearValues) / sizeof(clearValues[0]));
         renderPassBeginInfo.pClearValues      = clearValues;
 
-        for (size_t i = 0; i < vcPipelines.size(); i++) {
+        for (size_t i = 0; i < vcPipelines.size(); i++) 
+        {
             renderPassBeginInfo.renderPass = vcPipelines[i]->GetFrameBuffer().renderPass;
             renderPassBeginInfo.framebuffer = vcPipelines[i]->GetFrameBuffer().framebuffers[currentSwapChainImageIndex];
             mRHI->CmdBeginRenderPassPFN(

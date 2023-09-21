@@ -39,6 +39,8 @@ namespace MiniEngine
     public:
         explicit DebugDrawPipeline(DebugDrawPipelineType pipelineType) { mPipelineType = pipelineType; }
         void Initialize();
+        void RecreateAfterSwapChain();
+
         DebugDrawPipelineType GetPipelineType() const { return mPipelineType; }
         const DebugDrawFrameBuffer& GetFrameBuffer() const { return mFrameBuffer; }
         const DebugDrawPipelineBase& GetPipeline() const { return mRenderPipelines[0]; }

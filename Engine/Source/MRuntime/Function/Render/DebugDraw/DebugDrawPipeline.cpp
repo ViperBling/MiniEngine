@@ -17,6 +17,15 @@ namespace MiniEngine
         SetupFrameBuffers();
     }
 
+    void DebugDrawPipeline::RecreateAfterSwapChain()
+    {
+        for (auto * frameBuffer : mFrameBuffer.framebuffers)
+        {
+            mRHI->DestroyFrameBuffer(frameBuffer);
+        }
+        SetupFrameBuffers();
+    }
+
     void DebugDrawPipeline::SetupRenderPass() {
 
         // discribe the color attachment
@@ -188,7 +197,7 @@ namespace MiniEngine
         pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
 
         mRenderPipelines.resize(1);
-        if (mRHI->CreatePiplineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) {
+        if (mRHI->CreatePipelineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) {
             LOG_ERROR("Failed to create RHI pipeline layout");
         }
 

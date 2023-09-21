@@ -28,12 +28,14 @@ namespace MiniEngine
             uint32_t                             createInfoCnt,
             const RHIGraphicsPipelineCreateInfo* pCreateInfo,
             RHIPipeline*&                        pPipelines) override;
-        bool CreatePiplineLayout(
+            
+        bool CreatePipelineLayout(
             const RHIPipelineLayoutCreateInfo* pCreateInfo,
             RHIPipelineLayout*&                pPipelineLayout) override;
 
         bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
         bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
+        void RecreateSwapChain() override;
 
         // command and command write
         void CmdBeginRenderPassPFN(
@@ -68,11 +70,13 @@ namespace MiniEngine
         RHICommandBuffer* GetCurrentCommandBuffer() const override;
 
         // command write
-        bool PrepareBeforePass() override;
-        void SubmitRendering() override;
+        bool PrepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapChain) override;
+        void SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain) override;
+
+        virtual void DestroyFrameBuffer(RHIFrameBuffer* frameBuffer) override;
 
     public:
-        static uint8_t const mkMaxFramesInFlight {1};               // 最大同时渲染的图片数量
+        static uint8_t const mkMaxFramesInFlight {3};               // 最大同时渲染的图片数量
 
         RHIQueue* mGraphicsQueue {nullptr};                         // 图形队列句柄
 
