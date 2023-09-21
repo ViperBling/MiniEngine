@@ -36,33 +36,52 @@ namespace MiniEngine
         bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
         bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
         void RecreateSwapChain() override;
+        virtual void CreateBuffer(
+            RHIDeviceSize           size,
+            RHIBufferUsageFlags     usageFlags,
+            RHIMemoryPropertyFlags  properties,
+            RHIBuffer*&             buffer,
+            RHIDeviceMemory*&       bufferMemory
+        ) override;
 
         // command and command write
+        virtual void CmdBindVertexBuffersPFN(
+            RHICommandBuffer*       cmdBuffer,
+            uint32_t                firstBinding,
+            uint32_t                bindingCount,
+            RHIBuffer* const*       pBuffers,
+            const RHIDeviceSize*    pOffsets
+        ) override;
         void CmdBeginRenderPassPFN(
             RHICommandBuffer*             commandBuffer,
             const RHIRenderPassBeginInfo* pRenderPassBegin,
-            RHISubpassContents            contents) override;
+            RHISubpassContents            contents
+        ) override;
         void CmdBindPipelinePFN(
             RHICommandBuffer*    commandBuffer,
             RHIPipelineBindPoint pipelineBindPoint,
-            RHIPipeline*         pipeline) override;
+            RHIPipeline*         pipeline
+        ) override;
         void CmdDraw(
             RHICommandBuffer* commandBuffer,
             uint32_t          vertexCount,
             uint32_t          instanceCount,
             uint32_t          firstVertex,
-            uint32_t          firstInstance) override;
+            uint32_t          firstInstance
+        ) override;
         void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) override;
         void CmdSetViewportPFN(
             RHICommandBuffer*  commandBuffer,
             uint32_t           firstViewport,
             uint32_t           viewportCount,
-            const RHIViewport* pViewports) override;
+            const RHIViewport* pViewports
+        ) override;
         void CmdSetScissorPFN(
             RHICommandBuffer* commandBuffer,
             uint32_t          firstScissor,
             uint32_t          scissorCount,
-            const RHIRect2D*  pScissors) override;
+            const RHIRect2D*  pScissors
+        ) override;
         void WaitForFences() override;
 
         // Query
@@ -74,6 +93,15 @@ namespace MiniEngine
         void SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain) override;
 
         virtual void DestroyFrameBuffer(RHIFrameBuffer* frameBuffer) override;
+
+        virtual bool MapMemory(
+            RHIDeviceMemory* memory,
+            RHIDeviceSize offset,
+            RHIDeviceSize size,
+            RHIMemoryMapFlags flags,
+            void** ppData
+        ) override;
+        virtual void UnmapMemory(RHIDeviceMemory* memory) override;
 
     public:
         static uint8_t const mkMaxFramesInFlight {3};               // 最大同时渲染的图片数量
@@ -117,15 +145,16 @@ namespace MiniEngine
         uint32_t            mCurrentSwapChainImageIndex;
 
         // function pointers
-        PFN_vkBeginCommandBuffer pfnVkBeginCommandBuffer;
-        PFN_vkEndCommandBuffer   pfnVkEndCommandBuffer;
-        PFN_vkCmdBeginRenderPass pfnVkCmdBeginRenderPass;
-        PFN_vkCmdEndRenderPass   pfnVkCmdEndRenderPass;
-        PFN_vkCmdBindPipeline    pfnVkCmdBindPipeline;
-        PFN_vkCmdSetViewport     pfnVkCmdSetViewport;
-        PFN_vkCmdSetScissor      pfnVkCmdSetScissor;
-        PFN_vkWaitForFences      pfnVkWaitForFences;
-        PFN_vkResetFences        pfnVkResetFences;
+        PFN_vkBeginCommandBuffer    pfnVkBeginCommandBuffer;
+        PFN_vkEndCommandBuffer      pfnVkEndCommandBuffer;
+        PFN_vkCmdBindVertexBuffers  pfnVkCmdBindVertexBuffers;
+        PFN_vkCmdBeginRenderPass    pfnVkCmdBeginRenderPass;
+        PFN_vkCmdEndRenderPass      pfnVkCmdEndRenderPass;
+        PFN_vkCmdBindPipeline       pfnVkCmdBindPipeline;
+        PFN_vkCmdSetViewport        pfnVkCmdSetViewport;
+        PFN_vkCmdSetScissor         pfnVkCmdSetScissor;
+        PFN_vkWaitForFences         pfnVkWaitForFences;
+        PFN_vkResetFences           pfnVkResetFences;
 
     private:
         void createInstance();

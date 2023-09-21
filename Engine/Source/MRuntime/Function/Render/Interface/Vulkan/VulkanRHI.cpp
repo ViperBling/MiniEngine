@@ -107,12 +107,9 @@ namespace MiniEngine
         createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
         createInfo.presentMode =    chosenPresentMode;
         createInfo.clipped =        VK_TRUE;    // 对遮挡像素进行裁剪
-
         createInfo.oldSwapchain = VK_NULL_HANDLE;   // 交换链重新创建的设置，此处假定不会重新创建
 
-        if(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain) != VK_SUCCESS) {
-            LOG_ERROR("Vk Create SwapChain KHR Failed!");
-        }
+        VK_CHECK(vkCreateSwapchainKHR(mDevice, &createInfo, nullptr, &mSwapChain))
 
         // 虽然已经显式的指明了image数量，但vulkan实际上可能创造更多，所以需要查询一次
         vkGetSwapchainImagesKHR(mDevice, mSwapChain, &imageCnt, nullptr);
@@ -146,7 +143,7 @@ namespace MiniEngine
         if (bEnableValidationLayers && !checkValidationLayersSupport()) {
             LOG_ERROR("Vulkan Validation Layers Requested, But not available!");
         }
-        mVulkanAPIVersion = VK_API_VERSION_1_0;
+        mVulkanAPIVersion = VK_API_VERSION_1_1;
 
         // app info
         VkApplicationInfo appInfo {};
@@ -180,37 +177,36 @@ namespace MiniEngine
         }
 
         // create vulkan_context._instance
-        if (vkCreateInstance(&instanceCreateInfo, nullptr, &mInstance) != VK_SUCCESS) {
-            LOG_ERROR("Vk Create Instance Failed!");
-        }
+        VK_CHECK(vkCreateInstance(&instanceCreateInfo, nullptr, &mInstance))
     }
 
     // 启动验证层从而在debug版本中发现可能存在的错误
     void VulkanRHI::InitializeDebugMessenger() 
     {
-        if (bEnableValidationLayers) {
+        if (bEnableValidationLayers) 
+        {
             VkDebugUtilsMessengerCreateInfoEXT create_info;
             populateDebugMessengerCreateInfo(create_info);
-            if (createDebugUtilsMessengerEXT(mInstance, &create_info, nullptr, &mDebugMessenger) != VK_SUCCESS)
-                LOG_ERROR("Failed to set debug messenger!");
+            VK_CHECK(createDebugUtilsMessengerEXT(mInstance, &create_info, nullptr, &mDebugMessenger))
         }
     }
 
     // 链接之前的glfw，使vulkan与当前运行平台窗口系统兼容
     void VulkanRHI::createWindowSurface() 
     {
-        if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) != VK_SUCCESS)
-            LOG_ERROR("glfwCreateWindowSurface failed!");
+        VK_CHECK(glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface))
     }
 
     void VulkanRHI::initializePhysicalDevice() 
     {
         uint32_t physicalDeviceCnt = 0;
         vkEnumeratePhysicalDevices(mInstance, &physicalDeviceCnt, nullptr);
-        if (physicalDeviceCnt == 0) {
+        if (physicalDeviceCnt == 0) 
+        {
             LOG_ERROR("Enumerate Physical Devices Failed!");
         }
-        else {
+        else 
+        {
             // find one device that matches our requirement
             // or find which is the best
             std::vector<VkPhysicalDevice> physicalDevices(physicalDeviceCnt);
@@ -242,7 +238,8 @@ namespace MiniEngine
                 }
             }
 
-            if (mPhysicalDevice == VK_NULL_HANDLE) {
+            if (mPhysicalDevice == VK_NULL_HANDLE) 
+            {
                 LOG_ERROR("Failed to Find suitable physical device!");
             }
         }
@@ -281,9 +278,7 @@ namespace MiniEngine
         deviceCreateInfo.ppEnabledExtensionNames = mDeviceExtensions.data();
         deviceCreateInfo.enabledLayerCount       = 0;
 
-        if (vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice) != VK_SUCCESS) {
-            LOG_ERROR("Failed create logic device!");
-        }
+        VK_CHECK(vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, nullptr, &mDevice))
 
         // initialize queues of this device
         VkQueue vkGraphicsQueue;
@@ -298,6 +293,8 @@ namespace MiniEngine
             reinterpret_cast<PFN_vkBeginCommandBuffer>(vkGetDeviceProcAddr(mDevice, "vkBeginCommandBuffer"));
         pfnVkEndCommandBuffer =
             reinterpret_cast<PFN_vkEndCommandBuffer>(vkGetDeviceProcAddr(mDevice, "vkEndCommandBuffer"));
+        pfnVkCmdBindVertexBuffers = 
+            reinterpret_cast<PFN_vkCmdBindVertexBuffers>(vkGetDeviceProcAddr(mDevice, "vkCmdBindVertexBuffers"));
         pfnVkCmdBeginRenderPass =
             reinterpret_cast<PFN_vkCmdBeginRenderPass>(vkGetDeviceProcAddr(mDevice, "vkCmdBeginRenderPass"));
         pfnVkCmdEndRenderPass =
@@ -324,10 +321,9 @@ namespace MiniEngine
             commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
             commandPoolCreateInfo.queueFamilyIndex = mQueueIndices.graphicsFamily.value();
 
-            for (auto & mCommandPool : mCommandPools) {
-                if (vkCreateCommandPool(mDevice, &commandPoolCreateInfo, nullptr, &mCommandPool) != VK_SUCCESS) {
-                    LOG_ERROR("Vulkan failed to create command pool");
-                }
+            for (auto & mCommandPool : mCommandPools) 
+            {
+                VK_CHECK(vkCreateCommandPool(mDevice, &commandPoolCreateInfo, nullptr, &mCommandPool))
             }
         }
     }
@@ -348,9 +344,7 @@ namespace MiniEngine
         for (uint32_t i = 0; i < mkMaxFramesInFlight; i++) {
             commandBufferAllocateInfo.commandPool = mCommandPools[i];
             VkCommandBuffer vkCommandBuffer;
-            if (vkAllocateCommandBuffers(mDevice, &commandBufferAllocateInfo, &vkCommandBuffer) != VK_SUCCESS) {
-                LOG_ERROR("Vulkan failed to allocate command buffers!");
-            }
+            VK_CHECK(vkAllocateCommandBuffers(mDevice, &commandBufferAllocateInfo, &vkCommandBuffer))
             // command buffer resource binding
             mVkCommandBuffers[i] = vkCommandBuffer;
             mCommandBuffers[i] = new VulkanCommandBuffer();
@@ -376,14 +370,9 @@ namespace MiniEngine
 
         for (uint32_t i = 0; i < mkMaxFramesInFlight; i++)
         {
-            if (vkCreateSemaphore(
-                mDevice, &semaphoreCreateInfo, nullptr, &mImageAvailableForRenderSemaphore[i]) !=
-                VK_SUCCESS ||
-                vkCreateSemaphore(
-                    mDevice, &semaphoreCreateInfo, nullptr, &mImageFinishedForPresentationSemaphore[i]) !=
-                VK_SUCCESS ||
-                vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mIsFrameInFlightFences[i]) != VK_SUCCESS)
-                LOG_ERROR("Vulkan failed to  create semaphore");
+            VK_CHECK(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mImageAvailableForRenderSemaphore[i]))
+            VK_CHECK(vkCreateSemaphore(mDevice, &semaphoreCreateInfo, nullptr, &mImageFinishedForPresentationSemaphore[i]))
+            VK_CHECK(vkCreateFence(mDevice, &fenceCreateInfo, nullptr, &mIsFrameInFlightFences[i]))
         }
     }
 
@@ -396,11 +385,14 @@ namespace MiniEngine
         std::vector<VkLayerProperties> availableLayers(layerCnt);
         vkEnumerateInstanceLayerProperties(&layerCnt, availableLayers.data());
 
-        for (const char* layerName : mValidationLayers) {
+        for (const char* layerName : mValidationLayers) 
+        {
             // 查找所有的验证层是否可用
             bool layerFound = false;
-            for (const auto& layerProp : availableLayers) {
-                if (std::strcmp(layerName, layerProp.layerName) == 0) {
+            for (const auto& layerProp : availableLayers) 
+            {
+                if (std::strcmp(layerName, layerProp.layerName) == 0) 
+                {
                     layerFound = true;
                     break;
                 }
@@ -625,8 +617,10 @@ namespace MiniEngine
     }
 
     bool VulkanRHI::CreateGraphicsPipeline(
-        RHIPipelineCache *pipelineCache, uint32_t createInfoCnt,
-        const RHIGraphicsPipelineCreateInfo *pCreateInfo, RHIPipeline *&pPipelines) 
+        RHIPipelineCache *pipelineCache, 
+        uint32_t createInfoCnt,
+        const RHIGraphicsPipelineCreateInfo *pCreateInfo, 
+        RHIPipeline *&pPipelines) 
     {
 
         // TODO: implement
@@ -637,21 +631,18 @@ namespace MiniEngine
         //     pipeline_shader_stage_create_info_size);
 
         // convert shader
-        int pipelineShaderStageCreateInfoSize = pCreateInfo->stageCount;
-        std::vector<VkPipelineShaderStageCreateInfo> vkPipelineShaderStageCreateInfoList(pipelineShaderStageCreateInfoSize);
+        int ssCISize = pCreateInfo->stageCount;
+        std::vector<VkPipelineShaderStageCreateInfo> ssCIs(ssCISize);
 
-        for (int i = 0; i < pipelineShaderStageCreateInfoSize; i++) 
+        for (int i = 0; i < ssCISize; i++) 
         {
             const auto & rhiPipelineShaderStageCreateInfoElement = pCreateInfo->pStages[i];
-            auto& vkPipelineShaderStageCreateInfoElement = vkPipelineShaderStageCreateInfoList[i];
+            auto& ssCI = ssCIs[i];
 
-            vkPipelineShaderStageCreateInfoElement.sType =
-                static_cast<VkStructureType>(rhiPipelineShaderStageCreateInfoElement.sType);
-            vkPipelineShaderStageCreateInfoElement.stage =
-                static_cast<VkShaderStageFlagBits>(rhiPipelineShaderStageCreateInfoElement.stage);
-            vkPipelineShaderStageCreateInfoElement.module =
-                static_cast<VulkanShader*>(rhiPipelineShaderStageCreateInfoElement.module)->GetResource();
-            vkPipelineShaderStageCreateInfoElement.pName = rhiPipelineShaderStageCreateInfoElement.pName;
+            ssCI.sType = static_cast<VkStructureType>(rhiPipelineShaderStageCreateInfoElement.sType);
+            ssCI.stage = static_cast<VkShaderStageFlagBits>(rhiPipelineShaderStageCreateInfoElement.stage);
+            ssCI.module = static_cast<VulkanShader*>(rhiPipelineShaderStageCreateInfoElement.module)->GetResource();
+            ssCI.pName = rhiPipelineShaderStageCreateInfoElement.pName;
         }
 
         // convert vertex input
@@ -685,24 +676,24 @@ namespace MiniEngine
         };
 
         // set aside
-        VkPipelineVertexInputStateCreateInfo vkPipelineVertexInputStateCreateInfo {};
-        vkPipelineVertexInputStateCreateInfo.sType = static_cast<VkStructureType>(pCreateInfo->pVertexInputState->sType);
-        vkPipelineVertexInputStateCreateInfo.pNext = pCreateInfo->pVertexInputState->pNext;
-        vkPipelineVertexInputStateCreateInfo.flags = static_cast<VkPipelineVertexInputStateCreateFlags>(pCreateInfo->pVertexInputState->flags);
-        vkPipelineVertexInputStateCreateInfo.vertexBindingDescriptionCount = pCreateInfo->pVertexInputState->vertexBindingDescriptionCount;
-        vkPipelineVertexInputStateCreateInfo.pVertexBindingDescriptions = vkVertexInputBindingDescrList.data();
-        vkPipelineVertexInputStateCreateInfo.vertexAttributeDescriptionCount = pCreateInfo->pVertexInputState->vertexAttributeDescriptionCount;
-        vkPipelineVertexInputStateCreateInfo.pVertexAttributeDescriptions = vkVertexInputAttributeDescList.data();
+        VkPipelineVertexInputStateCreateInfo viStateCI {};
+        viStateCI.sType = static_cast<VkStructureType>(pCreateInfo->pVertexInputState->sType);
+        viStateCI.pNext = pCreateInfo->pVertexInputState->pNext;
+        viStateCI.flags = static_cast<VkPipelineVertexInputStateCreateFlags>(pCreateInfo->pVertexInputState->flags);
+        viStateCI.vertexBindingDescriptionCount = pCreateInfo->pVertexInputState->vertexBindingDescriptionCount;
+        viStateCI.pVertexBindingDescriptions = vkVertexInputBindingDescrList.data();
+        viStateCI.vertexAttributeDescriptionCount = pCreateInfo->pVertexInputState->vertexAttributeDescriptionCount;
+        viStateCI.pVertexAttributeDescriptions = vkVertexInputAttributeDescList.data();
 
-        VkPipelineInputAssemblyStateCreateInfo vkPipelineInputAssemblyStateCreateInfo {};
-        vkPipelineInputAssemblyStateCreateInfo.sType = static_cast<VkStructureType>(pCreateInfo->pInputAssemblyState->sType);
-        vkPipelineInputAssemblyStateCreateInfo.pNext = pCreateInfo->pInputAssemblyState->pNext;
-        vkPipelineInputAssemblyStateCreateInfo.flags = static_cast<VkPipelineInputAssemblyStateCreateFlags>(pCreateInfo->pInputAssemblyState->flags);
-        vkPipelineInputAssemblyStateCreateInfo.topology = static_cast<VkPrimitiveTopology>(pCreateInfo->pInputAssemblyState->topology);
-        vkPipelineInputAssemblyStateCreateInfo.primitiveRestartEnable = static_cast<VkBool32>(pCreateInfo->pInputAssemblyState->primitiveRestartEnable);
+        VkPipelineInputAssemblyStateCreateInfo iaStateCI {};
+        iaStateCI.sType = static_cast<VkStructureType>(pCreateInfo->pInputAssemblyState->sType);
+        iaStateCI.pNext = pCreateInfo->pInputAssemblyState->pNext;
+        iaStateCI.flags = static_cast<VkPipelineInputAssemblyStateCreateFlags>(pCreateInfo->pInputAssemblyState->flags);
+        iaStateCI.topology = static_cast<VkPrimitiveTopology>(pCreateInfo->pInputAssemblyState->topology);
+        iaStateCI.primitiveRestartEnable = static_cast<VkBool32>(pCreateInfo->pInputAssemblyState->primitiveRestartEnable);
 
         // viewport
-        int                     viewportSize = pCreateInfo->pViewportState->viewportCount;
+        int viewportSize = pCreateInfo->pViewportState->viewportCount;
         std::vector<VkViewport> vkViewportList(viewportSize);
         for (int i = 0; i < viewportSize; ++i) 
         {
@@ -718,7 +709,7 @@ namespace MiniEngine
         };
 
         // scissor
-        int                   rect2DSize = pCreateInfo->pViewportState->scissorCount;
+        int rect2DSize = pCreateInfo->pViewportState->scissorCount;
         std::vector<VkRect2D> vkRect2DList(rect2DSize);
         for (int i = 0; i < rect2DSize; ++i)
         {
@@ -737,65 +728,42 @@ namespace MiniEngine
             vkRect2DElement.extent = extend2d;
         };
 
-        VkPipelineViewportStateCreateInfo vkPipelineViewportStateCreateInfo {};
-        vkPipelineViewportStateCreateInfo.sType =
-            static_cast<VkStructureType>(pCreateInfo->pViewportState->sType);
-        vkPipelineViewportStateCreateInfo.pNext =
-            pCreateInfo->pViewportState->pNext;
-        vkPipelineViewportStateCreateInfo.flags =
-            static_cast<VkPipelineViewportStateCreateFlags>(pCreateInfo->pViewportState->flags);
-        vkPipelineViewportStateCreateInfo.viewportCount = pCreateInfo->pViewportState->viewportCount;
-        vkPipelineViewportStateCreateInfo.pViewports    = vkViewportList.data();
-        vkPipelineViewportStateCreateInfo.scissorCount  = pCreateInfo->pViewportState->scissorCount;
-        vkPipelineViewportStateCreateInfo.pScissors     = vkRect2DList.data();
+        VkPipelineViewportStateCreateInfo vpStateCI {};
+        vpStateCI.sType         = static_cast<VkStructureType>(pCreateInfo->pViewportState->sType);
+        vpStateCI.pNext         = pCreateInfo->pViewportState->pNext;
+        vpStateCI.flags         = static_cast<VkPipelineViewportStateCreateFlags>(pCreateInfo->pViewportState->flags);
+        vpStateCI.viewportCount = pCreateInfo->pViewportState->viewportCount;
+        vpStateCI.pViewports    = vkViewportList.data();
+        vpStateCI.scissorCount  = pCreateInfo->pViewportState->scissorCount;
+        vpStateCI.pScissors     = vkRect2DList.data();
 
         // rasterization
-        VkPipelineRasterizationStateCreateInfo vkPipelineRasterizationStateCreateInfo {};
-        vkPipelineRasterizationStateCreateInfo.sType =
-            static_cast<VkStructureType>(pCreateInfo->pRasterizationState->sType);
-        vkPipelineRasterizationStateCreateInfo.pNext =
-            pCreateInfo->pRasterizationState->pNext;
-        vkPipelineRasterizationStateCreateInfo.flags =
-            static_cast<VkPipelineRasterizationStateCreateFlags>(pCreateInfo->pRasterizationState->flags);
-        vkPipelineRasterizationStateCreateInfo.depthClampEnable =
-            static_cast<VkBool32>(pCreateInfo->pRasterizationState->depthClampEnable);
-        vkPipelineRasterizationStateCreateInfo.rasterizerDiscardEnable =
-            static_cast<VkBool32>(pCreateInfo->pRasterizationState->rasterizerDiscardEnable);
-        vkPipelineRasterizationStateCreateInfo.polygonMode =
-            static_cast<VkPolygonMode>(pCreateInfo->pRasterizationState->polygonMode);
-        vkPipelineRasterizationStateCreateInfo.cullMode =
-            static_cast<VkCullModeFlags>(pCreateInfo->pRasterizationState->cullMode);
-        vkPipelineRasterizationStateCreateInfo.frontFace =
-            static_cast<VkFrontFace>(pCreateInfo->pRasterizationState->frontFace);
-        vkPipelineRasterizationStateCreateInfo.depthBiasEnable =
-            static_cast<VkBool32>(pCreateInfo->pRasterizationState->depthBiasEnable);
-        vkPipelineRasterizationStateCreateInfo.depthBiasConstantFactor =
-            pCreateInfo->pRasterizationState->depthBiasConstantFactor;
-        vkPipelineRasterizationStateCreateInfo.depthBiasClamp =
-            pCreateInfo->pRasterizationState->depthBiasClamp;
-        vkPipelineRasterizationStateCreateInfo.depthBiasSlopeFactor =
-            pCreateInfo->pRasterizationState->depthBiasSlopeFactor;
-        vkPipelineRasterizationStateCreateInfo.lineWidth =
-            pCreateInfo->pRasterizationState->lineWidth;
+        VkPipelineRasterizationStateCreateInfo rsStateCI {};
+        rsStateCI.sType = static_cast<VkStructureType>(pCreateInfo->pRasterizationState->sType);
+        rsStateCI.pNext = pCreateInfo->pRasterizationState->pNext;
+        rsStateCI.flags = static_cast<VkPipelineRasterizationStateCreateFlags>(pCreateInfo->pRasterizationState->flags);
+        rsStateCI.depthClampEnable = static_cast<VkBool32>(pCreateInfo->pRasterizationState->depthClampEnable);
+        rsStateCI.rasterizerDiscardEnable = static_cast<VkBool32>(pCreateInfo->pRasterizationState->rasterizerDiscardEnable);
+        rsStateCI.polygonMode = static_cast<VkPolygonMode>(pCreateInfo->pRasterizationState->polygonMode);
+        rsStateCI.cullMode = static_cast<VkCullModeFlags>(pCreateInfo->pRasterizationState->cullMode);
+        rsStateCI.frontFace = static_cast<VkFrontFace>(pCreateInfo->pRasterizationState->frontFace);
+        rsStateCI.depthBiasEnable = static_cast<VkBool32>(pCreateInfo->pRasterizationState->depthBiasEnable);
+        rsStateCI.depthBiasConstantFactor = pCreateInfo->pRasterizationState->depthBiasConstantFactor;
+        rsStateCI.depthBiasClamp = pCreateInfo->pRasterizationState->depthBiasClamp;
+        rsStateCI.depthBiasSlopeFactor = pCreateInfo->pRasterizationState->depthBiasSlopeFactor;
+        rsStateCI.lineWidth = pCreateInfo->pRasterizationState->lineWidth;
 
         // MSAA
-        VkPipelineMultisampleStateCreateInfo vkPipelineMultisampleStateCreateInfo {};
-        vkPipelineMultisampleStateCreateInfo.sType =
-            static_cast<VkStructureType>(pCreateInfo->pMultisampleState->sType);
-        vkPipelineMultisampleStateCreateInfo.pNext = pCreateInfo->pMultisampleState->pNext;
-        vkPipelineMultisampleStateCreateInfo.flags =
-            static_cast<VkPipelineMultisampleStateCreateFlags>(pCreateInfo->pMultisampleState->flags);
-        vkPipelineMultisampleStateCreateInfo.rasterizationSamples =
-            static_cast<VkSampleCountFlagBits>(pCreateInfo->pMultisampleState->rasterizationSamples);
-        vkPipelineMultisampleStateCreateInfo.sampleShadingEnable =
-            static_cast<VkBool32>(pCreateInfo->pMultisampleState->sampleShadingEnable);
-        vkPipelineMultisampleStateCreateInfo.minSampleShading = pCreateInfo->pMultisampleState->minSampleShading;
-        vkPipelineMultisampleStateCreateInfo.pSampleMask =
-            reinterpret_cast<const RHISampleMask*>(pCreateInfo->pMultisampleState->pSampleMask);
-        vkPipelineMultisampleStateCreateInfo.alphaToCoverageEnable =
-            static_cast<VkBool32>(pCreateInfo->pMultisampleState->alphaToCoverageEnable);
-        vkPipelineMultisampleStateCreateInfo.alphaToOneEnable =
-            static_cast<VkBool32>(pCreateInfo->pMultisampleState->alphaToOneEnable);
+        VkPipelineMultisampleStateCreateInfo msStateCI {};
+        msStateCI.sType = static_cast<VkStructureType>(pCreateInfo->pMultisampleState->sType);
+        msStateCI.pNext = pCreateInfo->pMultisampleState->pNext;
+        msStateCI.flags = static_cast<VkPipelineMultisampleStateCreateFlags>(pCreateInfo->pMultisampleState->flags);
+        msStateCI.rasterizationSamples = static_cast<VkSampleCountFlagBits>(pCreateInfo->pMultisampleState->rasterizationSamples);
+        msStateCI.sampleShadingEnable = static_cast<VkBool32>(pCreateInfo->pMultisampleState->sampleShadingEnable);
+        msStateCI.minSampleShading = pCreateInfo->pMultisampleState->minSampleShading;
+        msStateCI.pSampleMask = reinterpret_cast<const RHISampleMask*>(pCreateInfo->pMultisampleState->pSampleMask);
+        msStateCI.alphaToCoverageEnable = static_cast<VkBool32>(pCreateInfo->pMultisampleState->alphaToCoverageEnable);
+        msStateCI.alphaToOneEnable = static_cast<VkBool32>(pCreateInfo->pMultisampleState->alphaToOneEnable);
 
         // color blend
         int pipelineColorBlendAttachmentStateSize = pCreateInfo->pColorBlendState->attachmentCount;
@@ -824,18 +792,16 @@ namespace MiniEngine
                 static_cast<VkColorComponentFlags>(rhiPipelineColorBlendAttachmentStateElement.colorWriteMask);
         };
 
-        VkPipelineColorBlendStateCreateInfo vkPipelineColorBlendStateCreateInfo {};
-        vkPipelineColorBlendStateCreateInfo.sType =
-            static_cast<VkStructureType>(pCreateInfo->pColorBlendState->sType);
-        vkPipelineColorBlendStateCreateInfo.pNext         = pCreateInfo->pColorBlendState->pNext;
-        vkPipelineColorBlendStateCreateInfo.flags         = pCreateInfo->pColorBlendState->flags;
-        vkPipelineColorBlendStateCreateInfo.logicOpEnable = pCreateInfo->pColorBlendState->logicOpEnable;
-        vkPipelineColorBlendStateCreateInfo.logicOp =
-            static_cast<VkLogicOp>(pCreateInfo->pColorBlendState->logicOp);
-        vkPipelineColorBlendStateCreateInfo.attachmentCount = pCreateInfo->pColorBlendState->attachmentCount;
-        vkPipelineColorBlendStateCreateInfo.pAttachments = vkPipelineColorBlendAttachmentStateList.data();
+        VkPipelineColorBlendStateCreateInfo cbStateCI {};
+        cbStateCI.sType         = static_cast<VkStructureType>(pCreateInfo->pColorBlendState->sType);
+        cbStateCI.pNext         = pCreateInfo->pColorBlendState->pNext;
+        cbStateCI.flags         = pCreateInfo->pColorBlendState->flags;
+        cbStateCI.logicOpEnable = pCreateInfo->pColorBlendState->logicOpEnable;
+        cbStateCI.logicOp       = static_cast<VkLogicOp>(pCreateInfo->pColorBlendState->logicOp);
+        cbStateCI.attachmentCount = pCreateInfo->pColorBlendState->attachmentCount;
+        cbStateCI.pAttachments = vkPipelineColorBlendAttachmentStateList.data();
         for (int i = 0; i < 4; ++i) {
-            vkPipelineColorBlendStateCreateInfo.blendConstants[i] =
+            cbStateCI.blendConstants[i] =
                 pCreateInfo->pColorBlendState->blendConstants[i];
         };
 
@@ -850,37 +816,37 @@ namespace MiniEngine
             vkDynamicStateElement = static_cast<VkDynamicState>(rhiDynamicStateElement);
         };
 
-        VkPipelineDynamicStateCreateInfo vkPipelineDynamicStateCreateInfo {};
-        vkPipelineDynamicStateCreateInfo.sType = static_cast<VkStructureType>(pCreateInfo->pDynamicState->sType);
-        vkPipelineDynamicStateCreateInfo.pNext = pCreateInfo->pDynamicState->pNext;
-        vkPipelineDynamicStateCreateInfo.flags =
-            static_cast<VkPipelineDynamicStateCreateFlags>(pCreateInfo->pDynamicState->flags);
-        vkPipelineDynamicStateCreateInfo.dynamicStateCount = pCreateInfo->pDynamicState->dynamicStateCount;
-        vkPipelineDynamicStateCreateInfo.pDynamicStates    = vkDynamicStateList.data();
+        VkPipelineDynamicStateCreateInfo dyStateCI {};
+        dyStateCI.sType = static_cast<VkStructureType>(pCreateInfo->pDynamicState->sType);
+        dyStateCI.pNext = pCreateInfo->pDynamicState->pNext;
+        dyStateCI.flags = static_cast<VkPipelineDynamicStateCreateFlags>(pCreateInfo->pDynamicState->flags);
+        dyStateCI.dynamicStateCount = pCreateInfo->pDynamicState->dynamicStateCount;
+        dyStateCI.pDynamicStates    = vkDynamicStateList.data();
 
         VkGraphicsPipelineCreateInfo createInfo {};
         createInfo.sType               = static_cast<VkStructureType>(pCreateInfo->sType);
         createInfo.pNext               = pCreateInfo->pNext;
         createInfo.flags               = static_cast<VkPipelineCreateFlags>(pCreateInfo->flags);
         createInfo.stageCount          = pCreateInfo->stageCount;
-        createInfo.pStages             = vkPipelineShaderStageCreateInfoList.data();
-        createInfo.pVertexInputState   = &vkPipelineVertexInputStateCreateInfo;
-        createInfo.pInputAssemblyState = &vkPipelineInputAssemblyStateCreateInfo;
+        createInfo.pStages             = ssCIs.data();
+        createInfo.pVertexInputState   = &viStateCI;
+        createInfo.pInputAssemblyState = &iaStateCI;
         // createInfo.pTessellationState  = vk_pipeline_tessellation_state_create_info_ptr;
-        createInfo.pViewportState      = &vkPipelineViewportStateCreateInfo;
-        createInfo.pRasterizationState = &vkPipelineRasterizationStateCreateInfo;
-        createInfo.pMultisampleState   = &vkPipelineMultisampleStateCreateInfo;
-        createInfo.pColorBlendState    = &vkPipelineColorBlendStateCreateInfo;
+        createInfo.pViewportState      = &vpStateCI;
+        createInfo.pRasterizationState = &rsStateCI;
+        createInfo.pMultisampleState   = &msStateCI;
+        createInfo.pColorBlendState    = &cbStateCI;
         // create_info.pDepthStencilState  = &vk_pipeline_depth_stencil_state_create_info;
-        createInfo.pDynamicState = &vkPipelineDynamicStateCreateInfo;
+        createInfo.pDynamicState = &dyStateCI;
         createInfo.layout        = static_cast<VulkanPipelineLayout*>(pCreateInfo->layout)->GetResource();
         createInfo.renderPass    = static_cast<VulkanRenderPass*>(pCreateInfo->renderPass)->GetResource();
         createInfo.subpass       = pCreateInfo->subpass;
-        if (pCreateInfo->basePipelineHandle != nullptr) {
-            createInfo.basePipelineHandle =
-                static_cast<VulkanPipeline*>(pCreateInfo->basePipelineHandle)->GetResource();
+        if (pCreateInfo->basePipelineHandle != nullptr) 
+        {
+            createInfo.basePipelineHandle = static_cast<VulkanPipeline*>(pCreateInfo->basePipelineHandle)->GetResource();
         }
-        else {
+        else 
+        {
             createInfo.basePipelineHandle = VK_NULL_HANDLE;
         }
         createInfo.basePipelineIndex = pCreateInfo->basePipelineIndex;
@@ -888,14 +854,19 @@ namespace MiniEngine
         pPipelines = new VulkanPipeline();
         VkPipeline      vkPipelines;
         VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
-        if (pipelineCache != nullptr) {
+        if (pipelineCache != nullptr) 
+        {
             vkPipelineCache = static_cast<VulkanPipelineCache*>(pipelineCache)->GetResource();
         }
         VkResult result = vkCreateGraphicsPipelines(
-            mDevice, vkPipelineCache, createInfoCnt, &createInfo, nullptr, &vkPipelines);
+            mDevice, 
+            vkPipelineCache, 
+            createInfoCnt, 
+            &createInfo, nullptr, &vkPipelines);
         static_cast<VulkanPipeline*>(pPipelines)->SetResource(vkPipelines);
 
-        if (result != VK_SUCCESS) {
+        if (result != VK_SUCCESS) 
+        {
             LOG_ERROR("Vulkan failed to create GraphicsPipelines!");
             return false;
         }
@@ -965,11 +936,11 @@ namespace MiniEngine
 
             for (uint32_t i = 0; i < (rhiDesc).colorAttachmentCount; ++i)
             {
-                const auto& rhiAttachmentRefenceColor = (rhiDesc).pColorAttachments[i];
-                auto&       vkAttachmentRefenceColor  = vkAttachmentReference[currentAttachmentRef];
+                const auto& rhiAttachmentReferenceColor = (rhiDesc).pColorAttachments[i];
+                auto&       vkAttachmentReferenceColor  = vkAttachmentReference[currentAttachmentRef];
 
-                vkAttachmentRefenceColor.attachment = rhiAttachmentRefenceColor.attachment;
-                vkAttachmentRefenceColor.layout = static_cast<VkImageLayout>(rhiAttachmentRefenceColor.layout);
+                vkAttachmentReferenceColor.attachment = rhiAttachmentReferenceColor.attachment;
+                vkAttachmentReferenceColor.layout = static_cast<VkImageLayout>(rhiAttachmentReferenceColor.layout);
 
                 currentAttachmentRef += 1;
             };
@@ -977,16 +948,16 @@ namespace MiniEngine
 
         if (currentAttachmentRef != totalAttachmentRef)
         {
-            LOG_ERROR("currentAttachmentRefence != totalAttachmentRefenrence");
+            LOG_ERROR("currentAttachmentReference != totalAttachmentReference");
             return false;
         }
 
         // specify the subpass dependency
-        std::vector<VkSubpassDependency> vkSubpassDepandecy(pCreateInfo->dependencyCount);
+        std::vector<VkSubpassDependency> subpassDependency(pCreateInfo->dependencyCount);
         for (int i = 0; i < pCreateInfo->dependencyCount; ++i)
         {
             const auto& rhiDesc = pCreateInfo->pDependencies[i];
-            auto&       vkDesc  = vkSubpassDepandecy[i];
+            auto&       vkDesc  = subpassDependency[i];
 
             vkDesc.srcSubpass = rhiDesc.srcSubpass; // which will be depended on
             vkDesc.dstSubpass = rhiDesc.dstSubpass; // which has dependency
@@ -1007,7 +978,7 @@ namespace MiniEngine
         createInfo.subpassCount    = pCreateInfo->subpassCount;
         createInfo.pSubpasses      = vkSubpassDesc.data();
         createInfo.dependencyCount = pCreateInfo->dependencyCount;
-        createInfo.pDependencies   = vkSubpassDepandecy.data();
+        createInfo.pDependencies   = subpassDependency.data();
 
         pRenderPass = new VulkanRenderPass();
         VkRenderPass vkRenderPass;
@@ -1085,10 +1056,54 @@ namespace MiniEngine
         CreateSwapChainImageViews();
     }
 
+    void VulkanRHI::CreateBuffer(RHIDeviceSize size, RHIBufferUsageFlags usageFlags, RHIMemoryPropertyFlags properties, RHIBuffer *&buffer, RHIDeviceMemory *&bufferMemory)
+    {
+        VkBuffer retBuffer;
+        VkDeviceMemory retDeviceMemory;
+
+        VulkanUtil::CreateBuffer(mPhysicalDevice, mDevice, size, usageFlags, properties, retBuffer, retDeviceMemory);
+        buffer = new VulkanBuffer();
+        bufferMemory = new VulkanDeviceMemory();
+        static_cast<VulkanBuffer*>(buffer)->SetResource(retBuffer);
+        static_cast<VulkanDeviceMemory*>(bufferMemory)->SetResource(retDeviceMemory);
+    }
+
+    void VulkanRHI::CmdBindVertexBuffersPFN(RHICommandBuffer *cmdBuffer, uint32_t firstBinding, uint32_t bindingCount, RHIBuffer *const *pBuffers, const RHIDeviceSize *pOffsets)
+    {
+        // buffer
+        int bufferSize = bindingCount;
+        std::vector<VkBuffer> vkBufferList(bufferSize);
+        for (int i = 0; i < bufferSize; ++i)
+        {
+            const auto& rhiBufferElement = pBuffers[i];
+            auto&       vkBufferElement  = vkBufferList[i];
+
+            vkBufferElement = static_cast<VulkanBuffer*>(rhiBufferElement)->GetResource();
+        };
+
+        // offset
+        int offsetSize = bindingCount;
+        std::vector<VkDeviceSize> vkDeviceSizeList(offsetSize);
+        for (int i = 0; i < offsetSize; ++i)
+        {
+            const auto& rhiOffsetElement = pOffsets[i];
+            auto&       vkOffsetElement  = vkDeviceSizeList[i];
+
+            vkOffsetElement = rhiOffsetElement;
+        };
+
+        return pfnVkCmdBindVertexBuffers(
+            static_cast<VulkanCommandBuffer*>(cmdBuffer)->GetResource(),
+            firstBinding,
+            bindingCount,
+            vkBufferList.data(),
+            vkDeviceSizeList.data());
+    }
+
     void VulkanRHI::CmdBeginRenderPassPFN(
         RHICommandBuffer *commandBuffer,
         const RHIRenderPassBeginInfo *pRenderPassBegin,
-        RHISubpassContents contents) 
+        RHISubpassContents contents)
     {
         // TODO
         VkOffset2D offset2D {};
@@ -1247,12 +1262,7 @@ namespace MiniEngine
 
     void VulkanRHI::WaitForFences() 
     {
-        if (pfnVkWaitForFences(
-            mDevice, 1,
-            &mIsFrameInFlightFences[mCurrentFrameIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
-
-            LOG_ERROR("Vulkan failed to synchronize fences!");
-        }
+        VK_CHECK(pfnVkWaitForFences(mDevice, 1, &mIsFrameInFlightFences[mCurrentFrameIndex], VK_TRUE, UINT64_MAX)) 
     }
 
     RHISwapChainDesc VulkanRHI::GetSwapChainInfo() 
@@ -1313,11 +1323,7 @@ namespace MiniEngine
     void VulkanRHI::SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain) 
     {
         // end command buffer
-        if (pfnVkEndCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex]) != VK_SUCCESS)
-        {
-            LOG_ERROR("Vulkan EndCommandBuffer failed!");
-            return;
-        }
+        VK_CHECK(pfnVkEndCommandBuffer(mVkCommandBuffers[mCurrentFrameIndex]))
 
         // submit command buffer
         // signal(semaphore[])
@@ -1342,16 +1348,12 @@ namespace MiniEngine
         }
 
         // submit info(command buffer) to graphics queue family
-        if (vkQueueSubmit(
+        VK_CHECK(vkQueueSubmit(
             static_cast<VulkanQueue*>(mGraphicsQueue)->GetResource(),
             1,
             &submitInfo,
             // submit finished, allow another render
-            mIsFrameInFlightFences[mCurrentFrameIndex]) != VK_SUCCESS) {
-
-            LOG_ERROR("Vulkan QueueSubmit failed!");
-            return;
-        }
+            mIsFrameInFlightFences[mCurrentFrameIndex]))
 
         // present swapchain
         VkPresentInfoKHR presentInfo   = {};
@@ -1382,5 +1384,25 @@ namespace MiniEngine
     void VulkanRHI::DestroyFrameBuffer(RHIFrameBuffer *frameBuffer)
     {
         vkDestroyFramebuffer(mDevice, static_cast<VulkanFrameBuffer*>(frameBuffer)->GetResource(), nullptr);
+    }
+
+    bool VulkanRHI::MapMemory(RHIDeviceMemory *memory, RHIDeviceSize offset, RHIDeviceSize size, RHIMemoryMapFlags flags, void **ppData)
+    {
+        if (vkMapMemory(
+            mDevice, static_cast<VulkanDeviceMemory*>(memory)->GetResource(),
+            offset,
+            size,
+            static_cast<VkMemoryMapFlags>(flags),
+            ppData) != VK_SUCCESS)
+        {
+            LOG_ERROR("vkMapMemory failed!");
+            return false;
+        }
+        return true;
+    }
+
+    void VulkanRHI::UnmapMemory(RHIDeviceMemory *memory)
+    {
+        vkUnmapMemory(mDevice, static_cast<VulkanDeviceMemory*>(memory)->GetResource());
     }
 }

@@ -115,4 +115,24 @@ namespace MiniEngine
     private:
         VkSemaphore mResource;
     };
+
+    class VulkanBuffer : public RHIBuffer
+    {
+    public:
+        void SetResource(VkBuffer res) { mResource = res; }
+        VkBuffer GetResource() const { return mResource; }
+
+    private:
+        VkBuffer mResource;
+    };
+
+    class VulkanDeviceMemory : public RHIDeviceMemory
+    {
+    public:
+        void SetResource(VkDeviceMemory res) { mResource = res; }
+        VkDeviceMemory GetResource() const { return mResource; }
+        
+    private:
+        VkDeviceMemory mResource;
+    };
 }
