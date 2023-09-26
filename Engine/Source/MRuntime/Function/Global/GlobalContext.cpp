@@ -1,6 +1,6 @@
 ﻿#include <memory>
 
-#include "GlobalContext.h"
+#include "GlobalContext.hpp"
 
 namespace MiniEngine
 {

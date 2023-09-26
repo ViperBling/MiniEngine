@@ -4,8 +4,8 @@
 
 #include <memory>
 
-#include "Function/Render/Interface/RHIStruct.h"
-#include "Function/Render/WindowSystem.h"
+#include "Function/Render/Interface/RHIStruct.hpp"
+#include "Function/Render/WindowSystem.hpp"
 
 namespace MiniEngine
 {

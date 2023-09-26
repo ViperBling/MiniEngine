@@ -3,8 +3,8 @@
 #include <memory>
 #include <vector>
 
-#include "Function/Render/Interface/RHI.h"
-#include "Function/Render/RenderResourceBase.h"
+#include "Function/Render/Interface/RHI.hpp"
+#include "Function/Render/RenderResourceBase.hpp"
 
 namespace MiniEngine
 {

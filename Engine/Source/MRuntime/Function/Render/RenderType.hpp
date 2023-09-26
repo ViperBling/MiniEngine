@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MRuntime/Core/Base/Hash.h"
+#include "MRuntime/Core/Base/Hash.hpp"
 
 #include <cstdint>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "MEditorUI.h"
+#include "MEditorUI.hpp"
 
 namespace MiniEngine
 {

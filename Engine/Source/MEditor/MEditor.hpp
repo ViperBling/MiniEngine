@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "MEngine.h"
-#include "MEditorUI.h"
+#include "MEngine.hpp"
+#include "MEditorUI.hpp"
 
 namespace MiniEngine
 {

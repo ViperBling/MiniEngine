@@ -1,9 +1,10 @@
 #include <DebugDraw_frag.h>
 #include <DebugDraw_vert.h>
 
-#include "DebugDrawPipeline.h"
-#include "Core/Base/Marco.h"
-#include "Function/Global/GlobalContext.h"
+#include "DebugDrawPipeline.hpp"
+#include "DebugDrawPrimitive.hpp"
+#include "Core/Base/Marco.hpp"
+#include "Function/Global/GlobalContext.hpp"
 
 namespace MiniEngine
 {

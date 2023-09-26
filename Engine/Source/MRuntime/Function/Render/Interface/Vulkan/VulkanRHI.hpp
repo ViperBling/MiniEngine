@@ -7,10 +7,10 @@
 #include "vulkan/vulkan_core.h"
 #include "GLFW/glfw3.h"
 
-#include "Function/Render/Interface/RHI.h"
-#include "Function/Render/Interface/RHIStruct.h"
-#include "Function/Render/RenderType.h"
-#include "Function/Render/Interface/Vulkan/VulkanRHIResource.h"
+#include "Function/Render/Interface/RHI.hpp"
+#include "Function/Render/Interface/RHIStruct.hpp"
+#include "Function/Render/RenderType.hpp"
+#include "Function/Render/Interface/Vulkan/VulkanRHIResource.hpp"
 
 namespace MiniEngine
 {

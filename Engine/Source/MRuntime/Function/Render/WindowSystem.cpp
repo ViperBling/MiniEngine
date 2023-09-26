@@ -1,5 +1,5 @@
-﻿#include "WindowSystem.h"
-#include "Core/Base/Marco.h"
+﻿#include "WindowSystem.hpp"
+#include "Core/Base/Marco.hpp"
 
 namespace MiniEngine
 {

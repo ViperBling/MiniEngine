@@ -1,7 +1,7 @@
 ﻿#include <filesystem>
 
-#include "MEditor/MEditor.h"
-#include "MRuntime/MEngine.h"
+#include "MEditor/MEditor.hpp"
+#include "MRuntime/MEngine.hpp"
 
 int main(int argc, char* argv[])
 {

@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include "DebugDrawPipeline.h"
-#include "Function/Render/Interface/RHI.h"
+#include "DebugDrawPipeline.hpp"
+#include "Function/Render/Interface/RHI.hpp"
 
 namespace MiniEngine
 {

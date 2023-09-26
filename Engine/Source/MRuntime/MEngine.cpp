@@ -1,8 +1,8 @@
 #include <string>
 
-#include "MEngine.h"
-#include "Function/Render/WindowSystem.h"
-#include "Function/Global/GlobalContext.h"
+#include "MEngine.hpp"
+#include "Function/Render/WindowSystem.hpp"
+#include "Function/Global/GlobalContext.hpp"
 
 namespace MiniEngine
 {

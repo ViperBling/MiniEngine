@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "Function/Render/WindowSystem.h"
-#include "Function/Render/RenderSystem.h"
+#include "Function/Render/WindowSystem.hpp"
+#include "Function/Render/RenderSystem.hpp"
 
 namespace MiniEngine
 {

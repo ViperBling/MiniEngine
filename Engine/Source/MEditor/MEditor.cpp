@@ -1,8 +1,8 @@
 #include <cassert>
 #include <memory>
 
-#include "MEditor.h"
-#include "Function/Global/GlobalContext.h"
+#include "MEditor.hpp"
+#include "Function/Global/GlobalContext.hpp"
 
 using namespace MiniEngine;
 

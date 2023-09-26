@@ -3,9 +3,9 @@
 #include <memory>
 #include <string>
 
-#include "Function/Render/WindowSystem.h"
-#include "Function/Render/RenderSystem.h"
-#include "Function/Render/DebugDraw/DebugDrawManager.h"
+#include "Function/Render/WindowSystem.hpp"
+#include "Function/Render/RenderSystem.hpp"
+#include "Function/Render/DebugDraw/DebugDrawManager.hpp"
 
 namespace MiniEngine
 {

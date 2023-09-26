@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Function/Render/Interface/RHIStruct.h"
+#include "Function/Render/Interface/RHIStruct.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace MiniEngine

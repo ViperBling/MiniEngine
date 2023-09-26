@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Function/Render/Interface/RHI.h"
+#include "Function/Render/Interface/RHI.hpp"
 
 namespace MiniEngine
 {

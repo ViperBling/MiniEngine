@@ -1,4 +1,4 @@
-#include "RenderPipelineBase.h"
+#include "RenderPipelineBase.hpp"
 
 namespace MiniEngine
 {

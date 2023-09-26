@@ -1,7 +1,7 @@
 #include <cstdint>
 
-#include "DebugDrawManager.h"
-#include "Function/Global/GlobalContext.h"
+#include "DebugDrawManager.hpp"
+#include "Function/Global/GlobalContext.hpp"
 
 
 namespace MiniEngine
