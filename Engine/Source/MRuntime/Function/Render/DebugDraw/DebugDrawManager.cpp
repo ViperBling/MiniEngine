@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstddef>
 
 #include "DebugDrawManager.hpp"
 #include "Function/Global/GlobalContext.hpp"
@@ -10,11 +11,12 @@ namespace MiniEngine
     {
         mRHI = gRuntimeGlobalContext.mRenderSystem->GetRHI();
         SetupPipelines();
+        mBufferAllocator = new DebugDrawAllocator();
     }
 
     void DebugDrawManager::SetupPipelines()
     {
-        for (uint8_t i = 0; static_cast<DebugDrawPipelineType>(i) < DebugDrawPipelineType::count; i++) {
+        for (uint8_t i = 0; static_cast<DebugDrawPipelineType>(i) < DebugDrawPipelineType::Count; i++) {
             mDebugDrawPipeline[i] = new DebugDrawPipeline(static_cast<DebugDrawPipelineType>(i));
             mDebugDrawPipeline[i]->Initialize();
         }
@@ -30,21 +32,39 @@ namespace MiniEngine
 
     void DebugDrawManager::Draw(uint32_t currentSwapChainImageIndex) 
     {
+        prepareDrawBuffer();
         DrawDebugObject(currentSwapChainImageIndex);
     }
 
-    void DebugDrawManager::DrawDebugObject(uint32_t currentSwapChainImageIndex) 
+    void DebugDrawManager::prepareDrawBuffer()
+    {
+        mBufferAllocator->Clear();
+        std::vector<DebugDrawVertex> vertices;
+
+        mDebugDrawGroupForRender.WriteTriangleData(vertices, true);
+        mTriangleStartOffset = mBufferAllocator->CacheVertexs(vertices);
+        mTriangleEndOffset = mBufferAllocator->GetVertexCacheOffset();
+        mBufferAllocator->Allocator();
+    }
+
+    void DebugDrawManager::DrawDebugObject(uint32_t currentSwapChainImageIndex)
     {
         DrawPointLineTriangleBox(currentSwapChainImageIndex);
     }
 
     void DebugDrawManager::DrawPointLineTriangleBox(uint32_t currentSwapChainImageIndex) 
     {
+        RHIBuffer* vertexBuffers[] = {mBufferAllocator->GetVertexBuffer()};
+        if (vertexBuffers[0] == nullptr) return;
+
+        RHIDeviceSize offsets[] = {0};
+        mRHI->CmdBindVertexBuffersPFN(mRHI->GetCurrentCommandBuffer(), 0, 1, vertexBuffers, offsets);
+
         std::vector<DebugDrawPipeline*> vcPipelines{
-            mDebugDrawPipeline[static_cast<uint32_t>(DebugDrawPipelineType::triangle)],
+            mDebugDrawPipeline[static_cast<uint32_t>(DebugDrawPipelineType::Triangle)],
         };
-        std::vector<size_t> vcStartOffset {mTriangleStartOffset = 0};
-        std::vector<size_t> vcEndOffset {mTriangleEndOffset = 3};
+        std::vector<size_t> vcStartOffset {mTriangleStartOffset};
+        std::vector<size_t> vcEndOffset {mTriangleEndOffset};
 
         RHIClearValue clearValues[1];
         clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f}; // use black color as clear value
@@ -57,8 +77,11 @@ namespace MiniEngine
         renderPassBeginInfo.clearValueCount   = (sizeof(clearValues) / sizeof(clearValues[0]));
         renderPassBeginInfo.pClearValues      = clearValues;
 
-        for (size_t i = 0; i < vcPipelines.size(); i++) 
+        size_t pipelineSize = vcPipelines.size();
+        for (size_t i = 0; i < pipelineSize; i++) 
         {
+            if (vcEndOffset[i] - vcStartOffset[i] == 0) continue;
+
             renderPassBeginInfo.renderPass = vcPipelines[i]->GetFrameBuffer().renderPass;
             renderPassBeginInfo.framebuffer = vcPipelines[i]->GetFrameBuffer().framebuffers[currentSwapChainImageIndex];
             mRHI->CmdBeginRenderPassPFN(

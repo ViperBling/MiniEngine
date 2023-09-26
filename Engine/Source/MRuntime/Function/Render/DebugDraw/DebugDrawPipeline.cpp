@@ -78,7 +78,9 @@ namespace MiniEngine
         renderPassCreateInfo.pDependencies   = dependencies;
 
         if (mRHI->CreateRenderPass(&renderPassCreateInfo, mFrameBuffer.renderPass) != RHI_SUCCESS)
+        {
             LOG_ERROR("RHI failed to create RenderPass!");
+        }
     }
 
     void DebugDrawPipeline::SetupPipelines() {
@@ -106,13 +108,15 @@ namespace MiniEngine
             PSPipelineShaderStageCreateInfo
         };
 
+        auto vertexBindingDesc = DebugDrawVertex::GetBindingDescriptions();
+        auto vertexAttributeDesc = DebugDrawVertex::GetAttributeDescriptions();
         // set vertex input information
         RHIPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {};
         vertexInputStateCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
+        vertexInputStateCreateInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDesc.size());
+        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexBindingDesc.data();
+        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDesc.size());
+        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexAttributeDesc.data();
 
         // set vertex input assembly rule
         RHIPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -198,7 +202,8 @@ namespace MiniEngine
         pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
 
         mRenderPipelines.resize(1);
-        if (mRHI->CreatePipelineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) {
+        if (mRHI->CreatePipelineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) 
+        {
             LOG_ERROR("Failed to create RHI pipeline layout");
         }
 
@@ -226,13 +231,14 @@ namespace MiniEngine
         pipelineCreateInfo.basePipelineIndex  = -1;              // illegal index
 
         // select pipeline type
-        if (mPipelineType == DebugDrawPipelineType::triangle)
+        if (mPipelineType == DebugDrawPipelineType::Triangle)
             inputAssembly.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
         // create the pipeline
-        if (mRHI->CreateGraphicsPipeline(RHI_NULL_HANDLE, 1, &pipelineCreateInfo, mRenderPipelines[0].pipeline) !=
-            RHI_SUCCESS)
+        if (mRHI->CreateGraphicsPipeline(RHI_NULL_HANDLE, 1, &pipelineCreateInfo, mRenderPipelines[0].pipeline) != RHI_SUCCESS)
+        {
             LOG_ERROR("Failed to create debug draw graphics pipeline");
+        }
     }
 
     void DebugDrawPipeline::SetupFrameBuffers() {
@@ -256,7 +262,9 @@ namespace MiniEngine
             framebufferCreateInfo.layers          = 1;
 
             if (mRHI->CreateFrameBuffer(&framebufferCreateInfo, mFrameBuffer.framebuffers[i]) != RHI_SUCCESS)
+            {
                 LOG_ERROR("create inefficient pick framebuffer");
+            }
         }
     }
 }

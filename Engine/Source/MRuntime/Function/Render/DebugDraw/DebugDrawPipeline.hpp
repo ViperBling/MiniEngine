@@ -30,8 +30,8 @@ namespace MiniEngine
 
     enum class DebugDrawPipelineType : uint8_t
     {
-        triangle,
-        count,
+        Triangle,
+        Count,
     };
 
     class DebugDrawPipeline
@@ -51,10 +51,10 @@ namespace MiniEngine
         void SetupFrameBuffers();
 
     private:
-        DebugDrawPipelineType mPipelineType;
+        DebugDrawPipelineType               mPipelineType;
         // RHIDescriptorSetLayout*            mDescriptorLayout; // 管线布局描述器
-        std::vector<DebugDrawPipelineBase> mRenderPipelines; // 渲染管线
-        DebugDrawFrameBuffer mFrameBuffer;
-        std::shared_ptr<RHI>               mRHI;
+        std::vector<DebugDrawPipelineBase>  mRenderPipelines; // 渲染管线
+        DebugDrawFrameBuffer                mFrameBuffer;
+        std::shared_ptr<RHI>                mRHI;
     };
 }
