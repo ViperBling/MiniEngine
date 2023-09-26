@@ -295,6 +295,8 @@ namespace MiniEngine
             reinterpret_cast<PFN_vkEndCommandBuffer>(vkGetDeviceProcAddr(mDevice, "vkEndCommandBuffer"));
         pfnVkCmdBindVertexBuffers = 
             reinterpret_cast<PFN_vkCmdBindVertexBuffers>(vkGetDeviceProcAddr(mDevice, "vkCmdBindVertexBuffers"));
+        pfnVkCmdBindIndexBuffer = 
+            reinterpret_cast<PFN_vkCmdBindIndexBuffer>(vkGetDeviceProcAddr(mDevice, "vkCmdBindIndexBuffer"));
         pfnVkCmdBeginRenderPass =
             reinterpret_cast<PFN_vkCmdBeginRenderPass>(vkGetDeviceProcAddr(mDevice, "vkCmdBeginRenderPass"));
         pfnVkCmdEndRenderPass =
@@ -306,6 +308,7 @@ namespace MiniEngine
         pfnVkCmdSetScissor = reinterpret_cast<PFN_vkCmdSetScissor>(vkGetDeviceProcAddr(mDevice, "vkCmdSetScissor"));
         pfnVkWaitForFences = reinterpret_cast<PFN_vkWaitForFences>(vkGetDeviceProcAddr(mDevice, "vkWaitForFences"));
         pfnVkResetFences = reinterpret_cast<PFN_vkResetFences>(vkGetDeviceProcAddr(mDevice, "vkResetFences"));
+        pfnVkCmdDrawIndexed = reinterpret_cast<PFN_vkCmdDrawIndexed>(vkGetDeviceProcAddr(mDevice, "vkCmdDrawIndexed"));
     }
 
     // 创建命令池，用于管理命令缓存的内存
@@ -315,6 +318,18 @@ namespace MiniEngine
         // TODO
         {
             mRHICommandPool = new VulkanCommandPool();
+            VkCommandPool cmdPool;
+            VkCommandPoolCreateInfo cmdPoolCI {};
+            cmdPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            cmdPoolCI.pNext = nullptr;
+            cmdPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+            cmdPoolCI.queueFamilyIndex = mQueueIndices.graphicsFamily.value();
+
+            VK_CHECK(vkCreateCommandPool(mDevice, &cmdPoolCI, nullptr, &cmdPool));
+            static_cast<VulkanCommandPool*>(mRHICommandPool)->SetResource(cmdPool);
+        }
+        // Other Command Pools
+        {
             VkCommandPoolCreateInfo commandPoolCreateInfo {};
             commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
             commandPoolCreateInfo.pNext = nullptr;
@@ -1068,6 +1083,13 @@ namespace MiniEngine
         static_cast<VulkanDeviceMemory*>(bufferMemory)->SetResource(retDeviceMemory);
     }
 
+    void VulkanRHI::CopyBuffer(RHIBuffer *srcBuffer, RHIBuffer *dstBuffer, RHIDeviceSize srcOffset, RHIDeviceSize dstOffset, RHIDeviceSize size)
+    {
+        VkBuffer vkSrcBuffer = static_cast<VulkanBuffer*>(srcBuffer)->GetResource();
+        VkBuffer vkDstBuffer = static_cast<VulkanBuffer*>(dstBuffer)->GetResource();
+        VulkanUtil::CopyBuffer(this, vkSrcBuffer, vkDstBuffer, srcOffset, dstOffset, size);
+    }
+
     void VulkanRHI::CmdBindVertexBuffersPFN(RHICommandBuffer *cmdBuffer, uint32_t firstBinding, uint32_t bindingCount, RHIBuffer *const *pBuffers, const RHIDeviceSize *pOffsets)
     {
         // buffer
@@ -1098,6 +1120,15 @@ namespace MiniEngine
             bindingCount,
             vkBufferList.data(),
             vkDeviceSizeList.data());
+    }
+
+    void VulkanRHI::CmdBindIndexBufferPFN(RHICommandBuffer *commandBuffer, RHIBuffer *buffer, RHIDeviceSize offset, RHIIndexType indexType)
+    {
+        return pfnVkCmdBindIndexBuffer(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            static_cast<VulkanBuffer*>(buffer)->GetResource(),
+            static_cast<VkDeviceSize>(offset),
+            static_cast<VkIndexType>(indexType));
     }
 
     void VulkanRHI::CmdBeginRenderPassPFN(
@@ -1190,6 +1221,17 @@ namespace MiniEngine
                   instanceCount,
                   firstVertex,
                   firstInstance);
+    }
+
+    void VulkanRHI::CmdDrawIndexed(RHICommandBuffer *commandBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
+    {
+        return pfnVkCmdDrawIndexed(
+            static_cast<VulkanCommandBuffer*>(commandBuffer)->GetResource(),
+            indexCount,
+            instanceCount,
+            firstIndex,
+            vertexOffset,
+            firstInstance);
     }
 
     void VulkanRHI::CmdEndRenderPassPFN(RHICommandBuffer *commandBuffer) {
@@ -1381,9 +1423,55 @@ namespace MiniEngine
         mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mkMaxFramesInFlight;
     }
 
+    RHICommandBuffer* VulkanRHI::BeginSingleTimeCommand()
+    {
+        VkCommandBufferAllocateInfo cmdBufferAI {};
+        cmdBufferAI.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        cmdBufferAI.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        cmdBufferAI.commandPool        = static_cast<VulkanCommandPool*>(mRHICommandPool)->GetResource();
+        cmdBufferAI.commandBufferCount = 1;
+
+        VkCommandBuffer cmdBuffer;
+        VK_CHECK(vkAllocateCommandBuffers(mDevice, &cmdBufferAI, &cmdBuffer));
+
+        VkCommandBufferBeginInfo cmdBufferBI {};
+        cmdBufferBI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        cmdBufferBI.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        pfnVkBeginCommandBuffer(cmdBuffer, &cmdBufferBI);
+
+        RHICommandBuffer* rhiCmdBuffer = new VulkanCommandBuffer();
+        static_cast<VulkanCommandBuffer*>(rhiCmdBuffer)->SetResource(cmdBuffer);
+        return rhiCmdBuffer;
+    }
+
+    void VulkanRHI::EndSingleTimeCommand(RHICommandBuffer *cmdBuffer)
+    {
+        VkCommandBuffer vkCmdBuffer = static_cast<VulkanCommandBuffer*>(cmdBuffer)->GetResource();
+        pfnVkEndCommandBuffer(vkCmdBuffer);
+
+        VkSubmitInfo submitInfo {};
+        submitInfo.sType              = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers    = &vkCmdBuffer;
+
+        vkQueueSubmit(static_cast<VulkanQueue*>(mGraphicsQueue)->GetResource(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(static_cast<VulkanQueue*>(mGraphicsQueue)->GetResource());
+
+        vkFreeCommandBuffers(
+            mDevice, static_cast<VulkanCommandPool*>(mRHICommandPool)->GetResource(), 1, &vkCmdBuffer);
+        delete (cmdBuffer);
+    }
+
     void VulkanRHI::DestroyFrameBuffer(RHIFrameBuffer *frameBuffer)
     {
         vkDestroyFramebuffer(mDevice, static_cast<VulkanFrameBuffer*>(frameBuffer)->GetResource(), nullptr);
+    }
+
+    void VulkanRHI::DestroyBuffer(RHIBuffer*& buffer)
+    {
+        vkDestroyBuffer(mDevice, static_cast<VulkanBuffer*>(buffer)->GetResource(), nullptr);
+        RHI_DELETE_PTR(buffer);
     }
 
     bool VulkanRHI::MapMemory(RHIDeviceMemory *memory, RHIDeviceSize offset, RHIDeviceSize size, RHIMemoryMapFlags flags, void **ppData)
@@ -1404,5 +1492,10 @@ namespace MiniEngine
     void VulkanRHI::UnmapMemory(RHIDeviceMemory *memory)
     {
         vkUnmapMemory(mDevice, static_cast<VulkanDeviceMemory*>(memory)->GetResource());
+    }
+    void VulkanRHI::FreeMemory(RHIDeviceMemory *memory)
+    {
+        vkFreeMemory(mDevice, static_cast<VulkanDeviceMemory*>(memory)->GetResource(), nullptr);
+        RHI_DELETE_PTR(memory);
     }
 }

@@ -45,6 +45,13 @@ namespace MiniEngine
             RHIBuffer*&             buffer,
             RHIDeviceMemory*&       bufferMemory
         ) = 0;
+        virtual void CopyBuffer(
+            RHIBuffer* srcBuffer,
+            RHIBuffer* dstBuffer,
+            RHIDeviceSize srcOffset,
+            RHIDeviceSize dstOffset,
+            RHIDeviceSize size
+        ) = 0;
 
         // command and command write
         virtual void CmdBindVertexBuffersPFN(
@@ -53,6 +60,12 @@ namespace MiniEngine
             uint32_t                bindingCount,
             RHIBuffer* const*       pBuffers,
             const RHIDeviceSize*    pOffsets
+        ) = 0;
+        virtual void CmdBindIndexBufferPFN(
+            RHICommandBuffer* commandBuffer,
+            RHIBuffer* buffer,
+            RHIDeviceSize offset,
+            RHIIndexType indexType
         ) = 0;
         virtual void CmdBeginRenderPassPFN(
             RHICommandBuffer* commandBuffer, 
@@ -69,6 +82,14 @@ namespace MiniEngine
             uint32_t vertexCount, 
             uint32_t instanceCount, 
             uint32_t firstVertex, 
+            uint32_t firstInstance
+        ) = 0;
+        virtual void CmdDrawIndexed(
+            RHICommandBuffer* commandBuffer,
+            uint32_t indexCount,
+            uint32_t instanceCount,
+            uint32_t firstIndex,
+            int32_t vertexOffset,
             uint32_t firstInstance
         ) = 0;
         virtual void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) = 0;
@@ -93,8 +114,11 @@ namespace MiniEngine
         // command write
         virtual bool PrepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapChain) = 0;
         virtual void SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain)   = 0;
+        virtual RHICommandBuffer* BeginSingleTimeCommand() = 0;
+        virtual void EndSingleTimeCommand(RHICommandBuffer* cmdBuffer) = 0;
 
         virtual void DestroyFrameBuffer(RHIFrameBuffer* frameBuffer) = 0;
+        virtual void DestroyBuffer(RHIBuffer*& buffer) = 0;
 
         // Buffer Memory
         virtual bool MapMemory(
@@ -105,5 +129,6 @@ namespace MiniEngine
             void** ppData
         ) = 0;
         virtual void UnmapMemory(RHIDeviceMemory* memory) = 0;
+        virtual void FreeMemory(RHIDeviceMemory* memory)  = 0;
     };
 }

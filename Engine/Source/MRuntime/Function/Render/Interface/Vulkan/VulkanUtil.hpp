@@ -6,6 +6,8 @@
 
 #include "vulkan/vulkan_core.h"
 
+#include "Function/Render/Interface/RHI.hpp"
+
 #define VK_CHECK(f)																				        \
 {																										\
 	VkResult res = (f);																					\
@@ -44,6 +46,14 @@ namespace MiniEngine
             VkDeviceMemory& bufferMemory
         );
         static uint32_t FindMemoryType(VkPhysicalDevice physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+        static void CopyBuffer(
+            RHI* rhi,
+            VkBuffer src,
+            VkBuffer dst,
+            VkDeviceSize srcOffset,
+            VkDeviceSize dstOffset,
+            VkDeviceSize size
+        );
     };
 }
 

@@ -3,7 +3,7 @@
 
 #include "DebugDrawManager.hpp"
 #include "Function/Global/GlobalContext.hpp"
-
+#include "Function/Render/RenderType.hpp"
 
 namespace MiniEngine
 {

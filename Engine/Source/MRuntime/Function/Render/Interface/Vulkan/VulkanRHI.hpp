@@ -36,21 +36,34 @@ namespace MiniEngine
         bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass*& pRenderPass) override;
         bool CreateFrameBuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer*& pFrameBuffer) override;
         void RecreateSwapChain() override;
-        virtual void CreateBuffer(
+        void CreateBuffer(
             RHIDeviceSize           size,
             RHIBufferUsageFlags     usageFlags,
             RHIMemoryPropertyFlags  properties,
             RHIBuffer*&             buffer,
             RHIDeviceMemory*&       bufferMemory
         ) override;
+        void CopyBuffer(
+            RHIBuffer* srcBuffer,
+            RHIBuffer* dstBuffer,
+            RHIDeviceSize srcOffset,
+            RHIDeviceSize dstOffset,
+            RHIDeviceSize size
+        ) override;
 
         // command and command write
-        virtual void CmdBindVertexBuffersPFN(
+        void CmdBindVertexBuffersPFN(
             RHICommandBuffer*       cmdBuffer,
             uint32_t                firstBinding,
             uint32_t                bindingCount,
             RHIBuffer* const*       pBuffers,
             const RHIDeviceSize*    pOffsets
+        ) override;
+        void CmdBindIndexBufferPFN(
+            RHICommandBuffer* commandBuffer,
+            RHIBuffer* buffer,
+            RHIDeviceSize offset,
+            RHIIndexType indexType
         ) override;
         void CmdBeginRenderPassPFN(
             RHICommandBuffer*             commandBuffer,
@@ -68,6 +81,14 @@ namespace MiniEngine
             uint32_t          instanceCount,
             uint32_t          firstVertex,
             uint32_t          firstInstance
+        ) override;
+        void CmdDrawIndexed(
+            RHICommandBuffer* commandBuffer,
+            uint32_t indexCount,
+            uint32_t instanceCount,
+            uint32_t firstIndex,
+            int32_t vertexOffset,
+            uint32_t firstInstance
         ) override;
         void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) override;
         void CmdSetViewportPFN(
@@ -91,17 +112,21 @@ namespace MiniEngine
         // command write
         bool PrepareBeforePass(std::function<void()> passUpdateAfterRecreateSwapChain) override;
         void SubmitRendering(std::function<void()> passUpdateAfterRecreateSwapChain) override;
+        RHICommandBuffer* BeginSingleTimeCommand() override;
+        void EndSingleTimeCommand(RHICommandBuffer* cmdBuffer) override;
 
-        virtual void DestroyFrameBuffer(RHIFrameBuffer* frameBuffer) override;
+        void DestroyFrameBuffer(RHIFrameBuffer* frameBuffer) override;
+        void DestroyBuffer(RHIBuffer*& buffer) override;
 
-        virtual bool MapMemory(
+        bool MapMemory(
             RHIDeviceMemory* memory,
             RHIDeviceSize offset,
             RHIDeviceSize size,
             RHIMemoryMapFlags flags,
             void** ppData
         ) override;
-        virtual void UnmapMemory(RHIDeviceMemory* memory) override;
+        void UnmapMemory(RHIDeviceMemory* memory) override;
+        void FreeMemory(RHIDeviceMemory* memory)  override;
 
     public:
         static uint8_t const mkMaxFramesInFlight {3};               // 最大同时渲染的图片数量
@@ -148,6 +173,7 @@ namespace MiniEngine
         PFN_vkBeginCommandBuffer    pfnVkBeginCommandBuffer;
         PFN_vkEndCommandBuffer      pfnVkEndCommandBuffer;
         PFN_vkCmdBindVertexBuffers  pfnVkCmdBindVertexBuffers;
+        PFN_vkCmdBindIndexBuffer    pfnVkCmdBindIndexBuffer;
         PFN_vkCmdBeginRenderPass    pfnVkCmdBeginRenderPass;
         PFN_vkCmdEndRenderPass      pfnVkCmdEndRenderPass;
         PFN_vkCmdBindPipeline       pfnVkCmdBindPipeline;
@@ -155,6 +181,7 @@ namespace MiniEngine
         PFN_vkCmdSetScissor         pfnVkCmdSetScissor;
         PFN_vkWaitForFences         pfnVkWaitForFences;
         PFN_vkResetFences           pfnVkResetFences;
+        PFN_vkCmdDrawIndexed        pfnVkCmdDrawIndexed;
 
     private:
         void createInstance();

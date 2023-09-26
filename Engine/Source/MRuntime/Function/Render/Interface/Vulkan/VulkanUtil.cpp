@@ -1,5 +1,6 @@
 ﻿#include "VulkanUtil.hpp"
 #include "Core/Base/Marco.hpp"
+#include "Function/Render/Interface/Vulkan/VulkanRHI.hpp"
 #include "vulkan/vulkan_core.h"
 
 namespace MiniEngine
@@ -86,6 +87,21 @@ namespace MiniEngine
             
         LOG_ERROR("findMemoryType error");
         return 0;
+    }
+
+    void VulkanUtil::CopyBuffer(RHI *rhi, VkBuffer src, VkBuffer dst, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size)
+    {
+        if (rhi == nullptr)
+        {
+            LOG_ERROR("RHI is nullptr");
+            return;
+        }
+        RHICommandBuffer* rhiCmdBuffer = static_cast<VulkanRHI*>(rhi)->BeginSingleTimeCommand();
+        VkCommandBuffer cmdBuffer = static_cast<VulkanCommandBuffer*>(rhiCmdBuffer)->GetResource();
+
+        VkBufferCopy copyRegion = {srcOffset, dstOffset, size};
+        vkCmdCopyBuffer(cmdBuffer, src, dst, 1, &copyRegion);
+        static_cast<VulkanRHI*>(rhi)->EndSingleTimeCommand(rhiCmdBuffer);
     }
 
     std::string ErrorString(VkResult errorCode)
