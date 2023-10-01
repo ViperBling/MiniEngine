@@ -6,6 +6,7 @@
 #include "Function/Render/WindowSystem.hpp"
 #include "Function/Render/RenderSystem.hpp"
 #include "Function/Render/DebugDraw/DebugDrawManager.hpp"
+#include "Resource/ConfigManager/ConfigManager.hpp"
 
 namespace MiniEngine
 {
@@ -18,6 +19,7 @@ namespace MiniEngine
         std::shared_ptr<WindowSystem> mWindowsSystem;
         std::shared_ptr<RenderSystem> mRenderSystem;
         std::shared_ptr<DebugDrawManager> mDebugDrawManager;
+        std::shared_ptr<ConfigManager> mConfigManager;
     };
 
     extern RuntimeGlobalContext gRuntimeGlobalContext;

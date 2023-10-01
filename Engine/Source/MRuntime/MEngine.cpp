@@ -1,6 +1,7 @@
 #include <string>
 
 #include "MEngine.hpp"
+#include "Core/Base/Marco.hpp"
 #include "Function/Render/WindowSystem.hpp"
 #include "Function/Global/GlobalContext.hpp"
 
@@ -9,6 +10,7 @@ namespace MiniEngine
     void MEngine::Initialize(const std::string& configFilePath) {
 
         gRuntimeGlobalContext.StartSystems(configFilePath);
+        LOG_INFO("Engine Start");
     }
 
     void MEngine::Finalize() {}
