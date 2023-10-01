@@ -15,16 +15,28 @@ namespace MiniEngine
         if (vertexBufferSize > 0 && !created)
         {
             created = true;
+            RHIBuffer* stagingBuffer;
+            RHIDeviceMemory* stagingBufferMem;
 
             mRHI->CreateBuffer(
                 vertexBufferSize, 
                 RHI_BUFFER_USAGE_TRANSFER_SRC_BIT, 
                 RHI_MEMORY_PROPERTY_HOST_VISIBLE_BIT | RHI_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                mVertexResource.buffer, mVertexResource.memory);
+                stagingBuffer, stagingBufferMem);
             void * data;
-            mRHI->MapMemory(mVertexResource.memory, 0, vertexBufferSize, 0, &data);
+            mRHI->MapMemory(stagingBufferMem, 0, vertexBufferSize, 0, &data);
             memcpy(data, mVertexCache.data(), vertexBufferSize);
-            mRHI->UnmapMemory(mVertexResource.memory);
+            mRHI->UnmapMemory(stagingBufferMem);
+
+            mRHI->CreateBuffer(
+                vertexBufferSize, 
+                RHI_BUFFER_USAGE_TRANSFER_DST_BIT | RHI_BUFFER_USAGE_VERTEX_BUFFER_BIT, 
+                RHI_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                mVertexResource.buffer, mVertexResource.memory);
+
+            mRHI->CopyBuffer(stagingBuffer, mVertexResource.buffer, 0, 0, vertexBufferSize);
+            mRHI->DestroyBuffer(stagingBuffer);
+            mRHI->FreeMemory(stagingBufferMem);
         }
     }
 
