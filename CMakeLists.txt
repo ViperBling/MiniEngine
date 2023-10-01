@@ -6,8 +6,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(BUILD_SHARED_LIBS OFF)
 
-set(MINIENGINE_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# ---- Include guards ----
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+    message(
+        FATAL_ERROR
+        "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
+    )
+endif()
+
+set(MINIENGINE_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}") # 定义变量
+set(CMAKE_INSTALL_PREFIX "${MINIENGINE_ROOT_DIR}/Binary")
+set(BINARY_ROOT_DIR "${CMAKE_INSTALL_PREFIX}/")
 
 add_subdirectory(Engine)

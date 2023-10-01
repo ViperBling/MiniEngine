@@ -1,12 +1,18 @@
 ﻿#include <memory>
 
 #include "GlobalContext.hpp"
+#include "Core/Base/Marco.hpp"
 
 namespace MiniEngine
 {
     RuntimeGlobalContext gRuntimeGlobalContext;
 
-    void RuntimeGlobalContext::StartSystems(const std::string &configFilePath) {
+    void RuntimeGlobalContext::StartSystems(const std::string &configFilePath) 
+    {
+        mConfigManager = std::make_shared<ConfigManager>();
+        mConfigManager->Initialize(configFilePath);
+
+        LOG_INFO(mConfigManager->GetGlobalRenderingResURL());
 
         // 初始化视窗系统
         mWindowsSystem = std::make_shared<WindowSystem>();

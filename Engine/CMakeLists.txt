@@ -1,6 +1,11 @@
 set(ENGINE_ROOT_DIR "${MINIENGINE_ROOT_DIR}/Engine")
 set(THIRD_PARTY_DIR "${ENGINE_ROOT_DIR}/ThirdParty")
 
+set(ENGINE_ASSET_DIR "/Assets")
+
+set(DEPLOY_CONFIG_DIR "Configs/Deployment")
+set(DEVELOP_CONFIG_DIR "Configs/Development")
+
 # 设置Vulkan
 set(vulkan_include ${THIRD_PARTY_DIR}/VulkanSDK/include)
 

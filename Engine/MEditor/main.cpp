@@ -6,7 +6,7 @@
 int main(int argc, char* argv[])
 {
     std::filesystem::path executablePath(argv[0]);
-    std::filesystem::path configFilePath = executablePath.parent_path();
+    std::filesystem::path configFilePath = executablePath.parent_path() / "MiniEngineEditor.ini";
 
     // 初始化
     auto Engine = new MiniEngine::MEngine();
