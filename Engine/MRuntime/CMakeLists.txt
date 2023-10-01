@@ -23,13 +23,13 @@ message(NOTICE "Force using MSVC")
 
 target_include_directories(
         ${TARGET_NAME}
-        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Source>
+        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}>
         $<INSTALL_INTERFACE:${TARGET_NAME}-${PROJECT_VERSION}>
 )
 
 target_include_directories(
         ${TARGET_NAME}
-        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Source/MRuntime>
+        PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/MRuntime>
         $<INSTALL_INTERFACE:${TARGET_NAME}-${PROJECT_VERSION}>
 )
 

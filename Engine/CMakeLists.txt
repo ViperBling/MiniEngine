@@ -35,5 +35,5 @@ add_subdirectory(Shader)
 
 add_subdirectory(ThirdParty)
 
-add_subdirectory(Source/MEditor)
-add_subdirectory(Source/MRuntime)
+add_subdirectory(MEditor)
+add_subdirectory(MRuntime)
