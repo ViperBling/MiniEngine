@@ -41,3 +41,11 @@ add_subdirectory(Shader)
 add_subdirectory(ThirdParty)
 add_subdirectory(MEditor)
 add_subdirectory(MRuntime)
+add_subdirectory(Parser)
+
+set(CODEGEN_TARGET "PreCompile")
+include(Parser/Precompile/precompile.cmake)
+
+set_target_properties("${CODEGEN_TARGET}" PROPERTIES FOLDER "Engine" )
+add_dependencies(MiniEngineRuntime "${CODEGEN_TARGET}")
+add_dependencies("${CODEGEN_TARGET}" "Parser")
