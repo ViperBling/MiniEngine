@@ -3,10 +3,15 @@
 #include <cassert>
 #include <cmath>
 
+#include "Core/Meta/Reflection/Reflection.hpp"
+
 namespace MiniEngine
 {
-    class Vector2
+    REFLECTION_TYPE(Vector2)
+    CLASS(Vector2, Fields)
     {
+        REFLECTION_BODY(Vector2);
+
     public:
         Vector2() = default;
         Vector2(float _x, float _y) : x(_x), y(_y) {};
@@ -106,8 +111,11 @@ namespace MiniEngine
     };
 
 
-    class Vector3
+    REFLECTION_TYPE(Vector3)
+    CLASS(Vector3, Fields)
     {
+        REFLECTION_BODY(Vector3);
+        
     public:
         Vector3() = default;
         Vector3(float x_, float y_, float z_) : x {x_}, y {y_}, z {z_} {};

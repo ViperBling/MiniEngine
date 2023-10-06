@@ -11,3 +11,8 @@ if (NOT TARGET glfw)
     set_target_properties(glfw PROPERTIES FOLDER ${THIRD_PARTY_FOLDER}/glfw)
     set_target_properties(update_mappings PROPERTIES FOLDER ${THIRD_PARTY_FOLDER}/glfw) # gamepad mapping
 endif()
+
+if(NOT TARGET json11)
+    add_subdirectory(json11)
+    set_target_properties(json11 PROPERTIES FOLDER ${THIRD_PARTY_FOLDER}/json11)
+endif()

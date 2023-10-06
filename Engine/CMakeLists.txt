@@ -39,6 +39,5 @@ set(SHADER_COMPILE_TARGET MiniEngineShaderCompile)
 add_subdirectory(Shader)
 
 add_subdirectory(ThirdParty)
-
 add_subdirectory(MEditor)
 add_subdirectory(MRuntime)
