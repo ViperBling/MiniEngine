@@ -1,7 +1,13 @@
 ﻿#include <memory>
 
 #include "GlobalContext.hpp"
+
 #include "Core/Base/Marco.hpp"
+#include "Core/Log/LogSystem.hpp"
+#include "Function/Render/WindowSystem.hpp"
+#include "Function/Render/RenderSystem.hpp"
+#include "Function/Render/DebugDraw/DebugDrawManager.hpp"
+#include "Resource/ConfigManager/ConfigManager.hpp"
 
 namespace MiniEngine
 {
@@ -13,6 +19,8 @@ namespace MiniEngine
         mConfigManager->Initialize(configFilePath);
 
         LOG_INFO(mConfigManager->GetGlobalRenderingResURL());
+
+        mLoggerSystem = std::make_shared<LogSystem>();
 
         // 初始化视窗系统
         mWindowsSystem = std::make_shared<WindowSystem>();
@@ -30,5 +38,12 @@ namespace MiniEngine
         mDebugDrawManager->Initialize();
     }
 
-    void RuntimeGlobalContext::ShutdownSystems() {}
+    void RuntimeGlobalContext::ShutdownSystems() 
+    {
+        mLoggerSystem.reset();
+        mWindowsSystem.reset();
+        mRenderSystem.reset();
+        mDebugDrawManager.reset();
+        mConfigManager.reset();
+    }
 }

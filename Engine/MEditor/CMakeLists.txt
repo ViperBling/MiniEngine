@@ -6,6 +6,11 @@ file(GLOB EDITOR_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${EDITOR_HEADERS} ${EDITOR_SOURCES}) # 给IDE用于文件归类
 add_executable(${TARGET_NAME} ${EDITOR_HEADERS} ${EDITOR_SOURCES})
 
+target_include_directories(
+    ${TARGET_NAME} 
+    PUBLIC ${THIRD_PARTY_DIR}/glm
+)
+
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17 OUTPUT_NAME "MiniEngineEditor")
 set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Engine")
 

@@ -10,6 +10,27 @@ add_library(${TARGET_NAME} ${RUNTIME_HEADERS} ${RUNTIME_SOURCES})
 
 target_include_directories(
     ${TARGET_NAME} 
+    PUBLIC ${ENGINE_ROOT_DIR}
+)
+
+target_include_directories(
+    ${TARGET_NAME} 
+    PUBLIC ${THIRD_PARTY_DIR}/tinyobjloader
+)
+
+target_include_directories(
+    ${TARGET_NAME} 
+    PUBLIC ${THIRD_PARTY_DIR}/glm
+)
+
+target_include_directories(
+    ${TARGET_NAME} 
+    PUBLIC ${THIRD_PARTY_DIR}/imgui
+    ${THIRD_PARTY_DIR}/imgui/backends
+)
+
+target_include_directories(
+    ${TARGET_NAME} 
     PUBLIC ${THIRD_PARTY_DIR}/json11
 )
 
@@ -17,6 +38,8 @@ target_include_directories(
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
 target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
 target_link_libraries(${TARGET_NAME} PUBLIC json11)
+target_link_libraries(${TARGET_NAME} PUBLIC stb)
+target_link_libraries(${TARGET_NAME} PUBLIC imgui)
 
 # IDE标识
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17)

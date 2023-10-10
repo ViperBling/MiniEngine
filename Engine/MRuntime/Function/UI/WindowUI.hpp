@@ -2,11 +2,11 @@
 
 #include <memory>
 
-#include "Function/Render/WindowSystem.hpp"
-#include "Function/Render/RenderSystem.hpp"
-
 namespace MiniEngine
 {
+    class WindowSystem;
+    class RenderSystem;
+    
     struct WindowUIInitInfo
     {
         std::shared_ptr<WindowSystem> mWindowSystem;
@@ -17,5 +17,6 @@ namespace MiniEngine
     {
     public:
         virtual void Initialize(WindowUIInitInfo initInfo) = 0;
+        virtual void PreRender() = 0;
     };
 }

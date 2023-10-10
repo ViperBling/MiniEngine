@@ -2,7 +2,8 @@
 
 #include <array>
 
-#include "Core/Math/Vector.hpp"
+#include "Core/Math/Vector2.hpp"
+#include "Core/Math/Vector3.hpp"
 #include "Function/Render/Interface/RHIStruct.hpp"
 
 namespace MiniEngine

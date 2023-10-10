@@ -3,19 +3,22 @@
 #include <memory>
 #include <string>
 
-#include "Function/Render/WindowSystem.hpp"
-#include "Function/Render/RenderSystem.hpp"
-#include "Function/Render/DebugDraw/DebugDrawManager.hpp"
-#include "Resource/ConfigManager/ConfigManager.hpp"
 
 namespace MiniEngine
 {
+    class LogSystem;
+    class WindowSystem;
+    class RenderSystem;
+    class DebugDrawManager;
+    class ConfigManager;
+
     class RuntimeGlobalContext
     {
     public:
         void StartSystems(const std::string& configFilePath);
         void ShutdownSystems();
 
+        std::shared_ptr<LogSystem> mLoggerSystem;
         std::shared_ptr<WindowSystem> mWindowsSystem;
         std::shared_ptr<RenderSystem> mRenderSystem;
         std::shared_ptr<DebugDrawManager> mDebugDrawManager;
