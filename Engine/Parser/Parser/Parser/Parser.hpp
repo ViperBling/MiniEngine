@@ -15,7 +15,6 @@ class MetaParser
 {
 public:
     
-
     MetaParser(
         const std::string projectInputFile,
         const std::string includeFilePath,
@@ -44,7 +43,7 @@ private:
     std::string              mSrcIncludeFileName;
 
     CXIndex           mIndex;
-    CXTranslationUnit mTranslationIndex;
+    CXTranslationUnit mTranslationUnit;
 
     std::unordered_map<std::string, std::string>  mTypeTable;
     std::unordered_map<std::string, SchemaMoudle> mSchemaModules;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/PreCompiled.hpp"
+#include "Common/Namespace.hpp"
 #include "Cursor/Cursor.hpp"
 
 namespace Utils

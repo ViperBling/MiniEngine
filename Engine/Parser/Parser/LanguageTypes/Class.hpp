@@ -7,7 +7,7 @@ struct BaseClass
 {
     BaseClass(const Cursor& cursor);
 
-    std::string name;
+    std::string mName;
 };
 
 class Class : public TypeInfo
@@ -20,7 +20,7 @@ public:
     Class(const Cursor& cursor, const Namespace& currentNamespace);
 
     virtual bool ShouldCompile(void) const;
-    bool ShouldCompileFilds(void) const;
+    bool ShouldCompileFields(void) const;
 
     template<typename T>
     using SharedPtrVector = std::vector<std::shared_ptr<T>>;
