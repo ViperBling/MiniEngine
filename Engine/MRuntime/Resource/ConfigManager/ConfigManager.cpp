@@ -24,6 +24,8 @@ namespace MiniEngine
                     mRootFolder = configFilePath.parent_path() / value;
                 else if (name == "AssetFolder")
                     mAssetFolder = mRootFolder / value;
+                else if (name == "ShaderFolder")
+                    mShaderFolder = mRootFolder / value;
                 else if (name == "SchemaFolder")
                     mSchemaFolder = mRootFolder / value;
                 else if (name == "DefaultWorld")
@@ -36,8 +38,6 @@ namespace MiniEngine
                     mEditorFontPath = mRootFolder / value;
                 else if (name == "GlobalRenderingRes")
                     mGlobalRenderingResURL = value;
-                else if (name == "GlobalParticleRes")
-                    mGlobalParticalResURL = value;
             }
         }
     }

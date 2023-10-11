@@ -1,12 +1,16 @@
 #include <string>
 
 #include "MEngine.hpp"
-#include "Core/Base/Marco.hpp"
-#include "Function/Render/WindowSystem.hpp"
-#include "Function/Global/GlobalContext.hpp"
+#include "MRuntime/Core/Base/Marco.hpp"
+#include "MRuntime/Function/Render/WindowSystem.hpp"
+#include "MRuntime/Function/Render/RenderSystem.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
 
 namespace MiniEngine
 {
+    bool                            gbIsEditorMode;
+    std::unordered_set<std::string> gEditorTickComponentTypes;
+
     void MEngine::Initialize(const std::string& configFilePath) {
 
         gRuntimeGlobalContext.StartSystems(configFilePath);
@@ -32,13 +36,13 @@ namespace MiniEngine
 
         RenderTick(deltaTime);
 
-        gRuntimeGlobalContext.mWindowsSystem->SetTitle(
+        gRuntimeGlobalContext.mWindowSystem->SetTitle(
             std::string("MiniEngine - " /*+std::to_string(getFPS())+" FPS"*/).c_str()
             );
         // 检查有没有触发什么事件（比如键盘输入、鼠标移动等）、更新窗口状态，并调用对应的回调函数
-        gRuntimeGlobalContext.mWindowsSystem->PollEvents();
+        gRuntimeGlobalContext.mWindowSystem->PollEvents();
 
-        return !gRuntimeGlobalContext.mWindowsSystem->ShouldClose();
+        return !gRuntimeGlobalContext.mWindowSystem->ShouldClose();
     }
 
     bool MEngine::RenderTick(float DeltaTime) {

@@ -5,6 +5,11 @@
 
 namespace MiniEngine
 {
+    RenderSystem::~RenderSystem()
+    {
+        Clear();
+    }
+
     void RenderSystem::Initialize(RenderSystemInitInfo initInfo) {
 
         RHIInitInfo rhiInitInfo;
@@ -18,8 +23,8 @@ namespace MiniEngine
         mRenderPipeline->mRHI = mRHI;
     }
 
-    void RenderSystem::Tick(float DeltaTime) {
-
+    void RenderSystem::Tick(float DeltaTime) 
+    {
         mRHI->PrepareContext();
 
         switch (mRenderPipelineType)
@@ -32,5 +37,32 @@ namespace MiniEngine
             case RENDER_PIPELINE_TYPE::PIPELINE_TYPE_COUNT:
                 break;
         }
+    }
+
+    void RenderSystem::Clear()
+    {
+        if (mRHI)
+        {
+            mRHI->Clear();
+        }
+        mRHI.reset();
+
+        if (mRenderScene)
+        {
+            mRenderScene->Clear();
+        }
+        mRenderScene.reset();
+
+        if (mRenderResource)
+        {
+            mRenderResource->Clear();
+        }
+        mRenderResource.reset();
+        
+        if (mRenderPipeline)
+        {
+            mRenderPipeline->Clear();
+        }
+        mRenderPipeline.reset();
     }
 }

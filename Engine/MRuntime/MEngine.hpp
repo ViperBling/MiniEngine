@@ -4,9 +4,13 @@
 #include <chrono>
 #include <cassert>
 #include <memory>
+#include <unordered_set>
 
 namespace MiniEngine
 {
+    extern bool                            gbIsEditorMode;
+    extern std::unordered_set<std::string> gEditorTickComponentTypes;
+
     class MEngine
     {
     public:

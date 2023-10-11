@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "MRuntime/Function/Global/GlobalContext.hpp"
+#include "MRuntime/Core/Log/LogSystem.hpp"
 
 // #define LOG_INFO(...) std::cout << "file: " << __FILE__ << "\tline: " << __LINE__ << "\tinfo: " << __VA_ARGS__ << "\n"
 

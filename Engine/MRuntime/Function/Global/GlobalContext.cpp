@@ -2,12 +2,16 @@
 
 #include "GlobalContext.hpp"
 
-#include "Core/Base/Marco.hpp"
-#include "Core/Log/LogSystem.hpp"
-#include "Function/Render/WindowSystem.hpp"
-#include "Function/Render/RenderSystem.hpp"
-#include "Function/Render/DebugDraw/DebugDrawManager.hpp"
-#include "Resource/ConfigManager/ConfigManager.hpp"
+#include "MRuntime/Core/Base/Marco.hpp"
+#include "MRuntime/Core/Log/LogSystem.hpp"
+#include "MRuntime/Function/Input/InputSystem.hpp"
+#include "MRuntime/Platform/FileSystem/FileSystem.hpp"
+#include "MRuntime/Function/Render/WindowSystem.hpp"
+#include "MRuntime/Function/Render/RenderSystem.hpp"
+#include "MRuntime/Function/Render/DebugDraw/DebugDrawManager.hpp"
+#include "MRuntime/Resource/AssetManager/AssetManager.hpp"
+#include "MRuntime/Function/Framework/World/WorldManager.hpp"
+#include "MRuntime/Resource/ConfigManager/ConfigManager.hpp"
 
 namespace MiniEngine
 {
@@ -18,32 +22,52 @@ namespace MiniEngine
         mConfigManager = std::make_shared<ConfigManager>();
         mConfigManager->Initialize(configFilePath);
 
-        LOG_INFO(mConfigManager->GetGlobalRenderingResURL());
+        mFileSystem = std::make_shared<FileSystem>();
 
         mLoggerSystem = std::make_shared<LogSystem>();
 
-        // 初始化视窗系统
-        mWindowsSystem = std::make_shared<WindowSystem>();
-        WindowCreateInfo windowCreateInfo;
-        mWindowsSystem->Initialize(windowCreateInfo);
+        mAssetManager = std::make_shared<AssetManager>();
 
-        // 初始化渲染系统
-        mRenderSystem = std::make_shared<RenderSystem>();
-        RenderSystemInitInfo renderSystemInitInfo;
-        renderSystemInitInfo.mWindowSystem = mWindowsSystem;
-        mRenderSystem->Initialize(renderSystemInitInfo);
+        mWorldManager = std::make_shared<WorldManager>();
+        mWorldManager->Initialize();
 
-        // 初始化调试渲染管理器
+        mWindowSystem = std::make_shared<WindowSystem>();
+        WindowCreateInfo window_create_info;
+        mWindowSystem->Initialize(window_create_info);
+
         mDebugDrawManager = std::make_shared<DebugDrawManager>();
         mDebugDrawManager->Initialize();
+
+        mRenderSystem = std::make_shared<RenderSystem>();
+        RenderSystemInitInfo render_init_info;
+        render_init_info.mWindowSystem = mWindowSystem;
+        mRenderSystem->Initialize(render_init_info);
+
+        mInputSystem = std::make_shared<InputSystem>();
+        mInputSystem->Initialize();
     }
 
     void RuntimeGlobalContext::ShutdownSystems() 
     {
-        mLoggerSystem.reset();
-        mWindowsSystem.reset();
+        mInputSystem->Clear();
+        mInputSystem.reset();
+
+        mRenderSystem->Clear();
         mRenderSystem.reset();
-        mDebugDrawManager.reset();
+
+        mWindowSystem.reset();
+
+        mLoggerSystem.reset();
+
+        mFileSystem.reset();
+
+        mAssetManager.reset();
+
+        mWorldManager->Clear();
+        mWorldManager.reset();
+
         mConfigManager.reset();
+
+        mDebugDrawManager.reset();
     }
 }
