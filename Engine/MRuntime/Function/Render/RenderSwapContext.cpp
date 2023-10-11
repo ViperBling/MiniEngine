@@ -1,92 +1,92 @@
-#pragma once
+#include "RenderSwapContext.hpp"
 
-
-#include "MRuntime/Function/Render/RenderCamera.hpp"
-// #include "MRuntime/Function/Render/RenderObject.hpp"
-
-#include "MRuntime/Resource/ResourceType/Global/GlobalRendering.hpp"
-
-#include <cstdint>
-#include <deque>
-#include <optional>
-#include <string>
+#include <utility>
 
 namespace MiniEngine
 {
-    struct SceneIBLResourceDesc
+    void GameObjectResourceDesc::Add(GameObjectDesc& desc) { mGameObjectDesc.push_back(desc); }
+
+    bool GameObjectResourceDesc::IsEmpty() const { return mGameObjectDesc.empty(); }
+
+    GameObjectDesc& GameObjectResourceDesc::GetNextProcessObject() { return mGameObjectDesc.front(); }
+
+    void GameObjectResourceDesc::Pop() { mGameObjectDesc.pop_front(); }
+
+    RenderSwapData& RenderSwapContext::GetLogicSwapData() { return mSwapData[mLogicSwapDataIndex]; }
+
+    RenderSwapData& RenderSwapContext::GetRenderSwapData() { return mSwapData[mRenderSwapDataIndex]; }
+
+    void RenderSwapContext::SwapLogicRenderData()
     {
-        SkyBoxIrradianceMap m_skybox_irradiance_map;
-        SkyBoxSpecularMap   m_skybox_specular_map;
-        std::string         m_brdf_map;
-    };
+        if (isReadyToSwap())
+        {
+            swap();
+        }
+    }
 
-    struct SceneColorGradingResourceDesc
+    bool RenderSwapContext::isReadyToSwap() const
     {
-        std::string m_color_grading_map;
-    };
+        // return false;
+        return !(mSwapData[mRenderSwapDataIndex].mSceneResourceDesc.has_value() ||
+                 mSwapData[mRenderSwapDataIndex].mGameObjectResourceDesc.has_value() ||
+                 mSwapData[mRenderSwapDataIndex].mGameObjectToDelete.has_value() ||
+                 mSwapData[mRenderSwapDataIndex].mCameraSwapData.has_value());
+    }
 
-    struct SceneResourceDesc
+    void RenderSwapContext::ResetSceneRsourceSwapData()
     {
-        SceneIBLResourceDesc          m_ibl_resource_desc;
-        SceneColorGradingResourceDesc m_color_grading_resource_desc;
-    };
+        mSwapData[mRenderSwapDataIndex].mSceneResourceDesc.reset();
+    }
 
-    struct CameraSwapData
+    void RenderSwapContext::ResetGameObjectResourceSwapData()
     {
-        std::optional<float>            m_fov_x;
-        std::optional<RenderCameraType> m_camera_type;
-        std::optional<Matrix4x4>        m_view_matrix;
-    };
+        mSwapData[mRenderSwapDataIndex].mGameObjectResourceDesc.reset();
+    }
 
-    struct GameObjectResourceDesc
+    void RenderSwapContext::ResetGameObjectToDelete()
     {
-        std::deque<GameObjectDesc> m_game_object_descs;
+        mSwapData[mRenderSwapDataIndex].mGameObjectToDelete.reset();
+    }
 
-        void add(GameObjectDesc& desc);
-        void pop();
+    void RenderSwapContext::ResetCameraSwapData() 
+    { 
+        mSwapData[mRenderSwapDataIndex].mCameraSwapData.reset();
+    }
 
-        bool isEmpty() const;
-
-        GameObjectDesc& getNextProcessObject();
-    };
-
-    struct RenderSwapData
+    void RenderSwapContext::swap()
     {
-        std::optional<SceneResourceDesc>       m_scene_resource_desc;
-        std::optional<GameObjectResourceDesc>  m_game_object_resource_desc;
-        std::optional<GameObjectResourceDesc>  m_game_object_to_delete;
-        std::optional<CameraSwapData>          m_camera_swap_data;
+        ResetSceneRsourceSwapData();
+        ResetGameObjectResourceSwapData();
+        ResetGameObjectToDelete();
+        ResetCameraSwapData();
+        std::swap(mLogicSwapDataIndex, mRenderSwapDataIndex);
+    }
 
-        void addDirtyGameObject(GameObjectDesc&& desc);
-        void addDeleteGameObject(GameObjectDesc&& desc);
-
-    };
-
-    enum SwapDataType : uint8_t
+    void RenderSwapData::AddDirtyGameObject(GameObjectDesc&& desc)
     {
-        LogicSwapDataType = 0,
-        RenderSwapDataType,
-        SwapDataTypeCount
-    };
+        if (mGameObjectResourceDesc.has_value())
+        {
+            mGameObjectResourceDesc->Add(desc);
+        }
+        else
+        {
+            GameObjectResourceDesc go_descs;
+            go_descs.Add(desc);
+            mGameObjectResourceDesc = go_descs;
+        }
+    }
 
-    class RenderSwapContext
+    void RenderSwapData::AddDeleteGameObject(GameObjectDesc&& desc)
     {
-    public:
-        RenderSwapData& GetLogicSwapData();
-        RenderSwapData& GetRenderSwapData();
-        void            SwapLogicRenderData();
-        void            ResetSceneRsourceSwapData();
-        void            ResetGameObjectResourceSwapData();
-        void            ResetGameObjectToDelete();
-        void            ResetCameraSwapData();
-    
-    private:
-        bool isReadyToSwap() const;
-        void swap();
-    
-    private:
-        uint8_t        mLogicSwapDataIndex {LogicSwapDataType};
-        uint8_t        mRenderSwapDataIndex {RenderSwapDataType};
-        RenderSwapData mSwapData[SwapDataTypeCount];    
-    };
-} // namespace MiniEngine
+        if (mGameObjectToDelete.has_value())
+        {
+            mGameObjectToDelete->Add(desc);
+        }
+        else
+        {
+            GameObjectResourceDesc go_descs;
+            go_descs.Add(desc);
+            mGameObjectToDelete = go_descs;
+        }
+    }
+}

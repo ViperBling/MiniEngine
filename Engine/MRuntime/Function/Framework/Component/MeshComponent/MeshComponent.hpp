@@ -26,7 +26,6 @@ namespace MiniEngine
     private:
         META(Enable)
         MeshComponentRes mMeshRes;
-
         std::vector<GameObjectPartDesc> mRawMeshes;
     };
 } // namespace MiniEngine
