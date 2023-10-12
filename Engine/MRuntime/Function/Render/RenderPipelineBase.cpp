@@ -6,6 +6,7 @@ namespace MiniEngine
     {
         mDirectionalLightPass->PreparePassData(render_resource);
         mMainCameraPass->PreparePassData(render_resource);
+        mColorGradientPass->PreparePassData(render_resource);
         mTonMappingPass->PreparePassData(render_resource);
         mPickPass->PreparePassData(render_resource);
         mUIPass->PreparePassData(render_resource);

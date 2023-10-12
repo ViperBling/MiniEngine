@@ -1168,8 +1168,9 @@ namespace MiniEngine
     {   // 使用std::optional用于检索家族是否存在
         std::optional<uint32_t> graphicsFamily;     // 绘制图像队列家族
         std::optional<uint32_t> presentFamily;      // 显示图像队列家族
+        std::optional<uint32_t> computeFamily;
 
-        bool isComplete() const { return graphicsFamily.has_value() && presentFamily.has_value(); }
+        bool isComplete() const { return graphicsFamily.has_value() && presentFamily.has_value() && computeFamily.has_value(); }
     };
 
     // 保存查询到的交换链支持性详细信息

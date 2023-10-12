@@ -5,6 +5,7 @@
 #include "MRuntime/Function/Render/RenderEntity.hpp"
 #include "MRuntime/Function/Render/RenderGuidAllocator.hpp"
 #include "MRuntime/Function/Render/RenderObject.hpp"
+#include "MRuntime/Function/Render/Light.hpp"
 
 #include <optional>
 #include <vector>
@@ -39,21 +40,25 @@ namespace MiniEngine
         void ClearForLevelReloading();
 
     private:
-        void UpdateVisibleObjectsDirectionalLight(
+        void updateVisibleObjectsDirectionalLight(
             std::shared_ptr<RenderResource> render_resource,
             std::shared_ptr<RenderCamera>   camera
             );
-        void UpdateVisibleObjectsPointLight(
+        void updateVisibleObjectsPointLight(
             std::shared_ptr<RenderResource> render_resource
         );
-        void UpdateVisibleObjectsMainCamera(
+        void updateVisibleObjectsMainCamera(
             std::shared_ptr<RenderResource> render_resource,
             std::shared_ptr<RenderCamera>   camera
         );
-        void UpdateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource);
-        void UpdateVisibleObjectsParticle(std::shared_ptr<RenderResource> render_resource);
+        void updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource);
+        void updateVisibleObjectsParticle(std::shared_ptr<RenderResource> render_resource);
 
     public:
+        // light
+        AmbientLight      mAmbientLight;
+        PDirectionalLight mDirectionalLight;
+        PointLightList    mPointLightList;
         // render entities
         std::vector<RenderEntity> mRenderEntities;
 

@@ -8,6 +8,7 @@
 #include "MRuntime/Function/Render/RenderScene.hpp"
 #include "MRuntime/Function/Render/RenderPipelineBase.hpp"
 #include "MRuntime/Function/Render/RenderGuidAllocator.hpp"
+#include "MRuntime/Function/Render/RenderSwapContext.hpp"
 
 namespace MiniEngine
 {
@@ -22,8 +23,8 @@ namespace MiniEngine
 
     struct RenderSystemInitInfo
     {
-        std::shared_ptr<WindowSystem> window_system;
-        std::shared_ptr<DebugDrawManager> debugdraw_manager;
+        std::shared_ptr<WindowSystem> mWindowSystem;
+        std::shared_ptr<DebugDrawManager> mDebugDrawSystem;
     };
 
     struct EngineContentViewport

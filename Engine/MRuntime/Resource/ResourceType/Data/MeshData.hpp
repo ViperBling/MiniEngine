@@ -32,6 +32,22 @@ namespace MiniEngine
         float v;
     };
 
+    REFLECTION_TYPE(SkeletonBinding)
+    CLASS(SkeletonBinding, Fields)
+    {
+        REFLECTION_BODY(SkeletonBinding);
+
+    public:
+        int   index0;
+        int   index1;
+        int   index2;
+        int   index3;
+        float weight0;
+        float weight1;
+        float weight2;
+        float weight3;
+    };
+
     REFLECTION_TYPE(MeshData)
     CLASS(MeshData, Fields)
     {
@@ -39,7 +55,8 @@ namespace MiniEngine
 
     public:
         // mesh Data
-        std::vector<VertexData> mVertices;
-        std::vector<int> mIndices;
+        std::vector<VertexData> mVertexBuffer;
+        std::vector<int> mIndexBuffer;
+        std::vector<SkeletonBinding> mBind;
     };
 }

@@ -100,5 +100,4 @@ namespace MiniEngine
         std::unordered_map<T, size_t> mElementsGuidMap;
         std::unordered_map<size_t, T> mGuidElementsMap;
     };
-
 } // namespace MiniEngine

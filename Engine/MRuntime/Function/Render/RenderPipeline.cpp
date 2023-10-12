@@ -1,6 +1,8 @@
 #include "RenderPipeline.hpp"
-#include "Function/Global/GlobalContext.hpp"
-#include "Function/Render/Interface/Vulkan/VulkanRHI.hpp"
+#include "MRuntime/Core/Base/Marco.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
+#include "MRuntime/Function/Render/Interface/Vulkan/VulkanRHI.hpp"
+#include "MRuntime/Function/Render/DebugDraw/DebugDrawManager.hpp"
 
 namespace MiniEngine
 {
