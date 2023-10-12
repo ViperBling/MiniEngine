@@ -86,7 +86,7 @@ namespace MiniEngine
         uint32_t is_double_sided = 0;
     };
 
-    struct MeshPointLightShadowPerframeStorageBufferObject
+    struct MeshPointLightShadowPerFrameStorageBufferObject
     {
         uint32_t point_light_num;
         uint32_t _padding_point_light_num_1;
@@ -95,27 +95,27 @@ namespace MiniEngine
         Vector4  point_lights_position_and_radius[s_max_point_light_count];
     };
 
-    struct MeshPointLightShadowPerdrawcallStorageBufferObject
+    struct MeshPointLightShadowPerDrawcallStorageBufferObject
     {
         VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
     };
 
-    struct MeshPointLightShadowPerdrawcallVertexBlendingStorageBufferObject
+    struct MeshPointLightShadowPerDrawcallVertexBlendingStorageBufferObject
     {
         Matrix4x4 joint_matrices[s_mesh_vertex_blending_max_joint_count * s_mesh_per_drawcall_max_instance_count];
     };
 
-    struct MeshDirectionalLightShadowPerframeStorageBufferObject
+    struct MeshDirectionalLightShadowPerFrameStorageBufferObject
     {
         Matrix4x4 light_proj_view;
     };
 
-    struct MeshDirectionalLightShadowPerdrawcallStorageBufferObject
+    struct MeshDirectionalLightShadowPerDrawcallStorageBufferObject
     {
         VulkanMeshInstance mesh_instances[s_mesh_per_drawcall_max_instance_count];
     };
 
-    struct MeshDirectionalLightShadowPerdrawcallVertexBlendingStorageBufferObject
+    struct MeshDirectionalLightShadowPerDrawcallVertexBlendingStorageBufferObject
     {
         Matrix4x4 joint_matrices[s_mesh_vertex_blending_max_joint_count * s_mesh_per_drawcall_max_instance_count];
     };
@@ -126,21 +126,21 @@ namespace MiniEngine
         uint32_t  selected_axis = 3;
     };
 
-    struct MeshInefficientPickPerframeStorageBufferObject
+    struct MeshInefficientPickPerFrameStorageBufferObject
     {
         Matrix4x4 proj_view_matrix;
         uint32_t  rt_width;
         uint32_t  rt_height;
     };
 
-    struct MeshInefficientPickPerdrawcallStorageBufferObject
+    struct MeshInefficientPickPerDrawcallStorageBufferObject
     {
         Matrix4x4 model_matrices[s_mesh_per_drawcall_max_instance_count];
         uint32_t  node_ids[s_mesh_per_drawcall_max_instance_count];
         float     enable_vertex_blendings[s_mesh_per_drawcall_max_instance_count];
     };
 
-    struct MeshInefficientPickPerdrawcallVertexBlendingStorageBufferObject
+    struct MeshInefficientPickPerDrawcallVertexBlendingStorageBufferObject
     {
         Matrix4x4 joint_matrices[s_mesh_vertex_blending_max_joint_count * s_mesh_per_drawcall_max_instance_count];
     };
