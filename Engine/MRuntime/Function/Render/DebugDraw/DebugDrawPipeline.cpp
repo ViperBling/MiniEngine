@@ -1,270 +1,330 @@
+#include "DebugDrawPipeline.hpp"
+#include "DebugDrawPrimitive.hpp"
+#include "MRuntime/Function/Render/RenderSystem.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
+
+#include <fstream>
 #include <DebugDraw_frag.h>
 #include <DebugDraw_vert.h>
 
-#include "DebugDrawPipeline.hpp"
-#include "DebugDrawPrimitive.hpp"
-#include "Core/Base/Marco.hpp"
-#include "Function/Global/GlobalContext.hpp"
-
 namespace MiniEngine
 {
-
-    void DebugDrawPipeline::Initialize() {
-
+    void DebugDrawPipeline::Initialize()
+    {
         mRHI = gRuntimeGlobalContext.mRenderSystem->GetRHI();
-
-        SetupRenderPass();
-        SetupPipelines();
-        SetupFrameBuffers();
+        setupAttachments();
+        setupRenderPass();
+        setupFrameBuffer();
+        setupDescriptorLayout();
+        setupPipelines();
     }
-
+    
     void DebugDrawPipeline::RecreateAfterSwapChain()
     {
-        for (auto * frameBuffer : mFrameBuffer.framebuffers)
+        for (auto framebuffer : mFrameBuffer.framebuffers)
         {
-            mRHI->DestroyFrameBuffer(frameBuffer);
+            mRHI->DestroyFrameBuffer(framebuffer);
         }
-        SetupFrameBuffers();
+
+        setupFrameBuffer();
     }
 
-    void DebugDrawPipeline::SetupRenderPass() {
+    void DebugDrawPipeline::setupAttachments()
+    {
 
-        // discribe the color attachment
-        RHIAttachmentDescription colorAttachmentDesc {};
+    }
+    void DebugDrawPipeline::setupRenderPass()
+    {
+        RHIAttachmentDescription color_attachment_description{};
+        color_attachment_description.format = mRHI->GetSwapChainInfo().imageFormat;
+        color_attachment_description.samples = RHI_SAMPLE_COUNT_1_BIT;
+        color_attachment_description.loadOp = RHI_ATTACHMENT_LOAD_OP_LOAD;
+        color_attachment_description.storeOp = RHI_ATTACHMENT_STORE_OP_STORE;
+        color_attachment_description.stencilLoadOp = RHI_ATTACHMENT_LOAD_OP_DONT_CARE;
+        color_attachment_description.stencilStoreOp = RHI_ATTACHMENT_STORE_OP_DONT_CARE;
+        color_attachment_description.initialLayout = RHI_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        color_attachment_description.finalLayout = RHI_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-        colorAttachmentDesc.format  = mRHI->GetSwapChainInfo().imageFormat;    // should be equal to swapchain
-        colorAttachmentDesc.samples = RHI_SAMPLE_COUNT_1_BIT;                 // now just need one sample
-        // before render pass, clear the data(color/depth) in the buffer
-        colorAttachmentDesc.loadOp = RHI_ATTACHMENT_LOAD_OP_CLEAR;
-        // after render pass, store the data from buffer to the memory
-        colorAttachmentDesc.storeOp        = RHI_ATTACHMENT_STORE_OP_STORE;
-        colorAttachmentDesc.stencilLoadOp  = RHI_ATTACHMENT_LOAD_OP_DONT_CARE; // not using the stencil
-        colorAttachmentDesc.stencilStoreOp = RHI_ATTACHMENT_STORE_OP_DONT_CARE;
-        // not care about the image initally(before render pass)
-        colorAttachmentDesc.initialLayout = RHI_IMAGE_LAYOUT_UNDEFINED;
-        // present the image finally(after render pass)
-        colorAttachmentDesc.finalLayout = RHI_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        RHIAttachmentReference color_attachment_reference{};
+        color_attachment_reference.attachment = 0;
+        color_attachment_reference.layout = RHI_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-        // set the subpass attachment reference
-        RHIAttachmentReference colorAttachmentReference {};
-        colorAttachmentReference.attachment = 0;
-        colorAttachmentReference.layout     = RHI_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // optimize the conversion
+        RHIAttachmentDescription depth_attachment_description{};
+        depth_attachment_description.format = mRHI->GetDepthImageInfo().depthImageFormat;
+        depth_attachment_description.samples = RHI_SAMPLE_COUNT_1_BIT;
+        depth_attachment_description.loadOp = RHI_ATTACHMENT_LOAD_OP_LOAD;
+        depth_attachment_description.storeOp = RHI_ATTACHMENT_STORE_OP_STORE;
+        depth_attachment_description.stencilLoadOp = RHI_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depth_attachment_description.stencilStoreOp = RHI_ATTACHMENT_STORE_OP_DONT_CARE;
+        depth_attachment_description.initialLayout = RHI_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depth_attachment_description.finalLayout = RHI_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        // describe one of the render pass's subpass behavior
-        RHISubpassDescription subpass {};
-        subpass.pipelineBindPoint = RHI_PIPELINE_BIND_POINT_GRAPHICS; // explicitly claim that this is graphics subpass
+        RHIAttachmentReference depth_attachment_reference{};
+        depth_attachment_reference.attachment = 1;
+        depth_attachment_reference.layout = RHI_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        RHISubpassDescription subpass{};
+        subpass.pipelineBindPoint = RHI_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments    = &colorAttachmentReference;
+        subpass.pColorAttachments = &color_attachment_reference;
+        subpass.pDepthStencilAttachment = &depth_attachment_reference;
 
-        // specify the subpass dependency
+        std::array<RHIAttachmentDescription, 2> attachments = { color_attachment_description, depth_attachment_description };
+
         RHISubpassDependency dependencies[1] = {};
-        RHISubpassDependency& debugDrawDependency = dependencies[0];
-        debugDrawDependency.srcSubpass            = RHI_SUBPASS_EXTERNAL; // before render pass
-        debugDrawDependency.dstSubpass            = 0;
-        debugDrawDependency.srcStageMask          = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        debugDrawDependency.dstStageMask          = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        debugDrawDependency.srcAccessMask         = 0;
-        debugDrawDependency.dstAccessMask         = RHI_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        debugDrawDependency.dependencyFlags       = 0; // NOT BY REGION
+        RHISubpassDependency& debug_draw_dependency = dependencies[0];
+        debug_draw_dependency.srcSubpass = 0;
+        debug_draw_dependency.dstSubpass = RHI_SUBPASS_EXTERNAL;
+        debug_draw_dependency.srcStageMask = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | RHI_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        debug_draw_dependency.dstStageMask = RHI_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | RHI_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        debug_draw_dependency.srcAccessMask = RHI_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | RHI_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; // STORE_OP_STORE
+        debug_draw_dependency.dstAccessMask = RHI_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | RHI_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        debug_draw_dependency.dependencyFlags = 0; // NOT BY REGION
 
-        // create the render pass
-        RHIRenderPassCreateInfo renderPassCreateInfo {};
-        renderPassCreateInfo.sType           = RHI_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassCreateInfo.attachmentCount = 1;
-        renderPassCreateInfo.pAttachments    = &colorAttachmentDesc;
-        renderPassCreateInfo.subpassCount    = 1;
-        renderPassCreateInfo.pSubpasses      = &subpass;
-        renderPassCreateInfo.dependencyCount = 1;
-        renderPassCreateInfo.pDependencies   = dependencies;
+        RHIRenderPassCreateInfo renderpass_create_info{};
+        renderpass_create_info.sType = RHI_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderpass_create_info.attachmentCount = attachments.size();
+        renderpass_create_info.pAttachments = attachments.data();
+        renderpass_create_info.subpassCount = 1;
+        renderpass_create_info.pSubpasses = &subpass;
+        renderpass_create_info.dependencyCount = 1;
+        renderpass_create_info.pDependencies = dependencies;
 
-        if (mRHI->CreateRenderPass(&renderPassCreateInfo, mFrameBuffer.renderPass) != RHI_SUCCESS)
+        if (mRHI->CreateRenderPass(&renderpass_create_info, mFrameBuffer.renderPass) != RHI_SUCCESS)
         {
-            LOG_ERROR("RHI failed to create RenderPass!");
+            throw std::runtime_error("create inefficient pick render pass");
         }
     }
-
-    void DebugDrawPipeline::SetupPipelines() {
-
-        // using glsl shader
-        RHIShader* VSModule = mRHI->CreateShaderModule(DEBUGDRAW_VERT);
-        RHIShader* PSModule = mRHI->CreateShaderModule(DEBUGDRAW_FRAG);
-
-        // create vertex stage pipeline info
-        RHIPipelineShaderStageCreateInfo VSPipelineShaderStageCreateInfo {};
-        VSPipelineShaderStageCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        VSPipelineShaderStageCreateInfo.stage = RHI_SHADER_STAGE_VERTEX_BIT;    // using in vertex stage
-        VSPipelineShaderStageCreateInfo.module = VSModule;                      // set module(SPIR-V code)
-        VSPipelineShaderStageCreateInfo.pName = "main";                         // SPIR-V program entry
-
-        // create frag stage pipeline info
-        RHIPipelineShaderStageCreateInfo PSPipelineShaderStageCreateInfo {};
-        PSPipelineShaderStageCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        PSPipelineShaderStageCreateInfo.stage = RHI_SHADER_STAGE_FRAGMENT_BIT;    // using in vertex stage
-        PSPipelineShaderStageCreateInfo.module = PSModule;                      // set module(SPIR-V code)
-        PSPipelineShaderStageCreateInfo.pName = "main";                         // SPIR-V program entry
-
-        RHIPipelineShaderStageCreateInfo shaderStages[] = {
-            VSPipelineShaderStageCreateInfo,
-            PSPipelineShaderStageCreateInfo
-        };
-
-        auto vertexBindingDesc = DebugDrawVertex::GetBindingDescriptions();
-        auto vertexAttributeDesc = DebugDrawVertex::GetAttributeDescriptions();
-        // set vertex input information
-        RHIPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo {};
-        vertexInputStateCreateInfo.sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDesc.size());
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexBindingDesc.data();
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDesc.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexAttributeDesc.data();
-
-        // set vertex input assembly rule
-        RHIPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-        inputAssembly.sType = RHI_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // 在画第一个三角形时，直接选这个选项
-        inputAssembly.primitiveRestartEnable = RHI_FALSE; // 不进行图元重启（就画个三角形没必要）
-
-        // set viewport & scissor change stage information
-        RHIPipelineViewportStateCreateInfo viewportStateCreateInfo {};
-        viewportStateCreateInfo.sType         = RHI_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportStateCreateInfo.viewportCount = 1;
-        viewportStateCreateInfo.pViewports    = mRHI->GetSwapChainInfo().viewport;
-        viewportStateCreateInfo.scissorCount  = 1;
-        viewportStateCreateInfo.pScissors     = mRHI->GetSwapChainInfo().scissor;
-
-        // set rasterization stage
-        RHIPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo {};
-        rasterizationStateCreateInfo.sType            = RHI_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizationStateCreateInfo.depthClampEnable = RHI_FALSE;        // discard the far & near fragment
-        rasterizationStateCreateInfo.rasterizerDiscardEnable = RHI_FALSE; // not discard the rasterization stage
-        rasterizationStateCreateInfo.polygonMode             = RHI_POLYGON_MODE_FILL; // fill the vertices to polygon
-        rasterizationStateCreateInfo.lineWidth = 1.0f; // when the line width is greater than 1, GPU will be used
-        rasterizationStateCreateInfo.cullMode  = RHI_CULL_MODE_NONE;       // cull nothing
-        rasterizationStateCreateInfo.frontFace = RHI_FRONT_FACE_CLOCKWISE; // specify the vertices join order
-        rasterizationStateCreateInfo.depthBiasEnable         = RHI_FALSE;
-        rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f;
-        rasterizationStateCreateInfo.depthBiasClamp          = 0.0f;
-        rasterizationStateCreateInfo.depthBiasSlopeFactor    = 0.0f;
-
-        // set MSAA information
-        RHIPipelineMultisampleStateCreateInfo msStateCreateInfo {};
-        msStateCreateInfo.sType                = RHI_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        msStateCreateInfo.sampleShadingEnable  = RHI_FALSE;
-        msStateCreateInfo.rasterizationSamples = RHI_SAMPLE_COUNT_1_BIT;
-
-         // set depth & stencil test information
-         // RHIPipelineDepthStencilStateCreateInfo depthStencilCreateInfo {};
-         // depthStencilCreateInfo.sType                 = RHI_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-         // depthStencilCreateInfo.depthTestEnable       = RHI_TRUE;
-         // depthStencilCreateInfo.depthWriteEnable      = RHI_TRUE;
-         // depthStencilCreateInfo.depthCompareOp        = RHI_COMPARE_OP_LESS;
-         // depthStencilCreateInfo.depthBoundsTestEnable = RHI_FALSE;
-         // depthStencilCreateInfo.stencilTestEnable     = RHI_FALSE;
-
-        // set color blend rule in every buffer frame
-        RHIPipelineColorBlendAttachmentState colorBlendAttachmentState {}; // used in every buffer frame
-        colorBlendAttachmentState.colorWriteMask =
-            RHI_COLOR_COMPONENT_R_BIT | RHI_COLOR_COMPONENT_G_BIT |
-            RHI_COLOR_COMPONENT_B_BIT | RHI_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachmentState.blendEnable         = RHI_FALSE; // will be true later
-        colorBlendAttachmentState.srcColorBlendFactor = RHI_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachmentState.dstColorBlendFactor = RHI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        colorBlendAttachmentState.colorBlendOp        = RHI_BLEND_OP_ADD;
-        colorBlendAttachmentState.srcAlphaBlendFactor = RHI_BLEND_FACTOR_ONE;
-        colorBlendAttachmentState.dstAlphaBlendFactor = RHI_BLEND_FACTOR_ZERO;
-        colorBlendAttachmentState.alphaBlendOp        = RHI_BLEND_OP_ADD;
-
-        // set global color blend methods
-        RHIPipelineColorBlendStateCreateInfo colorBlendStateCreateInfo {};
-        colorBlendStateCreateInfo.sType             = RHI_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlendStateCreateInfo.logicOpEnable     = RHI_FALSE; // will be true maybe later
-        colorBlendStateCreateInfo.logicOp           = RHI_LOGIC_OP_COPY;
-        colorBlendStateCreateInfo.attachmentCount   = 1;
-        colorBlendStateCreateInfo.pAttachments      = &colorBlendAttachmentState;
-        colorBlendStateCreateInfo.blendConstants[0] = 0.0f;
-        colorBlendStateCreateInfo.blendConstants[1] = 0.0f;
-        colorBlendStateCreateInfo.blendConstants[2] = 0.0f;
-        colorBlendStateCreateInfo.blendConstants[3] = 0.0f;
-
-        // some settings can be dynamic(it will not rebulild the pipeline however)
-        RHIDynamicState dynamicStates[] = {RHI_DYNAMIC_STATE_VIEWPORT, RHI_DYNAMIC_STATE_SCISSOR};
-        RHIPipelineDynamicStateCreateInfo dynamicStateCreateInfo {};
-        dynamicStateCreateInfo.sType             = RHI_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicStateCreateInfo.dynamicStateCount = 2;
-        dynamicStateCreateInfo.pDynamicStates    = dynamicStates;
-
-        // some glsl uniform will be specified in the Pipeline layout
-        RHIPipelineLayoutCreateInfo pipelineLayoutCreateInfo {};
-        pipelineLayoutCreateInfo.sType                  = RHI_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutCreateInfo.setLayoutCount         = 0; // TODO: layout descriptor
-        pipelineLayoutCreateInfo.pSetLayouts            = nullptr;
-        pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-        pipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
-
-        mRenderPipelines.resize(1);
-        if (mRHI->CreatePipelineLayout(&pipelineLayoutCreateInfo, mRenderPipelines[0].layout) != RHI_SUCCESS) 
-        {
-            LOG_ERROR("Failed to create RHI pipeline layout");
-        }
-
-        RHIGraphicsPipelineCreateInfo pipelineCreateInfo {};
-        pipelineCreateInfo.sType = RHI_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        // fill the shader stages
-        pipelineCreateInfo.stageCount = 2;
-        pipelineCreateInfo.pStages    = shaderStages;
-        // fill the fixed function parts
-        pipelineCreateInfo.pVertexInputState   = &vertexInputStateCreateInfo;
-        pipelineCreateInfo.pInputAssemblyState = &inputAssembly;
-        pipelineCreateInfo.pViewportState      = &viewportStateCreateInfo;
-        pipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
-        pipelineCreateInfo.pMultisampleState   = &msStateCreateInfo;
-        pipelineCreateInfo.pDepthStencilState  = nullptr;
-        pipelineCreateInfo.pColorBlendState    = &colorBlendStateCreateInfo;
-        pipelineCreateInfo.pDynamicState       = &dynamicStateCreateInfo;
-        // fill the pipeline layout
-        pipelineCreateInfo.layout = mRenderPipelines[0].layout;
-        // fill the render pass
-        pipelineCreateInfo.renderPass = mFrameBuffer.renderPass;
-        pipelineCreateInfo.subpass    = 0; // subpass index
-        // set the derivative pipeline reference
-        pipelineCreateInfo.basePipelineHandle = RHI_NULL_HANDLE; // not used
-        pipelineCreateInfo.basePipelineIndex  = -1;              // illegal index
-
-        // select pipeline type
-        if (mPipelineType == DebugDrawPipelineType::Triangle)
-            inputAssembly.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-        // create the pipeline
-        if (mRHI->CreateGraphicsPipeline(RHI_NULL_HANDLE, 1, &pipelineCreateInfo, mRenderPipelines[0].pipeline) != RHI_SUCCESS)
-        {
-            LOG_ERROR("Failed to create debug draw graphics pipeline");
-        }
-    }
-
-    void DebugDrawPipeline::SetupFrameBuffers() {
-
-        // every image view has its own framebuffer
+    void DebugDrawPipeline::setupFrameBuffer()
+    {
         const std::vector<RHIImageView*>&& imageViews = mRHI->GetSwapChainInfo().imageViews;
-        // store framebuffer
         mFrameBuffer.framebuffers.resize(imageViews.size());
-
         for (size_t i = 0; i < mFrameBuffer.framebuffers.size(); i++) {
-            RHIImageView* attachments[] = {imageViews[i]};
 
-            RHIFramebufferCreateInfo framebufferCreateInfo {};
-            framebufferCreateInfo.sType = RHI_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            // specify which render pass to should be compatible with the frame buffer
-            framebufferCreateInfo.renderPass      = mFrameBuffer.renderPass;
-            framebufferCreateInfo.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
-            framebufferCreateInfo.pAttachments    = attachments;
-            framebufferCreateInfo.width           = mRHI->GetSwapChainInfo().extent.width;
-            framebufferCreateInfo.height          = mRHI->GetSwapChainInfo().extent.height;
-            framebufferCreateInfo.layers          = 1;
+            RHIImageView* attachments[2] = { imageViews[i], mRHI->GetDepthImageInfo().depthImageView};
 
-            if (mRHI->CreateFrameBuffer(&framebufferCreateInfo, mFrameBuffer.framebuffers[i]) != RHI_SUCCESS)
+            RHIFramebufferCreateInfo framebuffer_create_info{};
+            framebuffer_create_info.sType = RHI_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebuffer_create_info.renderPass = mFrameBuffer.renderPass;
+            framebuffer_create_info.attachmentCount = sizeof(attachments) / sizeof(attachments[0]);
+            framebuffer_create_info.pAttachments = attachments;
+            framebuffer_create_info.width = mRHI->GetSwapChainInfo().extent.width;
+            framebuffer_create_info.height = mRHI->GetSwapChainInfo().extent.height;
+            framebuffer_create_info.layers = 1;
+            
+            if (mRHI->CreateFrameBuffer(&framebuffer_create_info, mFrameBuffer.framebuffers[i]) != RHI_SUCCESS)
             {
-                LOG_ERROR("create inefficient pick framebuffer");
+                throw std::runtime_error("create inefficient pick framebuffer");
             }
         }
+    }
+
+    void DebugDrawPipeline::setupDescriptorLayout()
+    {
+        RHIDescriptorSetLayoutBinding uboLayoutBinding[3];
+        uboLayoutBinding[0].binding = 0;
+        uboLayoutBinding[0].descriptorType = RHI_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        uboLayoutBinding[0].descriptorCount = 1;
+        uboLayoutBinding[0].stageFlags = RHI_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding[0].pImmutableSamplers = nullptr;
+
+        uboLayoutBinding[1].binding = 1;
+        uboLayoutBinding[1].descriptorType = RHI_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        uboLayoutBinding[1].descriptorCount = 1;
+        uboLayoutBinding[1].stageFlags = RHI_SHADER_STAGE_VERTEX_BIT;
+        uboLayoutBinding[1].pImmutableSamplers = nullptr;
+
+        uboLayoutBinding[2].binding = 2;
+        uboLayoutBinding[2].descriptorType = RHI_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        uboLayoutBinding[2].descriptorCount = 1;
+        uboLayoutBinding[2].stageFlags = RHI_SHADER_STAGE_FRAGMENT_BIT;
+        uboLayoutBinding[2].pImmutableSamplers = nullptr;
+
+        RHIDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = RHI_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = 3;
+        layoutInfo.pBindings = uboLayoutBinding;
+
+        if (mRHI->CreateDescriptorSetLayout(&layoutInfo, mDescriptorLayout) != RHI_SUCCESS)
+        {
+            throw std::runtime_error("create debug draw layout");
+        }
+    }
+
+    void DebugDrawPipeline::setupPipelines()
+    {
+        mRenderPipelines.resize(1);
+
+        RHIPipelineLayoutCreateInfo pipeline_layout_create_info{};
+        pipeline_layout_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipeline_layout_create_info.setLayoutCount = 1;
+        pipeline_layout_create_info.pSetLayouts = &mDescriptorLayout;
+        pipeline_layout_create_info.pushConstantRangeCount = 0;
+        pipeline_layout_create_info.pPushConstantRanges = nullptr;
+
+        if (mRHI->CreatePipelineLayout(&pipeline_layout_create_info, mRenderPipelines[0].layout) != RHI_SUCCESS)
+        {
+            throw std::runtime_error("create mesh inefficient pick pipeline layout");
+        }
+
+        RHIShader* vert_shader_module = mRHI->CreateShaderModule(DEBUGDRAW_VERT);
+        RHIShader* frag_shader_module = mRHI->CreateShaderModule(DEBUGDRAW_FRAG);
+
+        RHIPipelineShaderStageCreateInfo vert_pipeline_shader_stage_create_info{};
+        vert_pipeline_shader_stage_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        vert_pipeline_shader_stage_create_info.stage = RHI_SHADER_STAGE_VERTEX_BIT;
+        vert_pipeline_shader_stage_create_info.module = vert_shader_module;
+        vert_pipeline_shader_stage_create_info.pName = "main";
+
+        RHIPipelineShaderStageCreateInfo frag_pipeline_shader_stage_create_info{};
+        frag_pipeline_shader_stage_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        frag_pipeline_shader_stage_create_info.stage = RHI_SHADER_STAGE_FRAGMENT_BIT;
+        frag_pipeline_shader_stage_create_info.module = frag_shader_module;
+        frag_pipeline_shader_stage_create_info.pName = "main";
+
+        RHIPipelineShaderStageCreateInfo shader_stages[] = { vert_pipeline_shader_stage_create_info,
+                                                           frag_pipeline_shader_stage_create_info };
+
+        auto vertex_binding_descriptions = DebugDrawVertex::GetBindingDescriptions();
+        auto vertex_attribute_descriptions = DebugDrawVertex::GetAttributeDescriptions();
+        RHIPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
+        vertex_input_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertex_input_state_create_info.vertexBindingDescriptionCount = static_cast<uint32_t>(vertex_binding_descriptions.size());
+        vertex_input_state_create_info.pVertexBindingDescriptions = vertex_binding_descriptions.data();
+        vertex_input_state_create_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertex_attribute_descriptions.size());
+        vertex_input_state_create_info.pVertexAttributeDescriptions = vertex_attribute_descriptions.data();
+
+        RHIPipelineInputAssemblyStateCreateInfo input_assembly_create_info{};
+        input_assembly_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        input_assembly_create_info.primitiveRestartEnable = RHI_FALSE;
+
+        RHIPipelineViewportStateCreateInfo viewport_state_create_info{};
+        viewport_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewport_state_create_info.viewportCount = 1;
+        viewport_state_create_info.pViewports = mRHI->GetSwapChainInfo().viewport;
+        viewport_state_create_info.scissorCount = 1;
+        viewport_state_create_info.pScissors = mRHI->GetSwapChainInfo().scissor;
+
+        RHIPipelineRasterizationStateCreateInfo rasterization_state_create_info{};
+        rasterization_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        rasterization_state_create_info.depthClampEnable = RHI_FALSE;
+        rasterization_state_create_info.rasterizerDiscardEnable = RHI_FALSE;
+        rasterization_state_create_info.polygonMode = RHI_POLYGON_MODE_FILL;
+        rasterization_state_create_info.lineWidth = 1.0f;
+        rasterization_state_create_info.cullMode = RHI_CULL_MODE_NONE;
+        rasterization_state_create_info.frontFace = RHI_FRONT_FACE_CLOCKWISE;
+        rasterization_state_create_info.depthBiasEnable = RHI_FALSE;
+        rasterization_state_create_info.depthBiasConstantFactor = 0.0f;
+        rasterization_state_create_info.depthBiasClamp = 0.0f;
+        rasterization_state_create_info.depthBiasSlopeFactor = 0.0f;
+
+        RHIPipelineMultisampleStateCreateInfo multisample_state_create_info{};
+        multisample_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        multisample_state_create_info.sampleShadingEnable = RHI_FALSE;
+        multisample_state_create_info.rasterizationSamples = RHI_SAMPLE_COUNT_1_BIT;
+
+        RHIPipelineColorBlendAttachmentState color_blend_attachment_state{};
+        color_blend_attachment_state.colorWriteMask = RHI_COLOR_COMPONENT_R_BIT | RHI_COLOR_COMPONENT_G_BIT | RHI_COLOR_COMPONENT_B_BIT | RHI_COLOR_COMPONENT_A_BIT;
+        color_blend_attachment_state.blendEnable = RHI_TRUE;
+        color_blend_attachment_state.srcColorBlendFactor = RHI_BLEND_FACTOR_SRC_ALPHA;
+        color_blend_attachment_state.dstColorBlendFactor = RHI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        color_blend_attachment_state.colorBlendOp = RHI_BLEND_OP_ADD;
+        color_blend_attachment_state.srcAlphaBlendFactor = RHI_BLEND_FACTOR_ONE;
+        color_blend_attachment_state.dstAlphaBlendFactor = RHI_BLEND_FACTOR_ZERO;
+        color_blend_attachment_state.alphaBlendOp = RHI_BLEND_OP_ADD;
+
+        RHIPipelineColorBlendStateCreateInfo color_blend_state_create_info{};
+        color_blend_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        color_blend_state_create_info.logicOpEnable = RHI_FALSE;
+        color_blend_state_create_info.logicOp = RHI_LOGIC_OP_COPY;
+        color_blend_state_create_info.attachmentCount = 1;
+        color_blend_state_create_info.pAttachments = &color_blend_attachment_state;
+        color_blend_state_create_info.blendConstants[0] = 0.0f;
+        color_blend_state_create_info.blendConstants[1] = 0.0f;
+        color_blend_state_create_info.blendConstants[2] = 0.0f;
+        color_blend_state_create_info.blendConstants[3] = 0.0f;
+
+        RHIPipelineDepthStencilStateCreateInfo depth_stencil_create_info{};
+        depth_stencil_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depth_stencil_create_info.depthTestEnable = RHI_TRUE;
+        depth_stencil_create_info.depthWriteEnable = RHI_TRUE;
+        depth_stencil_create_info.depthCompareOp = RHI_COMPARE_OP_LESS;
+        depth_stencil_create_info.depthBoundsTestEnable = RHI_FALSE;
+        depth_stencil_create_info.stencilTestEnable = RHI_FALSE;
+
+        RHIDynamicState                   dynamic_states[] = { RHI_DYNAMIC_STATE_VIEWPORT, RHI_DYNAMIC_STATE_SCISSOR };
+        RHIPipelineDynamicStateCreateInfo dynamic_state_create_info{};
+        dynamic_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamic_state_create_info.dynamicStateCount = 2;
+        dynamic_state_create_info.pDynamicStates = dynamic_states;
+
+        RHIGraphicsPipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = RHI_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = 2;
+        pipelineInfo.pStages = shader_stages;
+        pipelineInfo.pVertexInputState = &vertex_input_state_create_info;
+        pipelineInfo.pInputAssemblyState = &input_assembly_create_info;
+        pipelineInfo.pViewportState = &viewport_state_create_info;
+        pipelineInfo.pRasterizationState = &rasterization_state_create_info;
+        pipelineInfo.pMultisampleState = &multisample_state_create_info;
+        pipelineInfo.pColorBlendState = &color_blend_state_create_info;
+        pipelineInfo.pDepthStencilState = &depth_stencil_create_info;
+        pipelineInfo.layout = mRenderPipelines[0].layout;
+        pipelineInfo.renderPass = mFrameBuffer.renderPass;
+        pipelineInfo.subpass = 0;
+        pipelineInfo.basePipelineHandle = RHI_NULL_HANDLE;
+        pipelineInfo.pDynamicState = &dynamic_state_create_info;
+
+        if (mPipelineType == DebugDrawPipelineType::Point)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        }
+        else if (mPipelineType == DebugDrawPipelineType::Line)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        }
+        else if (mPipelineType == DebugDrawPipelineType::Triangle)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        }
+        else if (mPipelineType == DebugDrawPipelineType::PointNoDepthTest)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_POINT_LIST;
+            depth_stencil_create_info.depthTestEnable = RHI_FALSE;
+        }
+        else if (mPipelineType == DebugDrawPipelineType::LineNoDepthTest)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            depth_stencil_create_info.depthTestEnable = RHI_FALSE;
+        }
+        else if (mPipelineType == DebugDrawPipelineType::TriangleNoDepthTest)
+        {
+            input_assembly_create_info.topology = RHI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            depth_stencil_create_info.depthTestEnable = RHI_FALSE;
+        }
+
+        if (mRHI->CreateGraphicsPipelines(
+            RHI_NULL_HANDLE, 1, &pipelineInfo, mRenderPipelines[0].pipeline) !=
+            RHI_SUCCESS)
+        {
+            throw std::runtime_error("create debug draw graphics pipeline");
+        }
+
+        mRHI->DestroyShaderModule(vert_shader_module);
+        mRHI->DestroyShaderModule(frag_shader_module);
+    }
+
+    void DebugDrawPipeline::Destory()
+    {
+        
+    }
+    const DebugDrawPipelineBase &DebugDrawPipeline::GetPipeline() const
+    {
+        return mRenderPipelines[0];
+    }
+    const DebugDrawFrameBuffer &DebugDrawPipeline::GetFrameBuffer() const
+    {
+        return mFrameBuffer;
     }
 }

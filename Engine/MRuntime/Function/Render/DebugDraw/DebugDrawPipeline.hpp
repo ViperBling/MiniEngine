@@ -28,10 +28,15 @@ namespace MiniEngine
         RHIPipeline*       pipeline = nullptr;
     };
 
-    enum class DebugDrawPipelineType : uint8_t
+    enum DebugDrawPipelineType : uint8_t
     {
+        Point = 0,
+        Line,
         Triangle,
-        Count,
+        PointNoDepthTest,
+        LineNoDepthTest,
+        TriangleNoDepthTest,
+        Count
     };
 
     class DebugDrawPipeline
@@ -39,6 +44,7 @@ namespace MiniEngine
     public:
         explicit DebugDrawPipeline(DebugDrawPipelineType pipelineType) { mPipelineType = pipelineType; }
         void Initialize();
+        void Destory();
         void RecreateAfterSwapChain();
 
         DebugDrawPipelineType GetPipelineType() const { return mPipelineType; }
@@ -46,13 +52,17 @@ namespace MiniEngine
         const DebugDrawPipelineBase& GetPipeline() const { return mRenderPipelines[0]; }
 
     private:
-        void SetupRenderPass();
-        void SetupPipelines();
-        void SetupFrameBuffers();
-
-    private:
+        void setupAttachments();
+        void setupFrameBuffer();
+        void setupRenderPass();
+        void setupDescriptorLayout();
+        void setupPipelines();
+    
+    public:
         DebugDrawPipelineType               mPipelineType;
-        // RHIDescriptorSetLayout*            mDescriptorLayout; // 管线布局描述器
+
+    private:    
+        RHIDescriptorSetLayout*             mDescriptorLayout; // 管线布局描述器
         std::vector<DebugDrawPipelineBase>  mRenderPipelines; // 渲染管线
         DebugDrawFrameBuffer                mFrameBuffer;
         std::shared_ptr<RHI>                mRHI;

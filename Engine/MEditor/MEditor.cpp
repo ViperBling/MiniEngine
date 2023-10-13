@@ -12,7 +12,7 @@ void MEditor::Initialize(MEngine* engineRuntime) {
     this->mEngineRuntime = engineRuntime;
 
     mEditorUI = std::make_shared<MEditorUI>();
-    WindowUIInitInfo uiInitInfo = {gRuntimeGlobalContext.mWindowsSystem};
+    WindowUIInitInfo uiInitInfo = {gRuntimeGlobalContext.mWindowSystem};
     mEditorUI->Initialize(uiInitInfo);
 }
 

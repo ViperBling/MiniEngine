@@ -3,6 +3,8 @@
 #include "MRuntime/Function/Render/RenderResource.hpp"
 #include "MRuntime/Function/Render/Interface/Vulkan/VulkanRHI.hpp"
 
+MiniEngine::VisiableNodes MiniEngine::RenderPass::mVisibleNodes;
+
 namespace MiniEngine
 {
     void RenderPass::Initialize(const RenderPassInitInfo* init_info)

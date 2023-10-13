@@ -19,7 +19,7 @@ namespace MiniEngine
     private:
         void setupAttachments();
         void setupRenderPass();
-        void setupFramebuffer();
+        void setupFrameBuffer();
         void setupDescriptorSetLayout();
         void setupPipelines();
         void setupDescriptorSet();

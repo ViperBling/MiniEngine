@@ -11,6 +11,8 @@ namespace MiniEngine
         mPickPass->PreparePassData(render_resource);
         mUIPass->PreparePassData(render_resource);
         mCombineUIPass->PreparePassData(render_resource);
+
+        gRuntimeGlobalContext.mDebugDrawManager->PreparePassData(render_resource);
     }
 
     void RenderPipelineBase::ForwardRender(std::shared_ptr<RHI> rhi, std::shared_ptr<RenderResourceBase> renderResource) 
