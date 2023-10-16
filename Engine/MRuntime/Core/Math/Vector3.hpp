@@ -215,7 +215,7 @@ namespace MiniEngine
                 if (fallback_axis != Vector3::ZERO)
                 {
                     // rotate 180 degrees about the fall back axis
-                    q.FromAngleAxis(Radian(Math_PI), fallback_axis);
+                    q.FromAngleAxis(Radian(MATH_PI), fallback_axis);
                 }
                 else
                 {
@@ -224,7 +224,7 @@ namespace MiniEngine
                     if (axis.IsZeroLength()) // pick another if collinear
                         axis = Vector3::UNIT_Y.CrossProduct(*this);
                     axis.Normalize();
-                    q.FromAngleAxis(Radian(Math_PI), axis);
+                    q.FromAngleAxis(Radian(MATH_PI), axis);
                 }
             }
             else

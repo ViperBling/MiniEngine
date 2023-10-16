@@ -123,11 +123,11 @@ namespace MiniEngine
         virtual void UpdatePerFrameBuffer(std::shared_ptr<RenderScene>  render_scene,
             std::shared_ptr<RenderCamera> camera) override final;
 
-        VulkanMesh& getEntityMesh(RenderEntity entity);
+        VulkanMesh& GetEntityMesh(RenderEntity entity);
 
-        VulkanPBRMaterial& getEntityMaterial(RenderEntity entity);
+        VulkanPBRMaterial& GetEntityMaterial(RenderEntity entity);
 
-        void resetRingBufferOffset(uint8_t current_frame_index);
+        void ResetRingBufferOffset(uint8_t current_frame_index);
 
     private:
         void createAndMapStorageBuffer(std::shared_ptr<RHI> rhi);
@@ -170,10 +170,10 @@ namespace MiniEngine
 
         // storage buffer objects
         MeshPerframeStorageBufferObject                 mMeshPerFrameStorageBufferObject;
-        MeshPointLightShadowPerframeStorageBufferObject mMeshPointLightShadowPerFrameStorageBufferObject;
-        MeshDirectionalLightShadowPerframeStorageBufferObject mMeshDirectionalLightShadowPerFrameStorageBufferObject;
+        MeshPointLightShadowPerFrameStorageBufferObject mMeshPointLightShadowPerFrameStorageBufferObject;
+        MeshDirectionalLightShadowPerFrameStorageBufferObject mMeshDirectionalLightShadowPerFrameStorageBufferObject;
         AxisStorageBufferObject                        mAxisStorageBufferObject;
-        MeshInefficientPickPerframeStorageBufferObject mMeshInEffPickPerFrameStorageBufferObject;
+        MeshInefficientPickPerFrameStorageBufferObject mMeshInEffPickPerFrameStorageBufferObject;
 
         // cached mesh and material
         std::map<size_t, VulkanMesh>        mVulkanMesh;

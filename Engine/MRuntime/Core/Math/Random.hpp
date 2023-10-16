@@ -41,9 +41,9 @@ namespace MiniEngine
             return Distribution<uniform_distribution<NumericType>>(lower, upper);
         }
 
-        float UniformUnit() { return uniformDistribution(0.f, std::nextafter(1.f, FLT_MAX)); }
-        float UniformSymmetry() { return uniformDistribution(-1.f, std::nextafter(1.f, FLT_MAX)); }
-        bool BernoulliDistribution(float probability) { return distribution<std::bernoulli_distribution>(probability); }
+        float UniformUnit() { return UniformDistribution(0.f, std::nextafter(1.f, FLT_MAX)); }
+        float UniformSymmetry() { return UniformDistribution(-1.f, std::nextafter(1.f, FLT_MAX)); }
+        bool BernoulliDistribution(float probability) { return Distribution<std::bernoulli_distribution>(probability); }
 
         float NormalDistribution(float mean, float stddev)
         {
@@ -74,10 +74,10 @@ namespace MiniEngine
         template<typename... Params>
         explicit DistRandomNumberGenerator(SeedType&& seeding, Params&&...  /*params*/) : mEngine(seeding)
         {
-            // m_dist = CHAOS_NEW_T(DistributionFunc)(std::forward<Params>(params)...);
+            // mDist = CHAOS_NEW_T(DistributionFunc)(std::forward<Params>(params)...);
         }
 
-        ~DistRandomNumberGenerator() { CHAOS_DELETE_T(m_dist); }
+        ~DistRandomNumberGenerator() { CHAOS_DELETE_T(mDist); }
 
         template<typename... Params>
         void Seed(Params&&... params)

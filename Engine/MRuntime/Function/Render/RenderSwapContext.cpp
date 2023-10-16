@@ -33,7 +33,7 @@ namespace MiniEngine
                  mSwapData[mRenderSwapDataIndex].mCameraSwapData.has_value());
     }
 
-    void RenderSwapContext::ResetSceneRsourceSwapData()
+    void RenderSwapContext::ResetSceneResourceSwapData()
     {
         mSwapData[mRenderSwapDataIndex].mSceneResourceDesc.reset();
     }
@@ -55,7 +55,7 @@ namespace MiniEngine
 
     void RenderSwapContext::swap()
     {
-        ResetSceneRsourceSwapData();
+        ResetSceneResourceSwapData();
         ResetGameObjectResourceSwapData();
         ResetGameObjectToDelete();
         ResetCameraSwapData();

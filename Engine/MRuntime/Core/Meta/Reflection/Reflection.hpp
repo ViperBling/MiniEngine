@@ -39,6 +39,22 @@ namespace MiniEngine
 #define ME_REFLECTION_DEEP_COPY(type, dst_ptr, src_ptr) \
     *static_cast<type*>(dst_ptr) = *static_cast<type*>(src_ptr.GetPtr());
 
+#define TypeMetaDef(class_name, ptr) \
+    MiniEngine::Reflection::ReflectionInstance(MiniEngine::Reflection::TypeMeta::NewMetaFromName(#class_name), \
+                                            (class_name*)ptr)
+
+#define TypeMetaDefPtr(class_name, ptr) \
+    new MiniEngine::Reflection::ReflectionInstance(MiniEngine::Reflection::TypeMeta::NewMetaFromName(#class_name), \
+                                                (class_name*)ptr)
+
+    template<typename T, typename U, typename = void>
+    struct is_safely_castable : std::false_type
+    {};
+
+    template<typename T, typename U>
+    struct is_safely_castable<T, U, std::void_t<decltype(static_cast<U>(std::declval<T>()))>> : std::true_type
+    {};
+
     namespace Reflection
     {
         class TypeMeta;

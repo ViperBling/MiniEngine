@@ -21,7 +21,7 @@ namespace MiniEngine
         void Draw() override final;
 
         uint32_t Pick(const Vector2& pickedUV);
-        void RecreateFrameBuffer();
+        void RecreateFramebuffer();
 
     private:
         void setupAttachments();

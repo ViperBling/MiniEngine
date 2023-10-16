@@ -52,7 +52,7 @@ namespace MiniEngine
                     mGameCommand |= (unsigned int)GameCommand::Squat;
                     break;
                 case GLFW_KEY_LEFT_ALT: {
-                    std::shared_ptr<WindowSystem> wndSystem = gRuntimeGlobalContext.mWindowsSystem;
+                    std::shared_ptr<WindowSystem> wndSystem = gRuntimeGlobalContext.mWindowSystem;
                     // wndSystem->SetFocusMode(!wndSystem->GetFocusMode());
                 }
                 break;
@@ -101,7 +101,7 @@ namespace MiniEngine
 
     void InputSystem::OnCursorPos(double current_cursor_x, double current_cursor_y)
     {
-        if (gRuntimeGlobalContext.mWindowsSystem->GetFocusMode())
+        if (gRuntimeGlobalContext.mWindowSystem->GetFocusMode())
         {
             mCursorDeltaX = mLastCursorX - current_cursor_x;
             mCursorDeltaY = mLastCursorY - current_cursor_y;
@@ -118,7 +118,7 @@ namespace MiniEngine
 
     void InputSystem::Initialize()
     {
-        std::shared_ptr<WindowSystem> window_system = gRuntimeGlobalContext.mWindowsSystem;
+        std::shared_ptr<WindowSystem> window_system = gRuntimeGlobalContext.mWindowSystem;
         ASSERT(window_system);
 
         window_system->RegisterOnKeyFunc(std::bind(&InputSystem::OnKey,
@@ -135,7 +135,7 @@ namespace MiniEngine
     {
         Clear();
 
-        std::shared_ptr<WindowSystem> window_system = gRuntimeGlobalContext.mWindowsSystem;
+        std::shared_ptr<WindowSystem> window_system = gRuntimeGlobalContext.mWindowSystem;
         if (window_system->GetFocusMode())
         {
             mGameCommand &= (kComplementControlCommand ^ (unsigned int)GameCommand::Invalid);

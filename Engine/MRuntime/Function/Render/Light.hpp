@@ -17,7 +17,7 @@ namespace MiniEngine
             // radius = where attenuation would lead to an intensity of 1W/m^2
             const float INTENSITY_CUTOFF    = 1.0f;
             const float ATTENTUATION_CUTOFF = 0.05f;
-            Vector3     intensity           = mFlux / (4.0f * Math_PI);
+            Vector3     intensity           = mFlux / (4.0f * MATH_PI);
             float       maxIntensity        = Vector3::GetMaxElement(intensity);
             float       attenuation = Math::Max(INTENSITY_CUTOFF, ATTENTUATION_CUTOFF * maxIntensity) / maxIntensity;
             return 1.0f / sqrtf(attenuation);

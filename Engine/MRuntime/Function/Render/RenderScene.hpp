@@ -18,7 +18,6 @@ namespace MiniEngine
     class RenderScene
     {
     public:
-
         // clear
         void Clear();
 
@@ -29,11 +28,11 @@ namespace MiniEngine
         // set visible nodes ptr in render pass
         void SetVisibleNodesReference();
 
-        GuidAllocator<GameObjectPartId>&   GetInstanceIdAllocator();
-        GuidAllocator<MeshSourceDesc>&     GetMeshAssetIdAllocator();
+        GuidAllocator<GameObjectPartId>&   GetInstanceIDAllocator();
+        GuidAllocator<MeshSourceDesc>&     GetMeshAssetIDAllocator();
         GuidAllocator<MaterialSourceDesc>& GetMaterialAssetdAllocator();
 
-        void      AddInstanceIdToMap(uint32_t instance_id, GObjectID go_id);
+        void      AddInstanceIDToMap(uint32_t instance_id, GObjectID go_id);
         GObjectID GetGObjectIDByMeshID(uint32_t mesh_id) const;
         void      DeleteEntityByGObjectID(GObjectID go_id);
 
@@ -44,15 +43,12 @@ namespace MiniEngine
             std::shared_ptr<RenderResource> render_resource,
             std::shared_ptr<RenderCamera>   camera
             );
-        void updateVisibleObjectsPointLight(
-            std::shared_ptr<RenderResource> render_resource
-        );
+
         void updateVisibleObjectsMainCamera(
             std::shared_ptr<RenderResource> render_resource,
             std::shared_ptr<RenderCamera>   camera
         );
         void updateVisibleObjectsAxis(std::shared_ptr<RenderResource> render_resource);
-        void updateVisibleObjectsParticle(std::shared_ptr<RenderResource> render_resource);
 
     public:
         // light

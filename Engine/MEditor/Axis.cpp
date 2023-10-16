@@ -22,8 +22,8 @@ namespace MiniEngine
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (0 * segments + i) * stride);
             vertex.x = 0.0f;
-            vertex.y = sin(i * 2 * Math_PI / segments) * radius;
-            vertex.z = cos(i * 2 * Math_PI / segments) * radius;
+            vertex.y = sin(i * 2 * MATH_PI / segments) * radius;
+            vertex.z = cos(i * 2 * MATH_PI / segments) * radius;
             vertex.u = 0.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;
@@ -170,8 +170,8 @@ namespace MiniEngine
         {
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (0 * segments + i) * stride);
-            vertex.x = cos(2 * Math_PI / segments * i) * inner_radius;
-            vertex.y = sin(2 * Math_PI / segments * i) * inner_radius;
+            vertex.x = cos(2 * MATH_PI / segments * i) * inner_radius;
+            vertex.y = sin(2 * MATH_PI / segments * i) * inner_radius;
             vertex.z = 0.0f;
             vertex.u = 2.0f;
 
@@ -184,8 +184,8 @@ namespace MiniEngine
         {
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (1 * segments + i) * stride);
-            vertex.x = cos(2 * Math_PI / segments * i) * outer_radius;
-            vertex.y = sin(2 * Math_PI / segments * i) * outer_radius;
+            vertex.x = cos(2 * MATH_PI / segments * i) * outer_radius;
+            vertex.y = sin(2 * MATH_PI / segments * i) * outer_radius;
             vertex.z = 0.0f;
             vertex.u = 2.0f;
 
@@ -199,8 +199,8 @@ namespace MiniEngine
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (2 * segments + i) * stride);
             vertex.x = 0.0f;
-            vertex.y = cos(2 * Math_PI / segments * i) * inner_radius;
-            vertex.z = sin(2 * Math_PI / segments * i) * inner_radius;
+            vertex.y = cos(2 * MATH_PI / segments * i) * inner_radius;
+            vertex.z = sin(2 * MATH_PI / segments * i) * inner_radius;
             vertex.u = 0.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;
@@ -213,8 +213,8 @@ namespace MiniEngine
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (3 * segments + i) * stride);
             vertex.x = 0.0f;
-            vertex.y = cos(2 * Math_PI / segments * i) * outer_radius;
-            vertex.z = sin(2 * Math_PI / segments * i) * outer_radius;
+            vertex.y = cos(2 * MATH_PI / segments * i) * outer_radius;
+            vertex.z = sin(2 * MATH_PI / segments * i) * outer_radius;
             vertex.u = 0.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;
@@ -226,9 +226,9 @@ namespace MiniEngine
         {
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (4 * segments + i) * stride);
-            vertex.x = cos(2 * Math_PI / segments * i) * inner_radius;
+            vertex.x = cos(2 * MATH_PI / segments * i) * inner_radius;
             vertex.y = 0.0f;
-            vertex.z = sin(2 * Math_PI / segments * i) * inner_radius;
+            vertex.z = sin(2 * MATH_PI / segments * i) * inner_radius;
             vertex.u = 1.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;
@@ -240,9 +240,9 @@ namespace MiniEngine
         {
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (5 * segments + i) * stride);
-            vertex.x = cos(2 * Math_PI / segments * i) * outer_radius;
+            vertex.x = cos(2 * MATH_PI / segments * i) * outer_radius;
             vertex.y = 0.0f;
-            vertex.z = sin(2 * Math_PI / segments * i) * outer_radius;
+            vertex.z = sin(2 * MATH_PI / segments * i) * outer_radius;
             vertex.u = 1.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;
@@ -316,8 +316,8 @@ namespace MiniEngine
             MeshVertexDataDefinition& vertex =
                 *(MeshVertexDataDefinition*)(vertex_data + (0 * segments + i) * stride);
             vertex.x = 0.0f;
-            vertex.y = sin(i * 2 * Math_PI / segments) * radius;
-            vertex.z = cos(i * 2 * Math_PI / segments) * radius;
+            vertex.y = sin(i * 2 * MATH_PI / segments) * radius;
+            vertex.z = cos(i * 2 * MATH_PI / segments) * radius;
             vertex.u = 0.0f;
 
             vertex.nx = vertex.ny = vertex.nz = 0.0f;

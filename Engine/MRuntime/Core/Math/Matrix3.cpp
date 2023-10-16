@@ -149,7 +149,7 @@ namespace MiniEngine
 
         if (radian > Radian(0.0))
         {
-            if (radian < Radian(Math_PI))
+            if (radian < Radian(MATH_PI))
             {
                 axis.x = mMat[2][1] - mMat[1][2];
                 axis.y = mMat[0][2] - mMat[2][0];

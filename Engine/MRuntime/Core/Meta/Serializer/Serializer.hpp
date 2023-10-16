@@ -41,17 +41,17 @@ namespace MiniEngine
         static Json Write(const Reflection::ReflectionPtr<T>& instance)
         {
             T*          instance_ptr = static_cast<T*>(instance.operator->());
-            std::string type_name    = instance.getTypeName();
+            std::string type_name    = instance.GetTypeName();
             return Json::object {{"$typeName", Json(type_name)},
-                                  {"$context", Reflection::TypeMeta::writeByName(type_name, instance_ptr)}};
+                                  {"$context", Reflection::TypeMeta::WriteByName(type_name, instance_ptr)}};
         }
 
         template<typename T>
         static T*& Read(const Json& json_context, Reflection::ReflectionPtr<T>& instance)
         {
             std::string type_name = json_context["$typeName"].string_value();
-            instance.setTypeName(type_name);
-            return readPointer(json_context, instance.getPtrReference());
+            instance.SetTypeName(type_name);
+            return ReadPointer(json_context, instance.GetPtrReference());
         }
 
         template<typename T>

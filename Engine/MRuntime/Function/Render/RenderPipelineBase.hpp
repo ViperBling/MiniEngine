@@ -7,6 +7,7 @@
 #include "MRuntime/Function/Render/Interface/RHI.hpp"
 #include "MRuntime/Function/Render/RenderResourceBase.hpp"
 #include "MRuntime/Function/Render/RenderPassBase.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
 
 namespace MiniEngine
 {

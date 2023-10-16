@@ -33,7 +33,7 @@ namespace MiniEngine
     STRUCT(SkeletonAnimationResult, Fields)
     {
         REFLECTION_BODY(SkeletonAnimationResult)
-        std::vector<SkeletonAnimationResultTransform> mTransform;
+        std::vector<SkeletonAnimationResultTransform> mTransforms;
     };
 
     REFLECTION_TYPE(GameObjectMaterialDesc)
@@ -87,7 +87,7 @@ namespace MiniEngine
             mGOID(go_id), mObjectParts(parts)
         {}
 
-        GObjectID                              GetId() const { return mGOID; }
+        GObjectID                              GetID() const { return mGOID; }
         const std::vector<GameObjectPartDesc>& GetObjectParts() const { return mObjectParts; }
 
     private:

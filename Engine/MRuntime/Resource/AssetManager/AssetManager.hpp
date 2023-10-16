@@ -48,7 +48,7 @@ namespace MiniEngine
         template<typename AssetType>
         bool SaveAsset(const AssetType& out_asset, const std::string& asset_url) const
         {
-            std::ofstream asset_json_file(getFullPath(asset_url));
+            std::ofstream asset_json_file(GetFullPath(asset_url));
             if (!asset_json_file)
             {
                 LOG_ERROR("open file {} failed!", asset_url);

@@ -65,6 +65,9 @@ namespace MiniEngine
         GuidAllocator<MeshSourceDesc>&   GetMeshAssetIDAllocator();
 
         void ClearForLevelReloading();
+    
+    private:
+        void processSwapData();
 
     private:
         RENDER_PIPELINE_TYPE mRenderPipelineType{RENDER_PIPELINE_TYPE::FORWARD_PIPELINE};

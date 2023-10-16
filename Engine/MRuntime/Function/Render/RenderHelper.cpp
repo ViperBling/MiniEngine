@@ -185,14 +185,15 @@ namespace MiniEngine
     {
         // we follow the "BoundingBox::Transform"
 
-        Vector3 const g_BoxOffset[8] = {Vector3(-1.0f, -1.0f, 1.0f),
-                                          Vector3(1.0f, -1.0f, 1.0f),
-                                          Vector3(1.0f, 1.0f, 1.0f),
-                                          Vector3(-1.0f, 1.0f, 1.0f),
-                                          Vector3(-1.0f, -1.0f, -1.0f),
-                                          Vector3(1.0f, -1.0f, -1.0f),
-                                          Vector3(1.0f, 1.0f, -1.0f),
-                                          Vector3(-1.0f, 1.0f, -1.0f)};
+        Vector3 const g_BoxOffset[8] = {
+            Vector3(-1.0f, -1.0f, 1.0f),
+            Vector3(1.0f, -1.0f, 1.0f),
+            Vector3(1.0f, 1.0f, 1.0f),
+            Vector3(-1.0f, 1.0f, 1.0f),
+            Vector3(-1.0f, -1.0f, -1.0f),
+            Vector3(1.0f, -1.0f, -1.0f),
+            Vector3(1.0f, 1.0f, -1.0f),
+            Vector3(-1.0f, 1.0f, -1.0f)};
 
         size_t const CORNER_COUNT = 8;
 
@@ -273,14 +274,15 @@ namespace MiniEngine
         BoundingBox frustum_bounding_box;
         // CascadedShadowMaps11 / CreateFrustumPointsFromCascadeInterval
         {
-            Vector3 const g_frustum_points_ndc_space[8] = {Vector3(-1.0f, -1.0f, 1.0f),
-                                                             Vector3(1.0f, -1.0f, 1.0f),
-                                                             Vector3(1.0f, 1.0f, 1.0f),
-                                                             Vector3(-1.0f, 1.0f, 1.0f),
-                                                             Vector3(-1.0f, -1.0f, 0.0f),
-                                                             Vector3(1.0f, -1.0f, 0.0f),
-                                                             Vector3(1.0f, 1.0f, 0.0f),
-                                                             Vector3(-1.0f, 1.0f, 0.0f)};
+            Vector3 const g_frustum_points_ndc_space[8] = {
+                Vector3(-1.0f, -1.0f, 1.0f),
+                Vector3(1.0f, -1.0f, 1.0f),
+                Vector3(1.0f, 1.0f, 1.0f),
+                Vector3(-1.0f, 1.0f, 1.0f),
+                Vector3(-1.0f, -1.0f, 0.0f),
+                Vector3(1.0f, -1.0f, 0.0f),
+                Vector3(1.0f, 1.0f, 0.0f),
+                Vector3(-1.0f, 1.0f, 0.0f)};
 
             Matrix4x4 inverse_proj_view_matrix = proj_view_matrix.Inverse();
 

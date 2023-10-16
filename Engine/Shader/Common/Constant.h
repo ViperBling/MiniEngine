@@ -1,0 +1,7 @@
+#define MAX_POINT_LIGHT_COUNT 15
+#define MAX_POINT_LIGHT_GEOM_VERTICES 90 // 90 = 2 * 3 * m_max_point_light_count
+#define MESH_PER_DRAWCALL_MAX_INSTANCE_COUNT 64
+#define MESH_VERTEX_BLENDING_MAX_JOINT_COUNT 1024
+#define CHAOS_LAYOUT_MAJOR row_major
+layout(CHAOS_LAYOUT_MAJOR) buffer;
+layout(CHAOS_LAYOUT_MAJOR) uniform;

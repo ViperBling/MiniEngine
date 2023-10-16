@@ -4,6 +4,7 @@
 
 namespace MiniEngine
 {
+    class WindowUI;
     struct UIPassInitInfo : RenderPassInitInfo
     {
         RHIRenderPass* mRenderPass;

@@ -13,11 +13,11 @@ namespace Reflection{
         static const char* getClassName(){ return "{{class_name}}";}
         static void* constructorWithJson(const Json& json_context){
             {{class_name}}* ret_instance= new {{class_name}};
-            Serializer::read(json_context, *ret_instance);
+            Serializer::Read(json_context, *ret_instance);
             return ret_instance;
         }
         static Json writeByName(void* instance){
-            return Serializer::write(*({{class_name}}*)instance);
+            return Serializer::Write(*({{class_name}}*)instance);
         }
         // base class
         static int get{{class_name}}BaseClassReflectionInstanceList(ReflectionInstance* &out_list, void* instance){

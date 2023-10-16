@@ -11,11 +11,11 @@ namespace MiniEngine
     static const float MATH_POS_INFINITY = std::numeric_limits<float>::infinity();
     static const float MATH_NEG_INFINITY = -std::numeric_limits<float>::infinity();
     static const float MATH_PI           = 3.14159265358979323846264338327950288f;
-    static const float MATH_ONE_OVER_PI  = 1.0f / Math_PI;
-    static const float MATH_TWO_PI       = 2.0f * Math_PI;
-    static const float MATH_HALF_PI      = 0.5f * Math_PI;
-    static const float MATH_fDeg2Rad     = Math_PI / 180.0f;
-    static const float MATH_fRad2Deg     = 180.0f / Math_PI;
+    static const float MATH_ONE_OVER_PI  = 1.0f / MATH_PI;
+    static const float MATH_TWO_PI       = 2.0f * MATH_PI;
+    static const float MATH_HALF_PI      = 0.5f * MATH_PI;
+    static const float MATH_fDeg2Rad     = MATH_PI / 180.0f;
+    static const float MATH_fRad2Deg     = 180.0f / MATH_PI;
     static const float MATH_LOG2         = log(2.0f);
     static const float MATH_EPSILON      = 1e-6f;
 

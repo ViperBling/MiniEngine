@@ -1,4 +1,7 @@
 #include "RenderPipelineBase.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
+#include "MRuntime/Function/Render/DebugDraw/DebugDrawManager.hpp"
+#include "MRuntime/Core/Base/Marco.hpp"
 
 namespace MiniEngine
 {
@@ -11,7 +14,7 @@ namespace MiniEngine
         mPickPass->PreparePassData(render_resource);
         mUIPass->PreparePassData(render_resource);
         mCombineUIPass->PreparePassData(render_resource);
-
+        
         gRuntimeGlobalContext.mDebugDrawManager->PreparePassData(render_resource);
     }
 

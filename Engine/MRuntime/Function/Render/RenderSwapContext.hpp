@@ -74,7 +74,7 @@ namespace MiniEngine
         RenderSwapData& GetLogicSwapData();
         RenderSwapData& GetRenderSwapData();
         void            SwapLogicRenderData();
-        void            ResetSceneRsourceSwapData();
+        void            ResetSceneResourceSwapData();
         void            ResetGameObjectResourceSwapData();
         void            ResetGameObjectToDelete();
         void            ResetCameraSwapData();

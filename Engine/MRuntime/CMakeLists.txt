@@ -1,5 +1,10 @@
 set(TARGET_NAME MiniEngineRuntime)
 
+set(JSON_INCLUDE ${THIRD_PARTY_DIR}/json11)
+
+add_library(json11 ${JSON_INCLUDE}/json11.cpp)
+set_target_properties(json11 PROPERTIES FOLDER "ThirdParty/json11")
+
 file(GLOB_RECURSE RUNTIME_HEADERS CONFIGURE_DEPENDS "*.hpp")
 file(GLOB_RECURSE RUNTIME_SOURCES CONFIGURE_DEPENDS "*.cpp")
 
@@ -35,11 +40,12 @@ target_include_directories(
 )
 
 # 链接库
+target_link_libraries(${TARGET_NAME} PUBLIC spdlog::spdlog)
+target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader stb)
 target_link_libraries(${TARGET_NAME} PUBLIC glfw)
-target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
-target_link_libraries(${TARGET_NAME} PUBLIC json11)
-target_link_libraries(${TARGET_NAME} PUBLIC stb)
 target_link_libraries(${TARGET_NAME} PUBLIC imgui)
+target_link_libraries(${TARGET_NAME} PUBLIC ${vulkan_lib})
+target_link_libraries(${TARGET_NAME} PRIVATE $<BUILD_INTERFACE:json11>)
 
 # IDE标识
 set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17)

@@ -23,26 +23,26 @@ namespace MiniEngine
         LogSystem();
         ~LogSystem();
 
-        template<typename... TAGS>
-        void Log(LogLevel level, TAGS&&... args)
+        template<typename... TARGS>
+        void Log(LogLevel level, TARGS&&... args)
         {
             switch (level)
             {
-                case LogLevel::Debug:
+                case LogLevel::debug:
                     mLogger->debug(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::Info:
+                case LogLevel::info:
                     mLogger->info(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::Warning:
+                case LogLevel::warn:
                     mLogger->warn(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::Error:
+                case LogLevel::error:
                     mLogger->error(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::Fatal:
+                case LogLevel::fatal:
                     mLogger->critical(std::forward<TARGS>(args)...);
-                    FatalCallback(std::forward<TARGS>(args)...);
+                    fatalCallback(std::forward<TARGS>(args)...);
                     break;
                 default:
                     break;

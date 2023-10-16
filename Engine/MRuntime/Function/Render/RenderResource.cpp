@@ -128,7 +128,7 @@ namespace MiniEngine
         {
             Vector3 point_light_position = render_scene->mPointLightList.mLights[i].mPosition;
             Vector3 point_light_intensity =
-                render_scene->mPointLightList.mLights[i].mFlux / (4.0f * Math_PI);
+                render_scene->mPointLightList.mLights[i].mFlux / (4.0f * MATH_PI);
 
             float radius = render_scene->mPointLightList.mLights[i].CalculateRadius();
 
@@ -1080,7 +1080,7 @@ namespace MiniEngine
             texture_data.emissive_image_format);
     }
 
-    VulkanMesh& RenderResource::getEntityMesh(RenderEntity entity)
+    VulkanMesh& RenderResource::GetEntityMesh(RenderEntity entity)
     {
         size_t assetid = entity.mMeshAssetID;
 
@@ -1095,7 +1095,7 @@ namespace MiniEngine
         }
     }
 
-    VulkanPBRMaterial& RenderResource::getEntityMaterial(RenderEntity entity)
+    VulkanPBRMaterial& RenderResource::GetEntityMaterial(RenderEntity entity)
     {
         size_t assetid = entity.mMaterialAssetID;
 
@@ -1110,7 +1110,7 @@ namespace MiniEngine
         }
     }
 
-    void RenderResource::resetRingBufferOffset(uint8_t current_frame_index)
+    void RenderResource::ResetRingBufferOffset(uint8_t current_frame_index)
     {
         mGlobalRenderResource.mStorageBuffer.mGlobalUploadRingbuffersEnd[current_frame_index] =
             mGlobalRenderResource.mStorageBuffer.mGlobalUploadRingbuffersBegin[current_frame_index];

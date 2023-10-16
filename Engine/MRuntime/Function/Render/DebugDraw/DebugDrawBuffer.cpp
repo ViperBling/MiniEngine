@@ -287,7 +287,7 @@ namespace MiniEngine
     {
         int32_t param = mCircleSampleCount;
         //radios is 1
-        float _2pi = 2.0f * Math_PI;
+        float _2pi = 2.0f * MATH_PI;
         std::vector<DebugDrawVertex> vertexs((param * 2 + 2) * (param * 2) * 2 + (param * 2 + 1) * (param * 2) * 2);
 
         int32_t current_index = 0;
@@ -353,7 +353,7 @@ namespace MiniEngine
     {
         int param = mCircleSampleCount;
         //radios is 1 , height is 2
-        float _2pi = 2.0f * Math_PI;
+        float _2pi = 2.0f * MATH_PI;
         std::vector<DebugDrawVertex> vertexs(2 * param * 5 * 2);
 
         size_t current_index = 0;
@@ -421,7 +421,7 @@ namespace MiniEngine
     {
         int param = mCircleSampleCount;
         //radios is 1,height is 4
-        float _2pi = 2.0f * Math_PI;
+        float _2pi = 2.0f * MATH_PI;
         std::vector<DebugDrawVertex> vertexs(2 * param * param * 4 + 2 * param * param * 4 + 2 * param * 2);
 
         size_t current_index = 0;
