@@ -5,8 +5,8 @@
 
 namespace MiniEngine{
     {{#class_defines}}template<>
-    Json Serializer::write(const {{class_name}}& instance);
+    Json Serializer::Write(const {{class_name}}& instance);
     template<>
-    {{class_name}}& Serializer::read(const Json& json_context, {{class_name}}& instance);
+    {{class_name}}& Serializer::Read(const Json& json_context, {{class_name}}& instance);
     {{/class_defines}}
 }//namespace

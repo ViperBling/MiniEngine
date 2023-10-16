@@ -28,21 +28,21 @@ namespace MiniEngine
         {
             switch (level)
             {
-                case LogLevel::debug:
+                case LogLevel::Debug:
                     mLogger->debug(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::info:
+                case LogLevel::Info:
                     mLogger->info(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::warn:
+                case LogLevel::Warning:
                     mLogger->warn(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::error:
+                case LogLevel::Error:
                     mLogger->error(std::forward<TARGS>(args)...);
                     break;
-                case LogLevel::fatal:
+                case LogLevel::Fatal:
                     mLogger->critical(std::forward<TARGS>(args)...);
-                    fatalCallback(std::forward<TARGS>(args)...);
+                    FatalCallback(std::forward<TARGS>(args)...);
                     break;
                 default:
                     break;
