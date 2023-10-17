@@ -41,7 +41,7 @@ namespace MiniEngine
                 return false;
             }
 
-            Serializer::read(asset_json, out_asset);
+            Serializer::Read(asset_json, out_asset);
             return true;
         }
 
@@ -56,7 +56,7 @@ namespace MiniEngine
             }
 
             // write to json object and dump to string
-            auto&&        asset_json      = Serializer::write(out_asset);
+            auto&&        asset_json      = Serializer::Write(out_asset);
             std::string&& asset_json_text = asset_json.dump();
 
             // write to file

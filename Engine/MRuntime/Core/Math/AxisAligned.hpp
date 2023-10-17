@@ -1,7 +1,9 @@
-#include <limits>
+#pragma once
 
 #include "Vector3.hpp"
 #include "MRuntime/Core/Meta/Reflection/Reflection.hpp"
+
+#include <limits>
 
 namespace MiniEngine
 {

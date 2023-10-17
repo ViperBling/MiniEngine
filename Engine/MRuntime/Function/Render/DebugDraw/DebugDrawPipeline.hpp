@@ -36,7 +36,7 @@ namespace MiniEngine
         PointNoDepthTest,
         LineNoDepthTest,
         TriangleNoDepthTest,
-        Count
+        DebugDrawPipelineTypeCount,
     };
 
     class DebugDrawPipeline

@@ -6,7 +6,7 @@
 
 #include "MRuntime/Core/Math/Math.hpp"
 #include "MRuntime/Core/Math/Quaternion.hpp"
-#include "Core/Meta/Reflection/Reflection.hpp"
+#include "MRuntime/Core/Meta/Reflection/Reflection.hpp"
 
 namespace MiniEngine
 {

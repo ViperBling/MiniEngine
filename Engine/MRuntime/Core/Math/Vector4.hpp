@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Math.hpp"
-#include "Vector3.hpp"
+#include "MRuntime/Core/Math/Math.hpp"
+#include "MRuntime/Core/Math/Vector3.hpp"
 #include "MRuntime/Core/Meta/Reflection/Reflection.hpp"
 
 namespace MiniEngine

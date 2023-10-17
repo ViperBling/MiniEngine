@@ -16,7 +16,7 @@ namespace MiniEngine
     void DebugDrawManager::SetupPipelines()
     {
         //setup pipelines
-        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::Count); i++)
+        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::DebugDrawPipelineTypeCount); i++)
         {
             mDebugDrawPipelines[i] = new DebugDrawPipeline((DebugDrawPipelineType)i);
             mDebugDrawPipelines[i]->Initialize();
@@ -35,7 +35,7 @@ namespace MiniEngine
 
     void DebugDrawManager::Destroy()
     {
-        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::Count); i++)
+        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::DebugDrawPipelineTypeCount); i++)
         {
             mDebugDrawPipelines[i]->Destory();
             delete mDebugDrawPipelines[i];
@@ -63,7 +63,7 @@ namespace MiniEngine
 
     void DebugDrawManager::UpdateAfterRecreateSwapChain()
     {
-        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::Count); i++)
+        for (uint8_t i = 0; i < static_cast<uint8_t>(DebugDrawPipelineType::DebugDrawPipelineTypeCount); i++)
         {
             mDebugDrawPipelines[i]->RecreateAfterSwapChain();
         }

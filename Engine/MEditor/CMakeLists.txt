@@ -29,3 +29,5 @@ target_link_libraries(${TARGET_NAME} MiniEngineRuntime)
 # )
 
 # add_custom_command(TARGET ${TARGET_NAME} ${POST_BUILD_COMMANDS})
+
+set(MEDITOR_HEADS “${EDITOR_HEADERS}” PARENT_SCOPE)

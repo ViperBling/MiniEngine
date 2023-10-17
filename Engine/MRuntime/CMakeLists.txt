@@ -83,3 +83,5 @@ add_dependencies(${TARGET_NAME} ${SHADER_COMPILE_TARGET}) # 显式要求cmake先
 target_include_directories(
     ${TARGET_NAME}
     PUBLIC $<BUILD_INTERFACE:${ENGINE_ROOT_DIR}/Shader/generated/cpp>)
+
+set(MRUNTIME_HEADS "${RUNTIME_HEADERS}" PARENT_SCOPE)

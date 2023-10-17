@@ -15,7 +15,7 @@ namespace MiniEngine
         template<typename T>
         static Json WritePointer(T* instance)
         {
-            return Json::object {{"$typeName", Json {"*"}}, {"$context", Serializer::write(*instance)}};
+            return Json::object {{"$typeName", Json {"*"}}, {"$context", Serializer::Write(*instance)}};
         }
 
         template<typename T>
@@ -32,7 +32,7 @@ namespace MiniEngine
             else
             {
                 instance = static_cast<T*>(
-                    Reflection::TypeMeta::newFromNameAndJson(type_name, json_context["$context"]).m_instance);
+                    Reflection::TypeMeta::NewFromNameAndJson(type_name, json_context["$context"]).m_instance);
             }
             return instance;
         }
@@ -119,51 +119,4 @@ namespace MiniEngine
     Json Serializer::Write(const std::string& instance);
     template<>
     std::string& Serializer::Read(const Json& json_context, std::string& instance);
-
-    // template<>
-    // Json Serializer::write(const Reflection::object& instance);
-    // template<>
-    // Reflection::object& Serializer::Read(const Json& json_context, Reflection::object& instance);
-
-    ////////////////////////////////////
-    ////sample of generation coder
-    ////////////////////////////////////
-    // class test_class
-    //{
-    // public:
-    //     int a;
-    //     unsigned int b;
-    //     std::vector<int> c;
-    // };
-    // class ss;
-    // class jkj;
-    // template<>
-    // Json Serializer::write(const ss& instance);
-    // template<>
-    // Json Serializer::write(const jkj& instance);
-
-    /*REFLECTION_TYPE(jkj)
-    CLASS(jkj,Fields)
-    {
-        REFLECTION_BODY(jkj);
-        int jl;
-    };
-
-    REFLECTION_TYPE(ss)
-    CLASS(ss:public jkj,WhiteListFields)
-    {
-        REFLECTION_BODY(ss);
-        int jl;
-    };*/
-
-    ////////////////////////////////////
-    ////template of generation coder
-    ////////////////////////////////////
-    // template<>
-    // Json Serializer::write(const test_class& instance);
-    // template<>
-    // test_class& Serializer::Read(const Json& json_context, test_class& instance);
-
-    //
-    ////////////////////////////////////
 } // namespace MiniEngine

@@ -11,7 +11,8 @@ int main(int argc, char* argv[])
     // 初始化
     auto Engine = new MiniEngine::MEngine();
 
-    Engine->Initialize(configFilePath.generic_string());
+    Engine->StartEngine(configFilePath.generic_string());
+    Engine->Initialize();
 
     // 创建编辑器
     auto Editor = new MiniEngine::MEditor();
@@ -22,7 +23,9 @@ int main(int argc, char* argv[])
 
     // 关闭
     Editor->Finalize();
-    Engine->Finalize();
+
+    Engine->Clear();
+    Engine->ShutdownEngine();
 
     return 0;
 }

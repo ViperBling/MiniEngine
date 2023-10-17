@@ -37,7 +37,7 @@ namespace MiniEngine
     private:
         std::mutex mMutex;
         std::shared_ptr<RHI> mRHI = nullptr;
-        DebugDrawPipeline* mDebugDrawPipelines[DebugDrawPipelineType::Count];
+        DebugDrawPipeline* mDebugDrawPipelines[DebugDrawPipelineType::DebugDrawPipelineTypeCount];
         DebugDrawAllocator* mBufferAllocator = nullptr;
         DebugDrawContext mDebugDrawContext;
         DebugDrawGroup mDebugDrawGroupForRender;

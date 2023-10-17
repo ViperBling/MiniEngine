@@ -12,13 +12,13 @@ namespace MiniEngine
 #define STRUCT(structName, ...) struct structName
 
 #define REFLECTION_BODY(className) \
-    friend class Reflection::TypeFieldReflectionOparator::Type##className##Operator; \
+    friend class Reflection::TypeFieldReflectionOperator::Type##className##Operator; \
     // friend class Serializer;
 
 #define REFLECTION_TYPE(className) \
     namespace Reflection \
     { \
-        namespace TypeFieldReflectionOparator \
+        namespace TypeFieldReflectionOperator \
         { \
             class Type##className##Operator; \
         } \

@@ -25,7 +25,7 @@ void MEditor::Run() {
     do
     {
         DeltaTime = mEngineRuntime->CalculateDeltaTime();
-    } while (mEngineRuntime->Tick(DeltaTime));
+    } while (mEngineRuntime->TickOneFrame(DeltaTime));
 }
 
 void MEditor::Finalize() {}
