@@ -14,25 +14,59 @@ using namespace MiniEngine;
 
 namespace MiniEngine
 {
-    void MEditor::Initialize(MEngine* engineRuntime) 
+    void registerEdtorTickComponent(std::string component_type_name)
+    {
+        gEditorTickComponentTypes.insert(component_type_name);
+    }
+
+    MEditor::MEditor()
+    {
+        registerEdtorTickComponent("TransformComponent");
+        registerEdtorTickComponent("MeshComponent");
+    }
+
+    MEditor::~MEditor()
+    {
+    }
+
+    void MEditor::Initialize(MEngine *engineRuntime)
     {
         assert(engineRuntime);
-        this->mEngineRuntime = engineRuntime;
 
-        mEditorUI = std::make_shared<MEditorUI>();
-        WindowUIInitInfo uiInitInfo = {gRuntimeGlobalContext.mWindowSystem};
-        mEditorUI->Initialize(uiInitInfo);
+        gbIsEditorMode = true;
+        mEngineRuntime = engineRuntime;
+
+        EditorGlobalContextInitInfo init_info = {gRuntimeGlobalContext.mWindowSystem.get(),
+                                                 gRuntimeGlobalContext.mRenderSystem.get(),
+                                                 engineRuntime};
+        gEditorGlobalContext.Initialize(init_info);
+        gEditorGlobalContext.mSceneManager->SetEditorCamera(
+            gRuntimeGlobalContext.mRenderSystem->GetRenderCamera());
+        gEditorGlobalContext.mSceneManager->UploadAxisResource();
+
+        mEditorUI                   = std::make_shared<MEditorUI>();
+        WindowUIInitInfo ui_init_info = {gRuntimeGlobalContext.mWindowSystem,
+                                         gRuntimeGlobalContext.mRenderSystem};
+        mEditorUI->Initialize(ui_init_info);
+    }
+
+    void MEditor::Clear()
+    {
+        gEditorGlobalContext.Clear();
     }
 
     void MEditor::Run() 
     {
         assert(mEngineRuntime);
         assert(mEditorUI);
-        float DeltaTime = 0;
-
-        do
+        float delta_time;
+        while (true)
         {
-            DeltaTime = mEngineRuntime->CalculateDeltaTime();
-        } while (mEngineRuntime->TickOneFrame(DeltaTime));
+            delta_time = mEngineRuntime->CalculateDeltaTime();
+            gEditorGlobalContext.mSceneManager->Tick(delta_time);
+            gEditorGlobalContext.mInputManager->Tick(delta_time);
+            if (!mEngineRuntime->TickOneFrame(delta_time))
+                return;
+        }
     }
 }

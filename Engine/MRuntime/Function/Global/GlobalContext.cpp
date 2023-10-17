@@ -8,6 +8,7 @@
 #include "MRuntime/Platform/FileSystem/FileSystem.hpp"
 #include "MRuntime/Function/Render/WindowSystem.hpp"
 #include "MRuntime/Function/Render/RenderSystem.hpp"
+#include "MRuntime/Function/Render/RenderDebugConfig.hpp"
 #include "MRuntime/Function/Render/DebugDraw/DebugDrawManager.hpp"
 #include "MRuntime/Resource/AssetManager/AssetManager.hpp"
 #include "MRuntime/Function/Framework/World/WorldManager.hpp"
@@ -45,10 +46,14 @@ namespace MiniEngine
 
         mInputSystem = std::make_shared<InputSystem>();
         mInputSystem->Initialize();
+
+        mRenderDebugConfig = std::make_shared<RenderDebugConfig>();
     }
 
     void RuntimeGlobalContext::ShutdownSystems() 
     {
+        mRenderDebugConfig.reset();
+        
         mInputSystem->Clear();
         mInputSystem.reset();
 

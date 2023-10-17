@@ -53,11 +53,10 @@ namespace MiniEngine
         virtual bool CreateDescriptorPool(const RHIDescriptorPoolCreateInfo* pCreateInfo, RHIDescriptorPool* &pDescriptorPool) = 0;
         virtual bool CreateDescriptorSetLayout(const RHIDescriptorSetLayoutCreateInfo* pCreateInfo, RHIDescriptorSetLayout* &pSetLayout) = 0;
         virtual bool CreateFence(const RHIFenceCreateInfo* pCreateInfo, RHIFence* &pFence) = 0;
-        virtual bool CreateFramebuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer* &pFramebuffer) = 0;
         virtual bool CreateGraphicsPipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIGraphicsPipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) = 0;
         virtual bool CreateComputePipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIComputePipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) = 0;
         virtual bool CreateSampler(const RHISamplerCreateInfo* pCreateInfo, RHISampler* &pSampler) = 0;
-        virtual bool CreateSemaphore(const RHISemaphoreCreateInfo* pCreateInfo, RHISemaphore* &pSemaphore) = 0;
+        virtual bool CreateSemaphores(const RHISemaphoreCreateInfo* pCreateInfo, RHISemaphore*& pSemaphore) = 0;
 
         // command and command write
         virtual bool WaitForFencesPFN(uint32_t fenceCount, RHIFence* const* pFence, RHIBool32 waitAll, uint64_t timeout) = 0;

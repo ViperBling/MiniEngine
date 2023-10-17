@@ -53,11 +53,10 @@ namespace MiniEngine
         virtual bool CreateDescriptorPool(const RHIDescriptorPoolCreateInfo* pCreateInfo, RHIDescriptorPool* &pDescriptorPool) override;
         virtual bool CreateDescriptorSetLayout(const RHIDescriptorSetLayoutCreateInfo* pCreateInfo, RHIDescriptorSetLayout* &pSetLayout) override;
         virtual bool CreateFence(const RHIFenceCreateInfo* pCreateInfo, RHIFence* &pFence) override;
-        virtual bool CreateFramebuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer* &pFramebuffer) override;
         virtual bool CreateGraphicsPipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIGraphicsPipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) override;
         virtual bool CreateComputePipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIComputePipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) override;
         virtual bool CreateSampler(const RHISamplerCreateInfo* pCreateInfo, RHISampler* &pSampler) override;
-        virtual bool CreateSemaphore(const RHISemaphoreCreateInfo* pCreateInfo, RHISemaphore* &pSemaphore) override;
+        virtual bool CreateSemaphores(const RHISemaphoreCreateInfo* pCreateInfo, RHISemaphore*& pSemaphore) override;
 
         // command and command write
         virtual bool WaitForFencesPFN(uint32_t fenceCount, RHIFence* const* pFence, RHIBool32 waitAll, uint64_t timeout) override;
@@ -145,6 +144,40 @@ namespace MiniEngine
         //semaphores
         virtual RHISemaphore* &GetTextureCopySemaphore(uint32_t index) override;
 
+    private:
+        void createInstance();
+        void InitializeDebugMessenger();
+        void createWindowSurface();
+        void initializePhysicalDevice();
+        void createLogicalDevice();
+        void createCommandBuffers();
+        void createDescriptorPool();
+        void createSyncPrimitives();
+        void createAssetAllocator();
+
+        bool checkValidationLayersSupport();
+        std::vector<const char*> getRequiredExtensions();
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+        VkResult createDebugUtilsMessengerEXT(
+            VkInstance instance,
+            const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+            const VkAllocationCallbacks*              pAllocator,
+            VkDebugUtilsMessengerEXT*                 pDebugMessenger);
+        void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice);
+        bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice);
+        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice);
+        bool isDeviceSuitable(VkPhysicalDevice physicalDevice);
+
+        VkFormat findDepthFormat();
+        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+
+        VkSurfaceFormatKHR chooseSwapChainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR>& availableSurfaceFormats);
+        VkPresentModeKHR chooseSwapChainPresentModeFromDetails(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkExtent2D chooseSwapChainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities);
+
     public:
         static uint8_t const mkMaxFramesInFlight {3};               // 最大同时渲染的图片数量
 
@@ -222,40 +255,6 @@ namespace MiniEngine
         PFN_vkCmdBindDescriptorSets      pfnVkCmdBindDescriptorSets;
         PFN_vkCmdDrawIndexed             pfnVkCmdDrawIndexed;
         PFN_vkCmdClearAttachments        pfnVkCmdClearAttachments;
-
-    private:
-        void createInstance();
-        void InitializeDebugMessenger();
-        void createWindowSurface();
-        void initializePhysicalDevice();
-        void createLogicalDevice();
-        void createCommandBuffers();
-        void createDescriptorPool();
-        void createSyncPrimitives();
-        void createAssetAllocator();
-
-        bool checkValidationLayersSupport();
-        std::vector<const char*> getRequiredExtensions();
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-
-        VkResult createDebugUtilsMessengerEXT(
-            VkInstance instance,
-            const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-            const VkAllocationCallbacks*              pAllocator,
-            VkDebugUtilsMessengerEXT*                 pDebugMessenger);
-        void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physicalDevice);
-        bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice);
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice);
-        bool isDeviceSuitable(VkPhysicalDevice physicalDevice);
-
-        VkFormat findDepthFormat();
-        VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-
-        VkSurfaceFormatKHR chooseSwapChainSurfaceFormatFromDetails(const std::vector<VkSurfaceFormatKHR>& availableSurfaceFormats);
-        VkPresentModeKHR chooseSwapChainPresentModeFromDetails(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapChainExtentFromDetails(const VkSurfaceCapabilitiesKHR& capabilities);
 
     private:
         bool mbEnableValidationLayers {true};                        // 启用验证层

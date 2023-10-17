@@ -41,7 +41,7 @@ namespace MiniEngine
         std::shared_ptr<RenderPassBase> mDirectionalLightPass;
         std::shared_ptr<RenderPassBase> mMainCameraPass;
         std::shared_ptr<RenderPassBase> mColorGradientPass;
-        std::shared_ptr<RenderPassBase> mTonMappingPass;
+        std::shared_ptr<RenderPassBase> mToneMappingPass;
         std::shared_ptr<RenderPassBase> mPickPass;
         std::shared_ptr<RenderPassBase> mUIPass;
         std::shared_ptr<RenderPassBase> mCombineUIPass;

@@ -1,7 +1,14 @@
 ﻿#include <filesystem>
+#include <iostream>
+#include <string>
+#include <thread>
+#include <unordered_map>
 
 #include "MEditor/MEditor.hpp"
 #include "MRuntime/MEngine.hpp"
+
+#define MINIENGINE_XSTR(s) MINIENGINE_STR(s)
+#define MINIENGINE_STR(s) #s
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +29,7 @@ int main(int argc, char* argv[])
     Editor->Run();
 
     // 关闭
-    Editor->Finalize();
+    Editor->Clear();
 
     Engine->Clear();
     Engine->ShutdownEngine();

@@ -14,6 +14,7 @@ namespace MiniEngine
     class AssetManager;
     class WorldManager;
     class ConfigManager;
+    class RenderDebugConfig;
 
     class RuntimeGlobalContext
     {
@@ -31,6 +32,7 @@ namespace MiniEngine
         std::shared_ptr<AssetManager>       mAssetManager;
         std::shared_ptr<WorldManager>       mWorldManager;
         std::shared_ptr<ConfigManager>      mConfigManager;
+        std::shared_ptr<RenderDebugConfig>  mRenderDebugConfig;
     };
 
     extern RuntimeGlobalContext gRuntimeGlobalContext;
