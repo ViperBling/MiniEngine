@@ -1,19 +1,25 @@
 #pragma once
 
-#include <memory>
+#include "MRuntime/Core/Math/Vector2.hpp"
 
-#include "MEngine.hpp"
-#include "MEditorUI.hpp"
+#include <memory>
 
 namespace MiniEngine
 {
+    class MEditorUI;
+    class MEngine;
+
     class MEditor
     {
+        friend class MEditorUI;
+
     public:
+        MEditor();
+        ~MEditor();
 
         void Initialize(MEngine* engineRuntime);
+        void Clear();
         void Run();
-        void Finalize();
 
     protected:
         std::shared_ptr<MEditorUI> mEditorUI;
