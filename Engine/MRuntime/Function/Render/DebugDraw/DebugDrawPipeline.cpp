@@ -1,5 +1,4 @@
 #include "DebugDrawPipeline.hpp"
-#include "DebugDrawPrimitive.hpp"
 #include "MRuntime/Function/Render/RenderSystem.hpp"
 #include "MRuntime/Function/Global/GlobalContext.hpp"
 
@@ -318,13 +317,5 @@ namespace MiniEngine
     void DebugDrawPipeline::Destory()
     {
         
-    }
-    const DebugDrawPipelineBase &DebugDrawPipeline::GetPipeline() const
-    {
-        return mRenderPipelines[0];
-    }
-    const DebugDrawFrameBuffer &DebugDrawPipeline::GetFrameBuffer() const
-    {
-        return mFrameBuffer;
     }
 }

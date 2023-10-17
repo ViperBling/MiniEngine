@@ -1,5 +1,8 @@
 #include "DebugDrawBuffer.hpp"
-#include "Function/Global/GlobalContext.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
+#include "MRuntime/Function/Render/RenderSystem.hpp"
+
+#include <stdexcept>
 
 namespace MiniEngine
 {

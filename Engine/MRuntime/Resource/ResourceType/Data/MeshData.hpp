@@ -1,12 +1,6 @@
 #pragma once
 
-#include <glad/glad.h> // holds all OpenGL type declarations
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "MRuntime/Core/Meta/Reflection/Reflection.hpp"
-#include "Material.hpp"
 
 #include <string>
 #include <vector>

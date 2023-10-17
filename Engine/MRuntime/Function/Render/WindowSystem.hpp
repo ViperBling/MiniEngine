@@ -2,7 +2,10 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
 #include <array>
+#include <functional>
+#include <vector>
 
 namespace MiniEngine
 {
@@ -18,6 +21,7 @@ namespace MiniEngine
     {
     public:
         WindowSystem() = default;
+        ~WindowSystem();
         void Initialize(WindowCreateInfo& createInfo);
         void SetTitle(const char* title) { glfwSetWindowTitle(mWindow, title); }
         static void PollEvents() { glfwPollEvents(); }

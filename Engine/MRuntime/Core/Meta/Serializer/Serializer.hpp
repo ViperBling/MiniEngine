@@ -32,7 +32,7 @@ namespace MiniEngine
             else
             {
                 instance = static_cast<T*>(
-                    Reflection::TypeMeta::NewFromNameAndJson(type_name, json_context["$context"]).m_instance);
+                    Reflection::TypeMeta::NewFromNameAndJson(type_name, json_context["$context"]).mInstance);
             }
             return instance;
         }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Function/Render/Interface/RHI.hpp"
+#include "DebugDrawPrimitive.hpp"
 
 namespace MiniEngine
 {

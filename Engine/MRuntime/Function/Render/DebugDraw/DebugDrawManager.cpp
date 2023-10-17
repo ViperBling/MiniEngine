@@ -1,9 +1,7 @@
-#include <cstdint>
-#include <cstddef>
-
 #include "DebugDrawManager.hpp"
-#include "Function/Global/GlobalContext.hpp"
-#include "Function/Render/RenderType.hpp"
+#include "MRuntime/Core/Math/MathHeaders.hpp"
+#include "MRuntime/Function/Global/GlobalContext.hpp"
+#include "MRuntime/Function/Render/RenderSystem.hpp"
 
 namespace MiniEngine
 {

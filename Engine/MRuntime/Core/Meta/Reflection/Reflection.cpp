@@ -10,13 +10,19 @@ namespace MiniEngine
         const char* kUnknownType = "UnknownType";
         const char* kUnknown      = "Unknown";
 
-        static std::map<std::string, ClassFunctionTuple*>      mClassMap;
-        static std::multimap<std::string, FieldFunctionTuple*> mFieldMap;
-        static std::map<std::string, ArrayFunctionTuple*>      mArrayMap;
+        static std::map<std::string, ClassFunctionTuple*>       mClassMap;
+        static std::multimap<std::string, FieldFunctionTuple*>  mFieldMap;
+        static std::multimap<std::string, MethodFunctionTuple*> mMethodMap;
+        static std::map<std::string, ArrayFunctionTuple*>       mArrayMap;
 
         void TypeMetaRegisterInterface::RegisterToFieldMap(const char* name, FieldFunctionTuple* value)
         {
             mFieldMap.insert(std::make_pair(name, value));
+        }
+
+        void TypeMetaRegisterInterface::RegisterToMethodMap(const char *name, MethodFunctionTuple *value)
+        {
+            mMethodMap.insert(std::make_pair(name, value));
         }
 
         void TypeMetaRegisterInterface::RegisterToArrayMap(const char* name, ArrayFunctionTuple* value)
@@ -135,6 +141,17 @@ namespace MiniEngine
             return count;
         }
 
+        int TypeMeta::GetMethodsList(MethodAccessor *&out_list)
+        {
+            int count = mMethods.size();
+            out_list  = new MethodAccessor[count];
+            for (int i = 0; i < count; ++i)
+            {
+                out_list[i] = mMethods[i];
+            }
+            return count;
+        }
+
         int TypeMeta::GetBaseClassReflectionInstanceList(ReflectionInstance*& out_list, void* instance)
         {
             auto iter = mClassMap.find(mTypeName);
@@ -155,6 +172,16 @@ namespace MiniEngine
             if (it != mFields.end())
                 return *it;
             return FieldAccessor(nullptr);
+        }
+
+        MethodAccessor TypeMeta::GetMethodByName(const char *name)
+        {
+            const auto it = std::find_if(mMethods.begin(), mMethods.end(), [&](const auto& i) {
+                return std::strcmp(i.GetMethodName(), name) == 0;
+            });
+            if (it != mMethods.end())
+                return *it;
+            return MethodAccessor(nullptr);
         }
 
         TypeMeta& TypeMeta::operator=(const TypeMeta& dest)
@@ -217,6 +244,40 @@ namespace MiniEngine
             return *this;
         }
 
+        MethodAccessor::MethodAccessor()
+        {
+            mMethodName = kUnknown;
+            mFunctions = nullptr;
+        }
+
+        void MethodAccessor::Invoke(void *instance)
+        {
+            (std::get<1>(*mFunctions))(instance);
+        }
+
+        const char *MethodAccessor::GetMethodName() const
+        {
+            return (std::get<0>(*mFunctions))();
+        }
+
+        MethodAccessor &MethodAccessor::operator=(const MethodAccessor &dest)
+        {
+            if (this == &dest)
+            {
+                return *this;
+            }
+            mFunctions  = dest.mFunctions;
+            mMethodName = dest.mMethodName;
+            return *this;
+        }
+        
+        MethodAccessor::MethodAccessor(MethodFunctionTuple *functions) : mFunctions(functions)
+        {
+            mMethodName = kUnknown;
+            if (mFunctions == nullptr) return;
+            mMethodName = (std::get<0>(*mFunctions))();
+        }
+
         ArrayAccessor::ArrayAccessor(ArrayFunctionTuple* array_func) : mFunction(array_func)
         {
             mArrayTypeName   = kUnknownType;
@@ -230,7 +291,28 @@ namespace MiniEngine
             mElementTypeName = std::get<4>(*mFunction)();
         }
 
-        ArrayAccessor& ArrayAccessor::operator=(const ArrayAccessor& dest)
+        void ArrayAccessor::Set(int index, void *instance, void *element_value)
+        {
+            // todo: should check validation
+            size_t count = GetSize(instance);
+            // todo: should check validation(index < count)
+            std::get<0> (*mFunction)(index, instance, element_value);
+        }
+
+        void *ArrayAccessor::Get(int index, void *instance)
+        {
+            // todo: should check validation
+            size_t count = GetSize(instance);
+            // todo: should check validation(index < count)
+            return std::get<1>(*mFunction)(index, instance);
+        }
+
+        int ArrayAccessor::GetSize(void *instance)
+        {
+            return std::get<2>(*mFunction)(instance);
+        }
+
+        ArrayAccessor &ArrayAccessor::operator=(const ArrayAccessor &dest)
         {
             if (this == &dest)
             {

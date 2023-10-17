@@ -1,10 +1,9 @@
 #pragma once
 
-#include <array>
+#include "MRuntime/Core/Math/MathHeaders.hpp"
+#include "MRuntime/Function/Render/Interface/RHIStruct.hpp"
 
-#include "Core/Math/Vector2.hpp"
-#include "Core/Math/Vector3.hpp"
-#include "Function/Render/Interface/RHIStruct.hpp"
+#include <array>
 
 namespace MiniEngine
 {

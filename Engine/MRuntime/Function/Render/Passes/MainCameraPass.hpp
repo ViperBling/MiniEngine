@@ -5,7 +5,7 @@
 #include "MRuntime/Function/Render/Passes/ColorGradientPass.hpp"
 #include "MRuntime/Function/Render/Passes/CombineUIPass.hpp"
 #include "MRuntime/Function/Render/Passes/ToneMappingPass.hpp"
-#include "MRuntime/Function/Render/Passes/ToneMappingPass.hpp"
+#include "MRuntime/Function/Render/Passes/UIPass.hpp"
 
 namespace MiniEngine
 {
@@ -21,23 +21,23 @@ namespace MiniEngine
     public:
         enum LayoutType : uint8_t
         {
-            PerMesh = 0,
-            MeshGlobal,
-            MeshPerMaterial,
-            Skybox,
-            Axis,
-            DeferredLighting,
-            Count,
+            LayoutType_PerMesh = 0,
+            LayoutType_MeshGlobal,
+            LayoutType_MeshPerMaterial,
+            LayoutType_Skybox,
+            LayoutType_Axis,
+            LayoutType_DeferredLighting,
+            LayoutType_Count,
         };
 
         enum RenderPipelineType : uint8_t
         {
-            MeshGBuffer = 0,
-            DeferredLighting,
-            MeshLighting,
-            Skybox,
-            Axis,
-            Count,
+            RenderPipelineType_MeshGBuffer = 0,
+            RenderPipelineType_DeferredLighting,
+            RenderPipelineType_MeshLighting,
+            RenderPipelineType_Skybox,
+            RenderPipelineType_Axis,
+            RenderPipelineType_Count,
         };
 
         void Initialize(const RenderPassInitInfo* initInfo) override final;

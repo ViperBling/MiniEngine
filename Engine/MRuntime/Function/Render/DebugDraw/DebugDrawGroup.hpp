@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MRuntime/Function/Render/DebugDraw/DebugDrawPrimitive.hpp"
-#include "MRuntime/Function/Render/DebugDraw/DebugDrawFont.hpp"
+#include "DebugDrawPrimitive.hpp"
+#include "DebugDrawFont.hpp"
 
 #include <mutex>
 #include <list>

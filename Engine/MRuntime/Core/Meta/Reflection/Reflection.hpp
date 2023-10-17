@@ -3,28 +3,38 @@
 #include <functional>
 #include <string>
 
-#include "Core/Meta/Json.hpp"
+#include "MRuntime/Core/Meta/Json.hpp"
 
 namespace MiniEngine
 {
+#if defined(__REFLECTION_PARSER__)
+#define META(...) __attribute__((annotate(#__VA_ARGS__)))
+#define CLASS(class_name, ...) class __attribute__((annotate(#__VA_ARGS__))) class_name
+#define STRUCT(struct_name, ...) struct __attribute__((annotate(#__VA_ARGS__))) struct_name
+//#define CLASS(class_name,...) class __attribute__((annotate(#__VA_ARGS__))) class_name:public Reflection::object
+#else
 #define META(...)
-#define CLASS(className, ...) class className
-#define STRUCT(structName, ...) struct structName
+#define CLASS(class_name, ...) class class_name
+#define STRUCT(struct_name, ...) struct struct_name
+//#define CLASS(class_name,...) class class_name:public Reflection::object
+#endif // __REFLECTION_PARSER__
 
-#define REFLECTION_BODY(className) \
-    friend class Reflection::TypeFieldReflectionOperator::Type##className##Operator; \
-    // friend class Serializer;
+#define REFLECTION_BODY(class_name) \
+    friend class Reflection::TypeFieldReflectionOperator::Type##class_name##Operator; \
+    friend class Serializer;
+    // public: virtual std::string getTypeName() override {return #class_name;}
 
-#define REFLECTION_TYPE(className) \
+#define REFLECTION_TYPE(class_name) \
     namespace Reflection \
     { \
         namespace TypeFieldReflectionOperator \
         { \
-            class Type##className##Operator; \
+            class Type##class_name##Operator; \
         } \
     };
 
 #define REGISTER_FIELD_TO_MAP(name, value) TypeMetaRegisterInterface::RegisterToFieldMap(name, value);
+#define REGISTER_METHOD_TO_MAP(name, value) TypeMetaRegisterinterface::RegisterToMethodMap(name, value);
 #define REGISTER_BASE_CLASS_TO_MAP(name, value) TypeMetaRegisterInterface::RegisterToClassMap(name, value);
 #define REGISTER_ARRAY_TO_MAP(name, value) TypeMetaRegisterInterface::RegisterToArrayMap(name, value);
 #define UNREGISTER_ALL TypeMetaRegisterInterface::UnregisterAll();
@@ -59,25 +69,28 @@ namespace MiniEngine
     {
         class TypeMeta;
         class FieldAccessor;
+        class MethodAccessor;
         class ArrayAccessor;
         class ReflectionInstance;
     } // namespace Reflection
 
     using SetFunction        = std::function<void(void*, void*)>;
-    using GetFuncion         = std::function<void*(void*)>;
-    using GetNameFuncion     = std::function<const char*()>;
+    using GetFunction        = std::function<void*(void*)>;
+    using GetNameFunction    = std::function<const char*()>;
     using GetBoolFunction    = std::function<bool()>;
     using SetArrayFunction   = std::function<void(int, void*, void*)>;
     using GetArrayFunction   = std::function<void*(int, void*)>;
     using GetSizeFunction    = std::function<int(void*)>;
+    using InvokeFunction     = std::function<void(void*)>;
 
     using ConstructorWithJson                        = std::function<void*(const Json&)>;
     using WriteJsonByName                            = std::function<Json(void*)>;
     using GetBaseClassReflectionInstanceListFunction = std::function<int(Reflection::ReflectionInstance*&, void*)>;
 
-    using ClassFunctionTuple = std::tuple<GetBaseClassReflectionInstanceListFunction, ConstructorWithJson, WriteJsonByName>;
-    using FieldFunctionTuple = std::tuple<SetFunction, GetFuncion, GetNameFuncion, GetNameFuncion, GetNameFuncion, GetBoolFunction>;
-    using ArrayFunctionTuple = std::tuple<SetArrayFunction, GetArrayFunction, GetSizeFunction, GetNameFuncion, GetNameFuncion>;
+    using ClassFunctionTuple  = std::tuple<GetBaseClassReflectionInstanceListFunction, ConstructorWithJson, WriteJsonByName>;
+    using MethodFunctionTuple = std::tuple<GetNameFunction, InvokeFunction>;
+    using FieldFunctionTuple  = std::tuple<SetFunction, GetFunction, GetNameFunction, GetNameFunction, GetNameFunction, GetBoolFunction>;
+    using ArrayFunctionTuple  = std::tuple<SetArrayFunction, GetArrayFunction, GetSizeFunction, GetNameFunction, GetNameFunction>;
     
     namespace Reflection
     {
@@ -86,6 +99,7 @@ namespace MiniEngine
         public:
             static void RegisterToClassMap(const char* name, ClassFunctionTuple* value);
             static void RegisterToFieldMap(const char* name, FieldFunctionTuple* value);
+            static void RegisterToMethodMap(const char* name, MethodFunctionTuple* value);
             static void RegisterToArrayMap(const char* name, ArrayFunctionTuple* value);
 
             static void UnregisterAll();
@@ -108,8 +122,10 @@ namespace MiniEngine
 
             std::string GetTypeName();
             int GetFieldsList(FieldAccessor*& out_list);
+            int GetMethodsList(MethodAccessor*& out_list);
             int GetBaseClassReflectionInstanceList(ReflectionInstance*& out_list, void* instance);
             FieldAccessor GetFieldByName(const char* name);
+            MethodAccessor GetMethodByName(const char* name);
             bool IsValid() { return mbIsValid; }
 
             TypeMeta& operator=(const TypeMeta& dest);
@@ -119,6 +135,7 @@ namespace MiniEngine
 
         private:
             std::vector<FieldAccessor, std::allocator<FieldAccessor>> mFields;
+            std::vector<MethodAccessor, std::allocator<MethodAccessor>> mMethods;
             std::string mTypeName;
             bool mbIsValid;
         };
@@ -157,6 +174,26 @@ namespace MiniEngine
             const char* mFieldTypeName;
         };
 
+        class MethodAccessor
+        {
+            friend class TypeMeta;
+        
+        public:
+            MethodAccessor();
+            void Invoke(void* instance);
+
+            const char* GetMethodName() const;
+
+            MethodAccessor& operator=(const MethodAccessor& dest);
+
+        private:
+            MethodAccessor(MethodFunctionTuple* functions);
+
+        private:
+            MethodFunctionTuple* mFunctions;
+            const char*          mMethodName;
+        };
+
         /**
          *  Function reflection is not implemented, so use this as an std::vector accessor
          */
@@ -169,24 +206,9 @@ namespace MiniEngine
             const char* GetArrayTypeName() { return mArrayTypeName; }
             const char* GetElementTypeName() { return mElementTypeName; }
 
-            void Set(int index, void* instance, void* element_value)
-            {
-                // todo: should check validation
-                size_t count = GetSize(instance);
-                // todo: should check validation(index < count)
-                std::get<0> (*mFunction)(index, instance, element_value);
-            }
-            void* Get(int index, void* instance)
-            {
-                // todo: should check validation
-                size_t count = GetSize(instance);
-                // todo: should check validation(index < count)
-                return std::get<1>(*mFunction)(index, instance);
-            }
-            int GetSize(void* instance)
-            {
-                return std::get<2>(*mFunction)(instance);
-            }
+            void Set(int index, void* instance, void* element_value);
+            void* Get(int index, void* instance);
+            int GetSize(void* instance);
 
             ArrayAccessor& operator=(const ArrayAccessor& dest);
 
@@ -278,30 +300,30 @@ namespace MiniEngine
             std::string GetTypeName() const { return mTypeName; }
             void SetTypeName(std::string name) { mTypeName = name; }
 
-            template<
-                typename T1 /*, typename = typename std::enable_if<std::is_safely_castable<T*, T1*>::value>::type*/>
+            template<typename T1>
             explicit operator T1*()
             {
                 return static_cast<T1*>(mInstance);
             }
-            template<
-                typename T1 /*, typename = typename std::enable_if<std::is_safely_castable<T*, T1*>::value>::type*/>
+
+            template<typename T1>
             operator ReflectionPtr<T1>()
             {
                 return ReflectionPtr<T1>(mTypeName, (T1*)(mInstance));
             }
-            template<
-                typename T1 /*, typename = typename std::enable_if<std::is_safely_castable<T*, T1*>::value>::type*/>
+
+            template<typename T1>
             explicit operator const T1*() const
             {
                 return static_cast<T1*>(mInstance);
             }
-            template<
-                typename T1 /*, typename = typename std::enable_if<std::is_safely_castable<T*, T1*>::value>::type*/>
+
+            template<typename T1>
             operator const ReflectionPtr<T1>() const
             {
                 return ReflectionPtr<T1>(mTypeName, (T1*)(mInstance));
             }
+            
             T* operator->() { return mInstance; }
             T* operator->() const { return mInstance; }
             T& operator*() { return *(mInstance); }

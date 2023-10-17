@@ -56,8 +56,6 @@ namespace MiniEngine
         virtual bool CreateFramebuffer(const RHIFramebufferCreateInfo* pCreateInfo, RHIFrameBuffer* &pFramebuffer) override;
         virtual bool CreateGraphicsPipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIGraphicsPipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) override;
         virtual bool CreateComputePipelines(RHIPipelineCache* pipelineCache, uint32_t createInfoCount, const RHIComputePipelineCreateInfo* pCreateInfos, RHIPipeline* &pPipelines) override;
-        virtual bool CreatePipelineLayout(const RHIPipelineLayoutCreateInfo* pCreateInfo, RHIPipelineLayout* &pPipelineLayout) override;
-        virtual bool CreateRenderPass(const RHIRenderPassCreateInfo* pCreateInfo, RHIRenderPass* &pRenderPass) override;
         virtual bool CreateSampler(const RHISamplerCreateInfo* pCreateInfo, RHISampler* &pSampler) override;
         virtual bool CreateSemaphore(const RHISemaphoreCreateInfo* pCreateInfo, RHISemaphore* &pSemaphore) override;
 
@@ -73,7 +71,7 @@ namespace MiniEngine
         virtual void CmdBeginRenderPassPFN(RHICommandBuffer* commandBuffer,  const RHIRenderPassBeginInfo* pRenderPassBegin,  RHISubpassContents contents) override;
         virtual void CmdNextSubpassPFN(RHICommandBuffer* commandBuffer, RHISubpassContents contents) override;
         virtual void CmdBindPipelinePFN(RHICommandBuffer* commandBuffer,  RHIPipelineBindPoint pipelineBindPoint,  RHIPipeline* pipeline) override;
-        virtual void CmdDraw(RHICommandBuffer* commandBuffer,  uint32_t vertexCount,  uint32_t instanceCount,  uint32_t firstVertex,  uint32_t firstInstance) override;
+        virtual void CmdDraw(RHICommandBuffer* commandBuffer, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
         virtual void CmdDrawIndexed(RHICommandBuffer* commandBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance) override;
         virtual void CmdEndRenderPassPFN(RHICommandBuffer* commandBuffer) override;
         virtual void CmdSetViewportPFN(RHICommandBuffer* commandBuffer,  uint32_t firstViewport,  uint32_t viewportCount,  const RHIViewport* pViewports) override;
@@ -84,7 +82,6 @@ namespace MiniEngine
         virtual void CmdCopyImageToBuffer(RHICommandBuffer* commandBuffer, RHIImage* srcImage, RHIImageLayout srcImageLayout, RHIBuffer* dstBuffer, uint32_t regionCount, const RHIBufferImageCopy* pRegions) override;
         virtual void CmdCopyImageToImage(RHICommandBuffer* commandBuffer, RHIImage* srcImage, RHIImageAspectFlagBits srcFlag, RHIImage* dstImage, RHIImageAspectFlagBits dstFlag, uint32_t width, uint32_t height) override;
         virtual void CmdCopyBuffer(RHICommandBuffer* commandBuffer, RHIBuffer* srcBuffer, RHIBuffer* dstBuffer, uint32_t regionCount, RHIBufferCopy* pRegions) override;
-        virtual void CmdDraw(RHICommandBuffer* commandBuffer, uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
         virtual void CmdDispatch(RHICommandBuffer* commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
         virtual void CmdDispatchIndirect(RHICommandBuffer* commandBuffer, RHIBuffer* buffer, RHIDeviceSize offset) override;
         virtual void CmdPipelineBarrier(RHICommandBuffer* commandBuffer, RHIPipelineStageFlags srcStageMask, RHIPipelineStageFlags dstStageMask, RHIDependencyFlags dependencyFlags, uint32_t memoryBarrierCount, const RHIMemoryBarrier* pMemoryBarriers, uint32_t bufferMemoryBarrierCount, const RHIBufferMemoryBarrier* pBufferMemoryBarriers, uint32_t imageMemoryBarrierCount, const RHIImageMemoryBarrier* pImageMemoryBarriers) override;

@@ -49,7 +49,7 @@ namespace MiniEngine
 
         std::vector<RHIDescriptorSetLayout*> descriptor_layouts = _main_camera_pass->GetDescriptorSetLayouts();
         std::static_pointer_cast<DirectionalLightShadowPass>(mDirectionalLightPass)
-            ->SetPerMeshLayout(descriptor_layouts[MainCameraPass::LayoutType::PerMesh]);
+            ->SetPerMeshLayout(descriptor_layouts[MainCameraPass::LayoutType::LayoutType_PerMesh]);
 
         mDirectionalLightPass->PostInitialize();
 
@@ -78,7 +78,7 @@ namespace MiniEngine
         mCombineUIPass->Initialize(&combine_ui_init_info);
 
         PickPassInitInfo pick_init_info;
-        pick_init_info.mPerMeshLayout = descriptor_layouts[MainCameraPass::LayoutType::PerMesh];
+        pick_init_info.mPerMeshLayout = descriptor_layouts[MainCameraPass::LayoutType::LayoutType_PerMesh];
         mPickPass->Initialize(&pick_init_info);
     }
 

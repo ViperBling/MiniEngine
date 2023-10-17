@@ -76,8 +76,8 @@ namespace MiniEngine
         mRenderPipeline->Initialize(pipeline_init_info);
 
         // descriptor set layout in main camera pass will be used when uploading resource
-        std::static_pointer_cast<RenderResource>(mRenderResource)->mMeshDescLayout = &static_cast<RenderPass*>(mRenderPipeline->mMainCameraPass.get())->mDescInfos[MainCameraPass::LayoutType::PerMesh].layout;
-        std::static_pointer_cast<RenderResource>(mRenderResource)->mMaterialDescLayout = &static_cast<RenderPass*>(mRenderPipeline->mMainCameraPass.get())->mDescInfos[MainCameraPass::LayoutType::MeshPerMaterial].layout;
+        std::static_pointer_cast<RenderResource>(mRenderResource)->mMeshDescLayout = &static_cast<RenderPass*>(mRenderPipeline->mMainCameraPass.get())->mDescInfos[MainCameraPass::LayoutType::LayoutType_PerMesh].layout;
+        std::static_pointer_cast<RenderResource>(mRenderResource)->mMaterialDescLayout = &static_cast<RenderPass*>(mRenderPipeline->mMainCameraPass.get())->mDescInfos[MainCameraPass::LayoutType::LayoutType_MeshPerMaterial].layout;
     }
 
     void RenderSystem::Tick(float DeltaTime) 
