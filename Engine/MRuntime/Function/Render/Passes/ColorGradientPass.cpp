@@ -15,7 +15,7 @@ namespace MiniEngine
         RenderPass::Initialize(nullptr);
 
         const ColorGradientPassInitInfo* _init_info = static_cast<const ColorGradientPassInitInfo*>(initInfo);
-        mFrameBuffer.render_pass                  = _init_info->mRenderPass;
+        mFrameBuffer.renderPass                     = _init_info->mRenderPass;
 
         setupDescriptorSetLayout();
         setupPipelines();
@@ -31,14 +31,15 @@ namespace MiniEngine
         mRHI->CmdBindPipelinePFN(mRHI->GetCurrentCommandBuffer(), RHI_PIPELINE_BIND_POINT_GRAPHICS, mRenderPipelines[0].pipeline);
         mRHI->CmdSetViewportPFN(mRHI->GetCurrentCommandBuffer(), 0, 1, mRHI->GetSwapChainInfo().viewport);
         mRHI->CmdSetScissorPFN(mRHI->GetCurrentCommandBuffer(), 0, 1, mRHI->GetSwapChainInfo().scissor);
-        mRHI->CmdBindDescriptorSetsPFN(mRHI->GetCurrentCommandBuffer(),
-                                        RHI_PIPELINE_BIND_POINT_GRAPHICS,
-                                        mRenderPipelines[0].layout,
-                                        0,
-                                        1,
-                                        &mDescInfos[0].descriptor_set,
-                                        0,
-                                        NULL);
+        mRHI->CmdBindDescriptorSetsPFN(
+            mRHI->GetCurrentCommandBuffer(),
+            RHI_PIPELINE_BIND_POINT_GRAPHICS,
+            mRenderPipelines[0].layout,
+            0,
+            1,
+            &mDescInfos[0].descriptorSet,
+            0,
+            nullptr);
 
         mRHI->CmdDraw(mRHI->GetCurrentCommandBuffer(), 3, 1, 0, 0);
 
@@ -63,8 +64,8 @@ namespace MiniEngine
         RHIWriteDescriptorSet& post_process_descriptor_input_attachment_write_info =
             post_process_descriptor_writes_info[0];
         post_process_descriptor_input_attachment_write_info.sType           = RHI_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        post_process_descriptor_input_attachment_write_info.pNext           = NULL;
-        post_process_descriptor_input_attachment_write_info.dstSet          = mDescInfos[0].descriptor_set;
+        post_process_descriptor_input_attachment_write_info.pNext           = nullptr;
+        post_process_descriptor_input_attachment_write_info.dstSet          = mDescInfos[0].descriptorSet;
         post_process_descriptor_input_attachment_write_info.dstBinding      = 0;
         post_process_descriptor_input_attachment_write_info.dstArrayElement = 0;
         post_process_descriptor_input_attachment_write_info.descriptorType  = RHI_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
@@ -73,8 +74,8 @@ namespace MiniEngine
 
         RHIWriteDescriptorSet& post_process_descriptor_LUT_write_info = post_process_descriptor_writes_info[1];
         post_process_descriptor_LUT_write_info.sType                 = RHI_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        post_process_descriptor_LUT_write_info.pNext                 = NULL;
-        post_process_descriptor_LUT_write_info.dstSet                = mDescInfos[0].descriptor_set;
+        post_process_descriptor_LUT_write_info.pNext                 = nullptr;
+        post_process_descriptor_LUT_write_info.dstSet                = mDescInfos[0].descriptorSet;
         post_process_descriptor_LUT_write_info.dstBinding            = 1;
         post_process_descriptor_LUT_write_info.dstArrayElement       = 0;
         post_process_descriptor_LUT_write_info.descriptorType        = RHI_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -85,7 +86,7 @@ namespace MiniEngine
                                     sizeof(post_process_descriptor_writes_info[0]),
                                     post_process_descriptor_writes_info,
                                     0,
-                                    NULL);
+                                    nullptr);
     }
 
     void ColorGradientPass::setupDescriptorSetLayout()
@@ -109,7 +110,7 @@ namespace MiniEngine
 
         RHIDescriptorSetLayoutCreateInfo post_process_global_layout_create_info;
         post_process_global_layout_create_info.sType = RHI_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        post_process_global_layout_create_info.pNext = NULL;
+        post_process_global_layout_create_info.pNext = nullptr;
         post_process_global_layout_create_info.flags = 0;
         post_process_global_layout_create_info.bindingCount =
             sizeof(post_process_global_layout_bindings) / sizeof(post_process_global_layout_bindings[0]);
@@ -157,9 +158,9 @@ namespace MiniEngine
         RHIPipelineVertexInputStateCreateInfo vertex_input_state_create_info {};
         vertex_input_state_create_info.sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertex_input_state_create_info.vertexBindingDescriptionCount   = 0;
-        vertex_input_state_create_info.pVertexBindingDescriptions      = NULL;
+        vertex_input_state_create_info.pVertexBindingDescriptions      = nullptr;
         vertex_input_state_create_info.vertexAttributeDescriptionCount = 0;
-        vertex_input_state_create_info.pVertexAttributeDescriptions    = NULL;
+        vertex_input_state_create_info.pVertexAttributeDescriptions    = nullptr;
 
         RHIPipelineInputAssemblyStateCreateInfo input_assembly_create_info {};
         input_assembly_create_info.sType                  = RHI_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -240,7 +241,7 @@ namespace MiniEngine
         pipelineInfo.pColorBlendState    = &color_blend_state_create_info;
         pipelineInfo.pDepthStencilState  = &depth_stencil_create_info;
         pipelineInfo.layout              = mRenderPipelines[0].layout;
-        pipelineInfo.renderPass          = mFrameBuffer.render_pass;
+        pipelineInfo.renderPass          = mFrameBuffer.renderPass;
         pipelineInfo.subpass             = MAIN_CAMERA_SUBPASS_COLOR_GRADIENT;
         pipelineInfo.basePipelineHandle  = RHI_NULL_HANDLE;
         pipelineInfo.pDynamicState       = &dynamic_state_create_info;
@@ -258,12 +259,12 @@ namespace MiniEngine
     {
         RHIDescriptorSetAllocateInfo post_process_global_descriptor_set_alloc_info;
         post_process_global_descriptor_set_alloc_info.sType          = RHI_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        post_process_global_descriptor_set_alloc_info.pNext          = NULL;
+        post_process_global_descriptor_set_alloc_info.pNext          = nullptr;
         post_process_global_descriptor_set_alloc_info.descriptorPool = mRHI->GetDescriptorPool();
         post_process_global_descriptor_set_alloc_info.descriptorSetCount = 1;
         post_process_global_descriptor_set_alloc_info.pSetLayouts        = &mDescInfos[0].layout;
 
-        if (RHI_SUCCESS != mRHI->AllocateDescriptorSets(&post_process_global_descriptor_set_alloc_info, mDescInfos[0].descriptor_set))
+        if (RHI_SUCCESS != mRHI->AllocateDescriptorSets(&post_process_global_descriptor_set_alloc_info, mDescInfos[0].descriptorSet))
         {
             throw std::runtime_error("allocate post process global descriptor set");
         }

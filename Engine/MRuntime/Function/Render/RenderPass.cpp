@@ -16,7 +16,7 @@ namespace MiniEngine
 
     void RenderPass::PostInitialize() {}
 
-    RHIRenderPass* RenderPass::GetRenderPass() const { return mFrameBuffer.render_pass; }
+    RHIRenderPass* RenderPass::GetRenderPass() const { return mFrameBuffer.renderPass; }
 
     std::vector<RHIImageView*> RenderPass::GetFramebufferImageViews() const
     {

@@ -67,8 +67,8 @@ namespace MiniEngine
         void setupDescriptorSetLayout();
         void setupPipelines();
         void setupDescriptorSet();
-        void setupFramebufferDescriptorSet();
-        void setupSwapchainFramebuffers();
+        void setupFrameBufferDescriptorSet();
+        void setupSwapChainFrameBuffers();
 
         void setupModelGlobalDescriptorSet();
         void setupSkyboxDescriptorSet();

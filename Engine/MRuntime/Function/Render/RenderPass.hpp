@@ -66,7 +66,7 @@ namespace MiniEngine
             int           width;
             int           height;
             RHIFrameBuffer* framebuffer;
-            RHIRenderPass*  render_pass;
+            RHIRenderPass*  renderPass;
 
             std::vector<FrameBufferAttachment> attachments;
         };
@@ -74,7 +74,7 @@ namespace MiniEngine
         struct Descriptor
         {
             RHIDescriptorSetLayout* layout;
-            RHIDescriptorSet*       descriptor_set;
+            RHIDescriptorSet*       descriptorSet;
         };
 
         struct RenderPipelineBase

@@ -154,7 +154,7 @@ namespace MiniEngine
     ////////////////////struct declaration////////////////////////
     struct RHIMemoryBarrier
     {
-        RHIStructureType sType;
+        RHIStructureType sType = RHI_STRUCTURE_TYPE_MEMORY_BARRIER;
         const void*      pNext;
         RHIAccessFlags   srcAccessMask;
         RHIAccessFlags   dstAccessMask;
@@ -162,7 +162,7 @@ namespace MiniEngine
 
     struct RHICopyDescriptorSet
     {
-        RHIStructureType  sType;
+        RHIStructureType  sType = RHI_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET;
         const void*       pNext;
         RHIDescriptorSet* srcSet;
         uint32_t          srcBinding;
@@ -202,7 +202,7 @@ namespace MiniEngine
 
     struct RHIBufferMemoryBarrier
     {
-        RHIStructureType sType;
+        RHIStructureType sType = RHI_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
         const void*      pNext;
         RHIAccessFlags   srcAccessMask;
         RHIAccessFlags   dstAccessMask;
@@ -224,7 +224,7 @@ namespace MiniEngine
 
     struct RHIImageMemoryBarrier
     {
-        RHIStructureType         sType;
+        RHIStructureType         sType = RHI_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
         const void*              pNext;
         RHIAccessFlags           srcAccessMask;
         RHIAccessFlags           dstAccessMask;
@@ -251,7 +251,7 @@ namespace MiniEngine
 
     struct RHIApplicationInfo
     {
-        RHIStructureType sType;
+        RHIStructureType sType = RHI_STRUCTURE_TYPE_APPLICATION_INFO;
         const void*      pNext;
         const char*      pApplicationName;
         uint32_t         applicationVersion;
@@ -282,7 +282,7 @@ namespace MiniEngine
 
     struct RHIBufferCreateInfo
     {
-        RHIStructureType     sType;
+        RHIStructureType     sType = RHI_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         const void*          pNext;
         RHIBufferCreateFlags flags;
         RHIDeviceSize        size;
@@ -319,7 +319,7 @@ namespace MiniEngine
 
     struct RHICommandBufferAllocateInfo
     {
-        RHIStructureType      sType;
+        RHIStructureType      sType = RHI_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         const void*           pNext;
         RHICommandPool*       commandPool;
         RHICommandBufferLevel level;
@@ -328,7 +328,7 @@ namespace MiniEngine
 
     struct RHICommandBufferBeginInfo
     {
-        RHIStructureType                       sType;
+        RHIStructureType                       sType = RHI_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         const void*                            pNext;
         RHICommandBufferUsageFlags             flags;
         const RHICommandBufferInheritanceInfo* pInheritanceInfo;
@@ -336,7 +336,7 @@ namespace MiniEngine
 
     struct RHICommandBufferInheritanceInfo
     {
-        RHIStructureType               sType;
+        RHIStructureType               sType = RHI_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
         const void*                    pNext;
         RHIRenderPass*                 renderPass;
         uint32_t                       subpass;
@@ -348,7 +348,7 @@ namespace MiniEngine
 
     struct RHICommandPoolCreateInfo
     {
-        RHIStructureType          sType;
+        RHIStructureType          sType = RHI_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         const void*               pNext;
         RHICommandPoolCreateFlags flags;
         uint32_t                  queueFamilyIndex;
@@ -362,7 +362,7 @@ namespace MiniEngine
 
     struct RHIDescriptorPoolCreateInfo
     {
-        RHIStructureType             sType;
+        RHIStructureType             sType = RHI_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         const void*                  pNext;
         RHIDescriptorPoolCreateFlags flags;
         uint32_t                     maxSets;
@@ -372,7 +372,7 @@ namespace MiniEngine
 
     struct RHIDescriptorSetAllocateInfo
     {
-        RHIStructureType                     sType;
+        RHIStructureType                     sType = RHI_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         const void*                          pNext;
         RHIDescriptorPool*                   descriptorPool;
         uint32_t                             descriptorSetCount;
@@ -390,7 +390,7 @@ namespace MiniEngine
 
     struct RHIDescriptorSetLayoutCreateInfo
     {
-        RHIStructureType                     sType;
+        RHIStructureType                     sType = RHI_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         const void*                          pNext;
         RHIDescriptorSetLayoutCreateFlags    flags;
         uint32_t                             bindingCount;
@@ -399,7 +399,7 @@ namespace MiniEngine
 
     struct RHIDeviceCreateInfo
     {
-        RHIStructureType                  sType;
+        RHIStructureType                  sType = RHI_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         const void*                       pNext;
         RHIDeviceCreateFlags              flags;
         uint32_t                          queueCreateInfoCount;
@@ -413,7 +413,7 @@ namespace MiniEngine
 
     struct RHIDeviceQueueCreateInfo
     {
-        RHIStructureType          sType;
+        RHIStructureType          sType = RHI_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         const void*               pNext;
         RHIDeviceQueueCreateFlags flags;
         uint32_t                  queueFamilyIndex;
@@ -429,7 +429,7 @@ namespace MiniEngine
 
     struct RHIFenceCreateInfo
     {
-        RHIStructureType    sType;
+        RHIStructureType    sType = RHI_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         const void*         pNext;
         RHIFenceCreateFlags flags;
     };
@@ -443,7 +443,7 @@ namespace MiniEngine
 
     struct RHIFramebufferCreateInfo
     {
-        RHIStructureType          sType;
+        RHIStructureType          sType = RHI_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         const void*               pNext;
         RHIFramebufferCreateFlags flags;
         RHIRenderPass*            renderPass;
@@ -456,7 +456,7 @@ namespace MiniEngine
 
     struct RHIGraphicsPipelineCreateInfo
     {
-        RHIStructureType                               sType;
+        RHIStructureType                               sType = RHI_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         const void*                                    pNext;
         RHIPipelineCreateFlags                         flags;
         uint32_t                                       stageCount;
@@ -479,7 +479,7 @@ namespace MiniEngine
 
     struct RHIComputePipelineCreateInfo
     {
-        RHIStructureType                  sType;
+        RHIStructureType                  sType = RHI_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
         const void*                       pNext;
         RHIPipelineCreateFlags            flags;
         RHIPipelineShaderStageCreateInfo* pStages;
@@ -498,7 +498,7 @@ namespace MiniEngine
 
     struct RHIImageCreateInfo
     {
-        RHIStructureType       sType;
+        RHIStructureType       sType = RHI_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         const void*            pNext;
         RHIImageCreateFlags    flags;
         RHIImageType           imageType;
@@ -534,7 +534,7 @@ namespace MiniEngine
 
     struct RHIImageViewCreateInfo
     {
-        RHIStructureType         sType;
+        RHIStructureType         sType = RHI_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         const void*              pNext;
         RHIImageViewCreateFlags  flags;
         RHIImage*                image;
@@ -546,7 +546,7 @@ namespace MiniEngine
 
     struct RHIInstanceCreateInfo
     {
-        RHIStructureType           sType;
+        RHIStructureType           sType = RHI_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         const void*                pNext;
         RHIInstanceCreateFlags     flags;
         const RHIApplicationInfo** pApplicationInfo;
@@ -566,7 +566,7 @@ namespace MiniEngine
 
     struct RHIMemoryAllocateInfo
     {
-        RHIStructureType sType;
+        RHIStructureType sType = RHI_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         const void*      pNext;
         RHIDeviceSize    allocationSize;
         uint32_t         memoryTypeIndex;
@@ -792,7 +792,7 @@ namespace MiniEngine
 
     struct RHIPipelineColorBlendStateCreateInfo
     {
-        RHIStructureType                            sType;
+        RHIStructureType                            sType = RHI_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         const void*                                 pNext;
         RHIPipelineColorBlendStateCreateFlags       flags;
         RHIBool32                                   logicOpEnable;
@@ -815,7 +815,7 @@ namespace MiniEngine
 
     struct RHIPipelineDepthStencilStateCreateInfo
     {
-        RHIStructureType                        sType;
+        RHIStructureType                        sType = RHI_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         const void*                             pNext;
         RHIPipelineDepthStencilStateCreateFlags flags;
         RHIBool32                               depthTestEnable;
@@ -831,7 +831,7 @@ namespace MiniEngine
 
     struct RHIPipelineDynamicStateCreateInfo
     {
-        RHIStructureType                   sType;
+        RHIStructureType                   sType = RHI_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         const void*                        pNext;
         RHIPipelineDynamicStateCreateFlags flags;
         uint32_t                           dynamicStateCount;
@@ -840,7 +840,7 @@ namespace MiniEngine
 
     struct RHIPipelineInputAssemblyStateCreateInfo
     {
-        RHIStructureType                         sType;
+        RHIStructureType                         sType = RHI_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         const void*                              pNext;
         RHIPipelineInputAssemblyStateCreateFlags flags;
         RHIPrimitiveTopology                     topology;
@@ -849,7 +849,7 @@ namespace MiniEngine
 
     struct RHIPipelineLayoutCreateInfo
     {
-        RHIStructureType               sType;
+        RHIStructureType               sType = RHI_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         const void*                    pNext;
         RHIPipelineLayoutCreateFlags   flags;
         uint32_t                       setLayoutCount;
@@ -860,7 +860,7 @@ namespace MiniEngine
 
     struct RHIPipelineMultisampleStateCreateInfo
     {
-        RHIStructureType                       sType;
+        RHIStructureType                       sType = RHI_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
         const void*                            pNext;
         RHIPipelineMultisampleStateCreateFlags flags;
         RHISampleCountFlagBits                 rasterizationSamples;
@@ -873,7 +873,7 @@ namespace MiniEngine
 
     struct RHIPipelineRasterizationStateCreateInfo
     {
-        RHIStructureType                         sType;
+        RHIStructureType                         sType = RHI_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         const void*                              pNext;
         RHIPipelineRasterizationStateCreateFlags flags;
         RHIBool32                                depthClampEnable;
@@ -890,7 +890,7 @@ namespace MiniEngine
 
     struct RHIPipelineShaderStageCreateInfo
     {
-        RHIStructureType                  sType;
+        RHIStructureType                  sType = RHI_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         const void*                       pNext;
         RHIPipelineShaderStageCreateFlags flags;
         RHIShaderStageFlagBits            stage;
@@ -901,7 +901,7 @@ namespace MiniEngine
 
     struct RHIPipelineTessellationStateCreateInfo
     {
-        RHIStructureType                        sType;
+        RHIStructureType                        sType = RHI_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
         const void*                             pNext;
         RHIPipelineTessellationStateCreateFlags flags;
         uint32_t                                patchControlPoints;
@@ -909,7 +909,7 @@ namespace MiniEngine
 
     struct RHIPipelineVertexInputStateCreateInfo
     {
-        RHIStructureType                          sType;
+        RHIStructureType                          sType = RHI_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         const void*                               pNext;
         RHIPipelineVertexInputStateCreateFlags    flags;
         uint32_t                                  vertexBindingDescriptionCount;
@@ -920,7 +920,7 @@ namespace MiniEngine
 
     struct RHIPipelineViewportStateCreateInfo
     {
-        RHIStructureType                    sType;
+        RHIStructureType                    sType = RHI_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
         const void*                         pNext;
         RHIPipelineViewportStateCreateFlags flags;
         uint32_t                            viewportCount;
@@ -946,7 +946,7 @@ namespace MiniEngine
 
     struct RHIRenderPassCreateInfo
     {
-        RHIStructureType                sType;
+        RHIStructureType                sType = RHI_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
         const void*                     pNext;
         RHIRenderPassCreateFlags        flags;
         uint32_t                        attachmentCount;
@@ -959,7 +959,7 @@ namespace MiniEngine
 
     struct RHISamplerCreateInfo
     {
-        RHIStructureType      sType;
+        RHIStructureType      sType = RHI_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
         const void*           pNext;
         RHISamplerCreateFlags flags;
         RHIFilter             magFilter;
@@ -981,14 +981,14 @@ namespace MiniEngine
 
     struct RHISemaphoreCreateInfo
     {
-        RHIStructureType        sType;
+        RHIStructureType        sType = RHI_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
         const void*             pNext;
         RHISemaphoreCreateFlags flags;
     };
 
     struct RHIShaderModuleCreateInfo
     {
-        RHIStructureType           sType;
+        RHIStructureType           sType = RHI_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         const void*                pNext;
         RHIShaderModuleCreateFlags flags;
         size_t                     codeSize;
@@ -997,7 +997,7 @@ namespace MiniEngine
 
     struct RHISubmitInfo
     {
-        RHIStructureType             sType;
+        RHIStructureType             sType = RHI_STRUCTURE_TYPE_SUBMIT_INFO;
         const void*                  pNext;
         uint32_t                     waitSemaphoreCount;
         RHISemaphore**               pWaitSemaphores;
@@ -1035,7 +1035,7 @@ namespace MiniEngine
 
     struct RHIWriteDescriptorSet
     {
-        RHIStructureType         sType;
+        RHIStructureType         sType = RHI_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         const void*              pNext;
         RHIDescriptorSet*        dstSet;
         uint32_t                 dstBinding;
@@ -1106,7 +1106,7 @@ namespace MiniEngine
 
     struct RHIRenderPassBeginInfo
     {
-        RHIStructureType     sType;
+        RHIStructureType     sType = RHI_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         const void*          pNext;
         RHIRenderPass*       renderPass;
         RHIFrameBuffer*      framebuffer;
