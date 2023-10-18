@@ -42,7 +42,7 @@ namespace MiniEngine
 
         void Initialize(const RenderPassInitInfo* initInfo) override final;
         void PreparePassData(std::shared_ptr<RenderResourceBase> render_resource) override final;
-        void Draw(
+        void DrawDeferred(
             ColorGradientPass& colorGradientPass,
             ToneMappingPass& toneMappingPass,
             UIPass& uiPass,
