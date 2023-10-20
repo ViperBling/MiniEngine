@@ -2053,58 +2053,6 @@ namespace MiniEngine
             vk_clear_rect_list.data());
     }
 
-    bool VulkanRHI::BeginCommandBuffer(RHICommandBuffer* commandBuffer, const RHICommandBufferBeginInfo* pBeginInfo)
-    {
-        VkCommandBufferInheritanceInfo command_buffer_inheritance_info{};
-        const VkCommandBufferInheritanceInfo* command_buffer_inheritance_info_ptr = nullptr;
-        if (pBeginInfo->pInheritanceInfo != nullptr)
-        {
-            command_buffer_inheritance_info.sType = (VkStructureType)(pBeginInfo->pInheritanceInfo->sType);
-            command_buffer_inheritance_info.pNext = (const void*)pBeginInfo->pInheritanceInfo->pNext;
-            command_buffer_inheritance_info.renderPass = ((VulkanRenderPass*)pBeginInfo->pInheritanceInfo->renderPass)->GetResource();
-            command_buffer_inheritance_info.subpass = pBeginInfo->pInheritanceInfo->subpass;
-            command_buffer_inheritance_info.framebuffer = ((VulkanFrameBuffer*)(pBeginInfo->pInheritanceInfo->framebuffer))->GetResource();
-            command_buffer_inheritance_info.occlusionQueryEnable = (VkBool32)pBeginInfo->pInheritanceInfo->occlusionQueryEnable;
-            command_buffer_inheritance_info.queryFlags = (VkQueryControlFlags)pBeginInfo->pInheritanceInfo->queryFlags;
-            command_buffer_inheritance_info.pipelineStatistics = (VkQueryPipelineStatisticFlags)pBeginInfo->pInheritanceInfo->pipelineStatistics;
-
-            command_buffer_inheritance_info_ptr = &command_buffer_inheritance_info;
-        }
-
-        VkCommandBufferBeginInfo command_buffer_begin_info{};
-        command_buffer_begin_info.sType = (VkStructureType)pBeginInfo->sType;
-        command_buffer_begin_info.pNext = (const void*)pBeginInfo->pNext;
-        command_buffer_begin_info.flags = (VkCommandBufferUsageFlags)pBeginInfo->flags;
-        command_buffer_begin_info.pInheritanceInfo = command_buffer_inheritance_info_ptr;
-
-        VkResult result = vkBeginCommandBuffer(((VulkanCommandBuffer*)commandBuffer)->GetResource(), &command_buffer_begin_info);
-
-        if (result == VK_SUCCESS)
-        {
-            return true;
-        }
-        else
-        {
-            LOG_ERROR("vkBeginCommandBuffer failed!");
-            return false;
-        }
-    }
-
-    bool VulkanRHI::EndCommandBuffer(RHICommandBuffer* commandBuffer)
-    {
-        VkResult result = vkEndCommandBuffer(((VulkanCommandBuffer*)commandBuffer)->GetResource());
-
-        if (result == VK_SUCCESS)
-        {
-            return true;
-        }
-        else
-        {
-            LOG_ERROR("vkEndCommandBuffer failed!");
-            return false;
-        }
-    }
-
     void VulkanRHI::UpdateDescriptorSets(
         uint32_t descriptorWriteCount,
         const RHIWriteDescriptorSet* pDescriptorWrites,
