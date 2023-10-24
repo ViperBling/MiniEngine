@@ -1,0 +1,67 @@
+{
+    "SkyIrradianceMap" : {
+        "NegativeXMap": "Assets/Textures/Sky/skybox_irradiance_X-.hdr",
+        "PositiveXMap": "Assets/Textures/Sky/skybox_irradiance_X+.hdr",
+        "NegativeYMap": "Assets/Textures/Sky/skybox_irradiance_Y-.hdr",
+        "PositiveYMap": "Assets/Textures/Sky/skybox_irradiance_Y+.hdr",
+        "NegativeZMap": "Assets/Textures/Sky/skybox_irradiance_Z-.hdr",
+        "PositiveZMap": "Assets/Textures/Sky/skybox_irradiance_Z+.hdr"
+    },
+    "SkyboxSpecularMap": {
+        "NegativeXMap": "Assets/Textures/Sky/skybox_specular_X-.hdr",
+        "PositiveXMap": "Assets/Textures/Sky/skybox_specular_X+.hdr",
+        "NegativeYMap": "Assets/Textures/Sky/skybox_specular_Y-.hdr",
+        "PositiveYMap": "Assets/Textures/Sky/skybox_specular_Y+.hdr",
+        "NegativeZMap": "Assets/Textures/Sky/skybox_specular_Z-.hdr",
+        "PositiveZMap": "Assets/Textures/Sky/skybox_specular_Z+.hdr"
+    },
+    "BrdfMap": "Assets/Textures/Global/brdf_schilk.hdr",
+    "color_grading_map": "Assets/Textures/Lut/color_grading_lut_01.png",
+    "sky_color": {
+        "r": 0.53,
+        "g": 0.81,
+        "b": 0.98
+    },
+    "ambient_light": {
+        "r": 0.03,
+        "g": 0.03,
+        "b": 0.03
+    },
+    "camera_config": {
+        "pose": {
+            "position": {
+                "x": -5.0,
+                "y": 0.0,
+                "z": 3.0
+            },
+            "target": {
+                "x": -4.0,
+                "y": 0.0,
+                "z": 3.0
+            },
+            "up": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            }
+        },
+        "z_far": 1000.0,
+        "z_near": 0.1,
+        "aspect": {
+            "x": 1280.0,
+            "y": 768.0
+        }
+    },
+    "directional_light": {
+      "direction": {
+            "x": 0.5,
+            "y": -0.5,
+            "z": 0.5
+      },
+      "color": {
+            "r": 1.0,
+            "g": 1.0,
+            "b": 1.0
+      }
+    }
+}
