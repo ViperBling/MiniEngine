@@ -18,10 +18,10 @@ namespace MiniEngine
         mDirectionalLightPass  = std::make_shared<DirectionalLightShadowPass>();
         mMainCameraPass        = std::make_shared<MainCameraPass>();
         mToneMappingPass       = std::make_shared<ToneMappingPass>();
-        mColorGradientPass      = std::make_shared<ColorGradientPass>();
-        mUIPass                 = std::make_shared<UIPass>();
+        mColorGradientPass     = std::make_shared<ColorGradientPass>();
+        mUIPass                = std::make_shared<UIPass>();
         mCombineUIPass         = std::make_shared<CombineUIPass>();
-        mPickPass               = std::make_shared<PickPass>();
+        mPickPass              = std::make_shared<PickPass>();
 
         RenderPassCommonInfo pass_common_info;
         pass_common_info.mRHI             = mRHI;
@@ -40,8 +40,8 @@ namespace MiniEngine
         std::shared_ptr<MainCameraPass> main_camera_pass = std::static_pointer_cast<MainCameraPass>(mMainCameraPass);
         std::shared_ptr<RenderPass>     _main_camera_pass = std::static_pointer_cast<RenderPass>(mMainCameraPass);
 
-        main_camera_pass->mDirectionalLightShadowColorImageView =
-            std::static_pointer_cast<RenderPass>(mDirectionalLightPass)->mFrameBuffer.attachments[0].view;
+        // main_camera_pass->mDirectionalLightShadowColorImageView =
+        //     std::static_pointer_cast<RenderPass>(mDirectionalLightPass)->mFrameBuffer.attachments[0].view;
 
         MainCameraPassInitInfo main_camera_init_info;
         main_camera_init_info.mbEnableFXAA = init_info.mbEnableFXAA;

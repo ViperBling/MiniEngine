@@ -36,13 +36,13 @@ namespace MiniEngine
         WindowCreateInfo window_create_info;
         mWindowSystem->Initialize(window_create_info);
 
-        mDebugDrawManager = std::make_shared<DebugDrawManager>();
-        mDebugDrawManager->Initialize();
-
         mRenderSystem = std::make_shared<RenderSystem>();
         RenderSystemInitInfo render_init_info;
         render_init_info.mWindowSystem = mWindowSystem;
         mRenderSystem->Initialize(render_init_info);
+
+        mDebugDrawManager = std::make_shared<DebugDrawManager>();
+        mDebugDrawManager->Initialize();
 
         mInputSystem = std::make_shared<InputSystem>();
         mInputSystem->Initialize();
